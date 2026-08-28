@@ -159,8 +159,8 @@ export async function submitBrief(
     })
 
     if (error) {
-      console.log("[v0] Resend send error:", error)
-      return { ok: false, error: "We couldn't send your brief. Please try again." }
+      console.log("[v0] Resend send error:", JSON.stringify(error))
+      return { ok: false, error: `We couldn't send your brief. Please try again. [${error.name}: ${error.message}]` }
     }
 
     return { ok: true }
