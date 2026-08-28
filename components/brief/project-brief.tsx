@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { submitBrief } from "@/app/actions/submit-brief"
 import { BUDGET_TIERS, INITIAL_FORM, SECTIONS, type BriefForm } from "./data"
 import { CheckGroup, RadioGroup, SectionLabel, TextArea, TextField } from "./fields"
 
@@ -16,6 +17,8 @@ const AGREEMENTS: { key: "depositAck" | "revisionAck" | "responseAck"; text: str
 export function ProjectBrief() {
   const [step, setStep] = useState(0)
   const [submitted, setSubmitted] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [form, setForm] = useState<BriefForm>(INITIAL_FORM)
 
   const set =
@@ -28,6 +31,19 @@ export function ProjectBrief() {
 
   const progress = (step / (SECTIONS.length - 1)) * 100
   const agreementsDone = form.depositAck && form.revisionAck && form.responseAck
+
+  const handleSubmit = async () => {
+    if (!agreementsDone || sending) return
+    setSending(true)
+    setError(null)
+    const result = await submitBrief(form)
+    setSending(false)
+    if (result.ok) {
+      setSubmitted(true)
+    } else {
+      setError(result.error)
+    }
+  }
 
   const canNext = () => {
     if (step === 0)
@@ -280,14 +296,20 @@ export function ProjectBrief() {
           ) : (
             <button
               type="button"
-              onClick={() => agreementsDone && setSubmitted(true)}
-              disabled={!agreementsDone}
+              onClick={handleSubmit}
+              disabled={!agreementsDone || sending}
               className="rounded-md bg-brand px-6 py-2.5 font-sans text-[13px] font-semibold text-primary-foreground transition-colors disabled:cursor-default disabled:bg-input"
             >
-              Submit Brief
+              {sending ? "Sending…" : "Submit Brief"}
             </button>
           )}
         </div>
+
+        {error && step === SECTIONS.length - 1 && (
+          <p role="alert" className="mt-3 text-right font-sans text-[12px] text-brand">
+            {error}
+          </p>
+        )}
       </div>
 
       {/* Footer */}
