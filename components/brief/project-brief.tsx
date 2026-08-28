@@ -68,7 +68,7 @@ export function ProjectBrief() {
           <p className="mb-6 font-sans text-sm leading-relaxed text-muted-foreground">
             Thanks for reaching out. Expect to hear from us within 24–48 hours.
           </p>
-          <p className="font-sans text-[13px] font-semibold text-brand">@njengaproductions · 717-420-0506</p>
+          <p className="font-sans text-[13px] font-semibold text-brand">@njengaproductions</p>
         </div>
       </main>
     )
@@ -316,7 +316,7 @@ export function ProjectBrief() {
       <footer className="border-t border-hairline bg-surface px-6 py-5 text-center">
         <p className="mb-1 font-serif text-xs font-bold text-brand">NJENGA Productions Co.</p>
         <p className="m-0 font-sans text-[11px] text-muted-foreground/70">
-          Pittsburgh · 717-420-0506 · @njengaproductions
+          Pittsburgh · @njengaproductions
         </p>
       </footer>
     </main>
