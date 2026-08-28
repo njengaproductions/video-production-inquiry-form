@@ -68,7 +68,7 @@ export function ProjectBrief() {
           <p className="mb-6 font-sans text-sm leading-relaxed text-muted-foreground">
             Thanks for reaching out. Expect to hear from us within 24–48 hours.
           </p>
-          <p className="font-sans text-[13px] font-semibold text-brand">@njengaproductions</p>
+          <p className="font-serif text-[15px] italic text-brand">Content that builds brands.</p>
         </div>
       </main>
     )
