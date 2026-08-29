@@ -29,9 +29,10 @@ type InputProps = {
   value: string
   onChange: (value: string) => void
   type?: string
+  error?: string
 }
 
-export function TextField({ label, required, placeholder, value, onChange, type = "text" }: InputProps) {
+export function TextField({ label, required, placeholder, value, onChange, type = "text", error }: InputProps) {
   return (
     <label className="mb-[18px] block">
       <Label required={required}>{label}</Label>
@@ -40,8 +41,10 @@ export function TextField({ label, required, placeholder, value, onChange, type 
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className={controlClass}
+        aria-invalid={error ? true : undefined}
+        className={`${controlClass} ${error ? "border-brand ring-2 ring-brand/15" : ""}`}
       />
+      {error && <span className="mt-1.5 block font-sans text-[12px] text-brand">{error}</span>}
     </label>
   )
 }

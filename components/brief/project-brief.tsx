@@ -32,6 +32,9 @@ export function ProjectBrief() {
   const progress = (step / (SECTIONS.length - 1)) * 100
   const agreementsDone = form.depositAck && form.revisionAck && form.responseAck
 
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())
+  const emailError = form.email.trim().length > 0 && !emailValid ? "Please enter a valid email address." : undefined
+
   const handleSubmit = async () => {
     if (!agreementsDone || sending) return
     setSending(true)
@@ -48,7 +51,7 @@ export function ProjectBrief() {
   const canNext = () => {
     if (step === 0)
       return Boolean(
-        form.fullName && form.email && form.phone && form.contactMethod && form.heardFrom && form.decisionMaker,
+        form.fullName && emailValid && form.phone && form.contactMethod && form.heardFrom && form.decisionMaker,
       )
     if (step === 1) return Boolean(form.serviceType && form.projectType.length > 0 && form.projectDesc)
     if (step === 2) return Boolean(form.budgetTier)
@@ -122,7 +125,7 @@ export function ProjectBrief() {
           <section>
             <SectionLabel>Section 1 — Tell Us About Yourself</SectionLabel>
             <TextField label="Full Name" required placeholder="Your full name" value={form.fullName} onChange={set("fullName")} />
-            <TextField label="Email Address" required type="email" placeholder="your@email.com" value={form.email} onChange={set("email")} />
+            <TextField label="Email Address" required type="email" placeholder="your@email.com" value={form.email} onChange={set("email")} error={emailError} />
             <TextField label="Phone Number" required type="tel" placeholder="(000) 000-0000" value={form.phone} onChange={set("phone")} />
             <RadioGroup label="Preferred Contact Method" required options={["Email", "Phone Call", "Text"]} value={form.contactMethod} onChange={set("contactMethod")} />
             <RadioGroup label="How did you hear about us?" required options={["Instagram", "Referral", "Google", "Other"]} value={form.heardFrom} onChange={set("heardFrom")} />
