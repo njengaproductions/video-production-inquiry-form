@@ -159,8 +159,9 @@ export async function submitBrief(
     })
 
     if (error) {
+      const detail = (error as any)?.message || (error as any)?.name || "Unknown error"
       console.log("[v0] Resend send error:", JSON.stringify(error))
-      return { ok: false, error: "We couldn't send your brief. Please try again." }
+      return { ok: false, error: `Email could not be sent — ${detail}` }
     }
 
     return { ok: true }
