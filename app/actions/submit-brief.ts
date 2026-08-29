@@ -148,20 +148,24 @@ export async function submitBrief(
   const resend = new Resend(apiKey)
   const from = "NJENGA Brief <onboarding@resend.dev>"
 
+  // Only use the client's email as reply-to if it is a valid address,
+  // otherwise Resend rejects the entire send.
+  const clientEmail = form.email.trim()
+  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clientEmail)
+
   try {
     const { error } = await resend.emails.send({
       from,
       to: TO_EMAIL,
-      replyTo: form.email.trim(),
+      ...(isValidEmail ? { replyTo: clientEmail } : {}),
       subject: `New Project Brief — ${form.fullName.trim()}${form.budgetTier ? ` (${form.budgetTier})` : ""}`,
       html: buildHtml(form),
       text: buildText(form),
     })
 
     if (error) {
-      const detail = (error as any)?.message || (error as any)?.name || "Unknown error"
       console.log("[v0] Resend send error:", JSON.stringify(error))
-      return { ok: false, error: `Email could not be sent — ${detail}` }
+      return { ok: false, error: "We couldn't send your brief. Please try again." }
     }
 
     return { ok: true }
