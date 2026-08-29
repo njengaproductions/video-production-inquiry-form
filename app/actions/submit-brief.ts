@@ -146,7 +146,7 @@ export async function submitBrief(
   }
 
   const resend = new Resend(apiKey)
-  const from = process.env.BRIEF_FROM_EMAIL || "NJENGA Brief <onboarding@resend.dev>"
+  const from = "NJENGA Brief <onboarding@resend.dev>"
 
   try {
     const { error } = await resend.emails.send({
@@ -160,7 +160,7 @@ export async function submitBrief(
 
     if (error) {
       console.log("[v0] Resend send error:", JSON.stringify(error))
-      return { ok: false, error: `We couldn't send your brief. Please try again. [${error.name}: ${error.message}]` }
+      return { ok: false, error: "We couldn't send your brief. Please try again." }
     }
 
     return { ok: true }
