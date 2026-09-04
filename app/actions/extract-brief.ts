@@ -81,7 +81,7 @@ export async function extractBrief(
     }
 
     const { output } = await generateText({
-      model: "anthropic/claude-sonnet-4.5",
+      model: "google/gemini-2.5-flash",
       output: Output.object({ schema: ExtractionSchema }),
       messages: [
         {
