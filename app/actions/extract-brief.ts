@@ -1,7 +1,6 @@
 "use server"
 
 import { generateText, Output } from "ai"
-import { anthropic } from "@ai-sdk/anthropic"
 import { z } from "zod"
 import mammoth from "mammoth"
 
@@ -82,7 +81,7 @@ export async function extractBrief(
     }
 
     const { output } = await generateText({
-      model: anthropic("claude-sonnet-4-5"),
+      model: "anthropic/claude-sonnet-4.5",
       output: Output.object({ schema: ExtractionSchema }),
       messages: [
         {
