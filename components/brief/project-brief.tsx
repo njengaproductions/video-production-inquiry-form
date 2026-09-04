@@ -2,8 +2,10 @@
 
 import { useState } from "react"
 import { submitBrief } from "@/app/actions/submit-brief"
+import type { ExtractedBrief } from "@/app/actions/extract-brief"
 import { BUDGET_TIERS, INITIAL_FORM, SECTIONS, type BriefForm } from "./data"
 import { CheckGroup, RadioGroup, SectionLabel, TextArea, TextField } from "./fields"
+import { ScopeUpload } from "./scope-upload"
 
 const AGREEMENTS: { key: "depositAck" | "revisionAck" | "responseAck"; text: string }[] = [
   { key: "depositAck", text: "I understand a deposit is required to secure my project date." },
@@ -28,6 +30,25 @@ export function ProjectBrief() {
 
   const toggleAck = (key: (typeof AGREEMENTS)[number]["key"]) =>
     setForm((f) => ({ ...f, [key]: !f[key] }))
+
+  const applyExtracted = (data: ExtractedBrief) => {
+    setForm((f) => {
+      const next = { ...f }
+      // Only fill empty string fields so we never overwrite what the client already typed.
+      const strKeys = [
+        "fullName", "email", "phone", "serviceType", "projectDate", "location",
+        "subjects", "projectDesc", "customBudget", "deadlineDate", "references", "notes",
+      ] as const
+      for (const k of strKeys) {
+        const v = data[k]
+        if (typeof v === "string" && v.trim() && !next[k]) next[k] = v.trim()
+      }
+      // Array fields: only set if the client hasn't chosen any yet.
+      if (data.projectType?.length && next.projectType.length === 0) next.projectType = data.projectType
+      if (data.tone?.length && next.tone.length === 0) next.tone = data.tone
+      return next
+    })
+  }
 
   const progress = (step / (SECTIONS.length - 1)) * 100
   const agreementsDone = form.depositAck && form.revisionAck && form.responseAck
@@ -124,6 +145,7 @@ export function ProjectBrief() {
         {step === 0 && (
           <section>
             <SectionLabel>Section 1 — Tell Us About Yourself</SectionLabel>
+            <ScopeUpload onExtracted={applyExtracted} />
             <TextField label="Full Name" required placeholder="Your full name" value={form.fullName} onChange={set("fullName")} />
             <TextField label="Email Address" required type="email" placeholder="your@email.com" value={form.email} onChange={set("email")} error={emailError} />
             <TextField label="Phone Number" required type="tel" placeholder="(000) 000-0000" value={form.phone} onChange={set("phone")} />
