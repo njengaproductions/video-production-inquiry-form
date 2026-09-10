@@ -12,6 +12,7 @@ export type BudgetTier = {
   range: string
   desc: string
   recommended?: boolean
+  addOn?: boolean
 }
 
 export const BUDGET_TIERS: BudgetTier[] = [
@@ -24,6 +25,12 @@ export const BUDGET_TIERS: BudgetTier[] = [
     name: "Shoot Only",
     range: "From $600",
     desc: "Professional on-location capture, no edit — you receive all raw footage. Half day (4 hr min) $600 • Full day (up to 8 hr) $1,000 • Overtime $125/hr after 8 hr.",
+  },
+  {
+    name: "Producer Add-On",
+    range: "$400 – $600 flat",
+    desc: "For shoot-only or crew-directed bookings. Pre-production planning, shot-list coordination, and on-site crew direction. Add to any Shoot Only booking.",
+    addOn: true,
   },
   {
     name: "Essential",

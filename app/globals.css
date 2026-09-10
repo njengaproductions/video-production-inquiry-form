@@ -29,6 +29,8 @@
   --color-hairline: var(--hairline);
   --color-green: var(--green);
   --color-green-bg: var(--green-bg);
+  --color-mauve: var(--mauve);
+  --color-mauve-bg: var(--mauve-bg);
   --color-field: var(--field);
   --color-surface: var(--surface);
 
@@ -83,6 +85,8 @@
   --hairline: #ede8e3;
   --green: #2c5f2e;
   --green-bg: #f0f4f0;
+  --mauve: #957d7d;
+  --mauve-bg: #f6f2f2;
 
   --radius: 0.625rem;
 }
