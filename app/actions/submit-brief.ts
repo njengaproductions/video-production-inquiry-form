@@ -45,6 +45,7 @@ function buildRows(form: BriefForm): { section: string; rows: Row[] }[] {
       section: "Budget",
       rows: [
         { label: "Selected Tier", value: fmt(form.budgetTier) },
+        { label: "Add-Ons", value: fmt(form.addOns?.includes("producer") ? "Producer Services ($400–$600)" : "") },
         { label: "Custom Budget", value: fmt(form.customBudget) },
         { label: "Custom Description", value: fmt(form.customDesc) },
       ],

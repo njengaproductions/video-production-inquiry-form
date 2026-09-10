@@ -31,6 +31,19 @@ export function ProjectBrief() {
   const toggleAck = (key: (typeof AGREEMENTS)[number]["key"]) =>
     setForm((f) => ({ ...f, [key]: !f[key] }))
 
+  // Selecting a tier clears add-ons unless it's the Shoot Only tier, so a Producer
+  // Services selection can never persist as stale state under a different tier.
+  const selectTier = (name: string) =>
+    setForm((f) => ({ ...f, budgetTier: name, addOns: name === "Shoot Only" ? f.addOns : [] }))
+
+  const toggleProducer = () =>
+    setForm((f) => ({
+      ...f,
+      addOns: f.addOns.includes("producer")
+        ? f.addOns.filter((a) => a !== "producer")
+        : [...f.addOns, "producer"],
+    }))
+
   const applyExtracted = (data: ExtractedBrief) => {
     setForm((f) => {
       const next = { ...f }
@@ -185,58 +198,66 @@ export function ProjectBrief() {
 
             {BUDGET_TIERS.map((tier) => {
               const selected = form.budgetTier === tier.name
+              const isShootOnly = tier.name === "Shoot Only"
+              const producerChecked = form.addOns.includes("producer")
               return (
-                <button
-                  key={tier.name}
-                  type="button"
-                  onClick={() => set("budgetTier")(tier.name)}
-                  aria-pressed={selected}
-                  className={`block w-full text-left transition-all ${
-                    tier.addOn
-                      ? `mb-2.5 ml-4 rounded-lg border-2 border-dashed p-3 ${
-                          selected
-                            ? "border-mauve bg-mauve-bg ring-2 ring-mauve/15"
-                            : "border-mauve/45 bg-mauve-bg/40 hover:border-mauve"
-                        }`
-                      : `mb-2.5 rounded-lg border-2 p-4 ${
-                          selected
-                            ? tier.recommended
-                              ? "border-green bg-green-bg ring-2 ring-green/15"
-                              : "border-brand bg-accent ring-2 ring-brand/15"
-                            : tier.recommended
-                              ? "border-green/60 bg-surface hover:border-green"
-                              : "border-brand-border bg-surface hover:border-brand/50"
-                        }`
-                  }`}
-                >
-                  <div className="mb-1 flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`font-serif font-bold ${tier.addOn ? "text-[13px] text-mauve" : "text-[15px]"} ${
-                          !tier.addOn && (tier.recommended ? "text-green" : "text-brand")
-                        }`}
-                      >
-                        {tier.name}
-                      </span>
-                      {tier.recommended && (
-                        <span className="rounded-full bg-green px-2 py-0.5 text-[10px] font-bold tracking-wide text-white">
-                          RECOMMENDED
+                <div key={tier.name}>
+                  <button
+                    type="button"
+                    onClick={() => selectTier(tier.name)}
+                    aria-pressed={selected}
+                    className={`mb-2.5 block w-full rounded-lg border-2 p-4 text-left transition-all ${
+                      selected
+                        ? tier.recommended
+                          ? "border-green bg-green-bg ring-2 ring-green/15"
+                          : "border-brand bg-accent ring-2 ring-brand/15"
+                        : tier.recommended
+                          ? "border-green/60 bg-surface hover:border-green"
+                          : "border-brand-border bg-surface hover:border-brand/50"
+                    }`}
+                  >
+                    <div className="mb-1 flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className={`font-serif text-[15px] font-bold ${tier.recommended ? "text-green" : "text-brand"}`}>
+                          {tier.name}
                         </span>
-                      )}
-                      {tier.addOn && (
-                        <span className="rounded-full border border-mauve/40 bg-mauve/10 px-2 py-0.5 text-[10px] font-bold tracking-wide text-mauve">
-                          ADD-ON
-                        </span>
-                      )}
+                        {tier.recommended && (
+                          <span className="rounded-full bg-green px-2 py-0.5 text-[10px] font-bold tracking-wide text-white">
+                            RECOMMENDED
+                          </span>
+                        )}
+                      </div>
+                      <span className="font-serif text-[15px] font-bold text-foreground">{tier.range}</span>
                     </div>
-                    <span
-                      className={`font-serif font-bold ${tier.addOn ? "text-[13px] text-mauve" : "text-[15px] text-foreground"}`}
+                    <p className="m-0 font-sans text-xs leading-relaxed text-muted-foreground">{tier.desc}</p>
+                  </button>
+
+                  {isShootOnly && selected && (
+                    <label
+                      className={`mb-2.5 -mt-1 ml-4 flex cursor-pointer items-start gap-3 rounded-lg border-2 border-dashed p-3 transition-all ${
+                        producerChecked
+                          ? "border-mauve bg-mauve-bg ring-2 ring-mauve/15"
+                          : "border-mauve/45 bg-mauve-bg/40 hover:border-mauve"
+                      }`}
                     >
-                      {tier.range}
-                    </span>
-                  </div>
-                  <p className="m-0 font-sans text-xs leading-relaxed text-muted-foreground">{tier.desc}</p>
-                </button>
+                      <input
+                        type="checkbox"
+                        checked={producerChecked}
+                        onChange={toggleProducer}
+                        className="mt-0.5 h-4 w-4 shrink-0 accent-mauve"
+                      />
+                      <span className="block">
+                        <span className="flex flex-wrap items-center gap-x-2">
+                          <span className="font-serif text-[13px] font-bold text-mauve">+ Add Producer Services</span>
+                          <span className="font-serif text-[13px] font-bold text-mauve">($400 – $600)</span>
+                        </span>
+                        <span className="mt-0.5 block font-sans text-xs leading-relaxed text-muted-foreground">
+                          Pre-production planning, shot-list coordination, on-site crew direction.
+                        </span>
+                      </span>
+                    </label>
+                  )}
+                </div>
               )
             })}
 
