@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { submitBrief } from "@/app/actions/submit-brief"
 import type { ExtractedBrief } from "@/app/actions/extract-brief"
 import { BUDGET_TIERS, INITIAL_FORM, SECTIONS, type BriefForm } from "./data"
@@ -21,7 +21,15 @@ export function ProjectBrief() {
   const [submitted, setSubmitted] = useState(false)
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [notice, setNotice] = useState<string | null>(null)
+  const noticeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [form, setForm] = useState<BriefForm>(INITIAL_FORM)
+
+  const showNotice = (msg: string) => {
+    setNotice(msg)
+    if (noticeTimer.current) clearTimeout(noticeTimer.current)
+    noticeTimer.current = setTimeout(() => setNotice(null), 2800)
+  }
 
   const set =
     <K extends keyof BriefForm>(key: K) =>
@@ -33,8 +41,27 @@ export function ProjectBrief() {
 
   // Selecting a tier clears add-ons unless it's the Shoot Only tier, so a Producer
   // Services selection can never persist as stale state under a different tier.
-  const selectTier = (name: string) =>
-    setForm((f) => ({ ...f, budgetTier: name, addOns: name === "Shoot Only" ? f.addOns : [] }))
+  // Selecting a tier is also mutually exclusive with the custom budget path.
+  const selectTier = (name: string) => {
+    const hadCustom = form.customBudget.trim() !== "" || form.customDesc.trim() !== ""
+    setForm((f) => ({
+      ...f,
+      budgetTier: name,
+      addOns: name === "Shoot Only" ? f.addOns : [],
+      customBudget: "",
+      customDesc: "",
+    }))
+    if (hadCustom) showNotice(`Cleared to use ${name}`)
+  }
+
+  // Typing in either custom-budget field clears any tier selection (and add-ons).
+  const setCustom =
+    (key: "customBudget" | "customDesc") =>
+    (val: string) => {
+      const hadTier = form.budgetTier !== ""
+      setForm((f) => ({ ...f, [key]: val, budgetTier: "", addOns: [] }))
+      if (hadTier) showNotice("Cleared to use your custom budget")
+    }
 
   const toggleProducer = () =>
     setForm((f) => ({
@@ -115,6 +142,15 @@ export function ProjectBrief() {
 
   return (
     <main className="min-h-screen bg-background">
+      {notice && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-full bg-brand px-4 py-2 font-sans text-[13px] font-semibold text-primary-foreground shadow-lg"
+        >
+          {notice}
+        </div>
+      )}
       {/* Header */}
       <header className="flex items-center justify-between bg-foreground px-6 py-4">
         <div>
@@ -266,8 +302,8 @@ export function ProjectBrief() {
               <p className="mb-3 font-sans text-xs leading-relaxed text-muted-foreground">
                 No problem — every project is unique. Tell us your budget and vision.
               </p>
-              <TextField label="My budget is" placeholder="e.g. $750" value={form.customBudget} onChange={set("customBudget")} />
-              <TextArea label="Describe what you're looking for" placeholder="Tell us what you have in mind. We'll build something around you." value={form.customDesc} onChange={set("customDesc")} />
+              <TextField label="My budget is" placeholder="e.g. $750" value={form.customBudget} onChange={setCustom("customBudget")} />
+              <TextArea label="Describe what you're looking for" placeholder="Tell us what you have in mind. We'll build something around you." value={form.customDesc} onChange={setCustom("customDesc")} />
             </div>
           </section>
         )}
