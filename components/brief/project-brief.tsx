@@ -28,7 +28,7 @@ export function ProjectBrief() {
   const showNotice = (msg: string) => {
     setNotice(msg)
     if (noticeTimer.current) clearTimeout(noticeTimer.current)
-    noticeTimer.current = setTimeout(() => setNotice(null), 2800)
+    noticeTimer.current = setTimeout(() => setNotice(null), 5000)
   }
 
   const set =
@@ -142,15 +142,6 @@ export function ProjectBrief() {
 
   return (
     <main className="min-h-screen bg-background">
-      {notice && (
-        <div
-          role="status"
-          aria-live="polite"
-          className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-full bg-brand px-4 py-2 font-sans text-[13px] font-semibold text-primary-foreground shadow-lg"
-        >
-          {notice}
-        </div>
-      )}
       {/* Header */}
       <header className="flex items-center justify-between bg-foreground px-6 py-4">
         <div>
@@ -225,12 +216,23 @@ export function ProjectBrief() {
         )}
 
         {step === 2 && (
-          <section>
-            <SectionLabel>Section 3 — Budget</SectionLabel>
-            <p className="mb-5 font-sans text-[13px] leading-relaxed text-muted-foreground">
-              Review the tiers below and select the one that best fits your project. Our Growth package is our most
-              requested — built specifically for event coverage.
-            </p>
+            <section>
+              <SectionLabel>Section 3 — Budget</SectionLabel>
+              {notice && (
+                <div
+                  role="status"
+                  aria-live="polite"
+                  className="sticky top-3 z-30 mb-4 flex justify-center"
+                >
+                  <span className="inline-flex items-center rounded-full bg-brand px-4 py-1.5 font-sans text-[13px] font-semibold text-primary-foreground shadow-md">
+                    {notice}
+                  </span>
+                </div>
+              )}
+              <p className="mb-5 font-sans text-[13px] leading-relaxed text-muted-foreground">
+                Review the tiers below and select the one that best fits your project. Our Growth package is our most
+                requested — built specifically for event coverage.
+              </p>
 
             {BUDGET_TIERS.map((tier) => {
               const selected = form.budgetTier === tier.name
