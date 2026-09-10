@@ -21,6 +21,11 @@ export const BUDGET_TIERS: BudgetTier[] = [
     desc: "You provide footage. We handle color grading, music, graphics & delivery. Quote after footage review.",
   },
   {
+    name: "Shoot Only",
+    range: "From $600",
+    desc: "Professional on-location capture, no edit — you receive all raw footage. Half day (4 hr min) $600 • Full day (up to 8 hr) $1,000 • Overtime $125/hr after 8 hr.",
+  },
+  {
     name: "Essential",
     range: "Under $1K",
     desc: "Up to 2 deliverables, professional editing, music & graphics, 1–2 revisions. Best for reels, promos & short brand videos.",

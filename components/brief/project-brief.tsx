@@ -75,7 +75,9 @@ export function ProjectBrief() {
         form.fullName && emailValid && form.phone && form.contactMethod && form.heardFrom && form.decisionMaker,
       )
     if (step === 1) return Boolean(form.serviceType && form.projectType.length > 0 && form.projectDesc)
-    if (step === 2) return Boolean(form.budgetTier)
+    // A tier selection OR a completed freeform request (budget + description) lets them continue.
+    if (step === 2)
+      return Boolean(form.budgetTier || (form.customBudget.trim() && form.customDesc.trim()))
     return true
   }
 
@@ -161,7 +163,7 @@ export function ProjectBrief() {
         {step === 1 && (
           <section>
             <SectionLabel>Section 2 — Your Project</SectionLabel>
-            <RadioGroup label="What type of service do you need?" required options={["Full Production (Shoot + Edit)", "Edit Only — I have existing footage", "Not sure — let's talk"]} value={form.serviceType} onChange={set("serviceType")} />
+            <RadioGroup label="What type of service do you need?" required options={["Full Production (Shoot + Edit)", "Shoot Only — I need footage captured", "Edit Only — I have existing footage", "Not sure — let's talk"]} value={form.serviceType} onChange={set("serviceType")} />
             <CheckGroup label="Type of Project" required options={["Event Coverage", "Commercial", "Brand Film", "Wedding", "Social Media Content", "Other"]} values={form.projectType} onChange={set("projectType")} />
             <TextField label="Project / Event Date" placeholder="MM / DD / YYYY" value={form.projectDate} onChange={set("projectDate")} />
             <TextField label="Project Location" placeholder="City, venue, or address" value={form.location} onChange={set("location")} />
