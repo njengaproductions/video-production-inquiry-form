@@ -1,10 +1,7 @@
 export const SECTIONS = [
-  "About You",
-  "Your Project",
-  "Budget",
-  "Timeline",
-  "Creative Direction",
-  "Agreements",
+  "About Your Project",
+  "Budget & Timeline",
+  "Creative & Agreements",
 ] as const
 
 export type BudgetTier = {

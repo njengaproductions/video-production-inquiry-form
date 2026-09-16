@@ -99,3 +99,53 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Step + celebration animations */
+@keyframes brief-slide-in-right {
+  from { opacity: 0; transform: translateX(28px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes brief-slide-in-left {
+  from { opacity: 0; transform: translateX(-28px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes brief-cinematic-fade {
+  0% { opacity: 0; transform: translateY(16px) scale(0.985); filter: blur(6px); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+@keyframes brief-check-pop {
+  0% { opacity: 0; transform: scale(0.3); }
+  55% { opacity: 1; transform: scale(1.15); }
+  70% { transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes brief-confetti-fall {
+  0% { opacity: 1; transform: translate3d(0, -10px, 0) rotate(0deg); }
+  100% { opacity: 0; transform: translate3d(var(--dx, 0), 120px, 0) rotate(var(--rot, 360deg)); }
+}
+@keyframes brief-badge-in {
+  from { opacity: 0; transform: translateY(-6px) scale(0.9); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.brief-slide-right { animation: brief-slide-in-right 0.42s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.brief-slide-left { animation: brief-slide-in-left 0.42s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.brief-cinematic { animation: brief-cinematic-fade 1s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.brief-cinematic-delay { animation: brief-cinematic-fade 1s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: 0.25s; }
+.brief-cinematic-delay-2 { animation: brief-cinematic-fade 1s cubic-bezier(0.22, 1, 0.36, 1) both; animation-delay: 0.5s; }
+.brief-check-pop { animation: brief-check-pop 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.brief-confetti-piece { animation: brief-confetti-fall 1.1s ease-out forwards; }
+.brief-badge-in { animation: brief-badge-in 0.3s ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .brief-slide-right,
+  .brief-slide-left,
+  .brief-cinematic,
+  .brief-cinematic-delay,
+  .brief-cinematic-delay-2,
+  .brief-check-pop,
+  .brief-confetti-piece,
+  .brief-badge-in {
+    animation: none !important;
+  }
+}
