@@ -42,7 +42,7 @@ export function Splash({ onStart }: { onStart: () => void }) {
   }, [])
 
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#1A1A1A] px-6 text-center">
+    <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-foreground px-6 text-center">
       {/* Animated film grain overlay */}
       <div
         aria-hidden="true"
@@ -50,14 +50,14 @@ export function Splash({ onStart }: { onStart: () => void }) {
       />
 
       <div className="relative z-10 flex flex-col items-center">
-        <h1 className="splash-logo font-serif text-4xl font-semibold tracking-[0.18em] text-[#B5520A] sm:text-6xl">
+        <h1 className="splash-logo font-serif text-4xl font-semibold tracking-[0.18em] text-brand sm:text-6xl">
           NJENGA
-          <span className="mt-1 block text-lg font-normal tracking-[0.42em] text-[#B5520A]/90 sm:text-2xl">
+          <span className="mt-1 block text-lg font-normal tracking-[0.42em] text-brand/90 sm:text-2xl">
             PRODUCTIONS CO.
           </span>
         </h1>
 
-        <p className="mt-6 h-6 font-sans text-base italic text-neutral-400 sm:text-lg" aria-label={TAGLINE}>
+        <p className="mt-6 h-6 font-sans text-base italic text-mauve sm:text-lg" aria-label={TAGLINE}>
           <span aria-hidden="true">{typed}</span>
           {!typingDone && <span className="splash-caret ml-0.5 inline-block">|</span>}
         </p>
@@ -66,7 +66,7 @@ export function Splash({ onStart }: { onStart: () => void }) {
           <button
             type="button"
             onClick={onStart}
-            className="splash-fade-up splash-button-pulse mt-10 rounded-full bg-[#B5520A] px-8 py-3.5 font-sans text-sm font-semibold tracking-wide text-white transition-transform duration-200 hover:scale-105 hover:bg-[#a04808] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B5520A] focus-visible:ring-offset-2 focus-visible:ring-offset-[#1A1A1A]"
+            className="splash-fade-up splash-button-pulse mt-10 rounded-full bg-brand px-8 py-3.5 font-sans text-sm font-semibold tracking-wide text-primary-foreground transition-transform duration-200 hover:scale-105 hover:bg-brand/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-foreground"
           >
             Start Your Project
           </button>

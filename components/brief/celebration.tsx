@@ -1,6 +1,8 @@
 "use client"
 
-const COLORS = ["#b5520a", "#957d7d", "#2c5f2e", "#fdba74", "#f6f2f2"]
+// Palette drawn only from globals.css brand tokens:
+// --brand, --mauve, --green, --brand-light, --mauve-bg
+const COLORS = ["#B5520A", "#957D7D", "#2C5F2E", "#FDF0E8", "#F6F2F2"]
 
 // 18 confetti pieces with deterministic-ish spread so the burst looks full but light.
 const PIECES = Array.from({ length: 18 }, (_, i) => {
