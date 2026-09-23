@@ -78,9 +78,9 @@ function Chip({
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`rounded-full border px-3.5 py-1.5 font-sans text-[13px] transition-colors ${
+      className={`rounded-full border px-3.5 py-1.5 font-sans text-[13px] transition-all duration-150 ease-out ${
         active
-          ? "border-brand bg-accent font-semibold text-brand"
+          ? "scale-[1.03] border-brand bg-accent font-semibold text-brand ring-2 ring-brand/20"
           : "border-input bg-surface text-muted-foreground hover:border-brand/50"
       }`}
     >

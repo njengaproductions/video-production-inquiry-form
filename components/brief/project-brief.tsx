@@ -139,9 +139,10 @@ export function ProjectBrief() {
   const goNext = () => {
     if (!canNext()) return
     setDir("forward")
+    // Fire the celebration first, then advance the step once the burst is visible.
     setCelebrate(true)
+    setTimeout(() => setStep((s) => Math.min(SECTIONS.length - 1, s + 1)), 450)
     setTimeout(() => setCelebrate(false), 1100)
-    setStep((s) => Math.min(SECTIONS.length - 1, s + 1))
   }
 
   const goBack = () => {
@@ -151,17 +152,21 @@ export function ProjectBrief() {
 
   if (submitted) {
     return (
-      <main className="flex min-h-screen items-center justify-center overflow-hidden bg-background px-6">
-        <div className="max-w-md text-center">
+      <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-foreground px-6">
+        <div
+          aria-hidden="true"
+          className="splash-grain pointer-events-none absolute inset-[-50%] z-0 opacity-[0.06] mix-blend-screen"
+        />
+        <div className="relative z-10 max-w-md text-center">
           <div className="brief-cinematic mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-brand text-primary-foreground">
             <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
               <path d="M20 6 9 17l-5-5" />
             </svg>
           </div>
-          <h1 className="brief-cinematic-delay mb-3 text-balance font-serif text-[26px] leading-tight text-foreground">
+          <h1 className="brief-cinematic-delay mb-3 text-balance font-serif text-[26px] leading-tight text-white">
             {"We're excited to create something legendary with you."}
           </h1>
-          <p className="brief-cinematic-delay mb-6 font-sans text-sm leading-relaxed text-muted-foreground">
+          <p className="brief-cinematic-delay mb-6 font-sans text-sm leading-relaxed text-white/60">
             Thanks for reaching out. Expect to hear from us within 24–48 hours.
           </p>
           <p className="brief-cinematic-delay-2 font-serif text-[15px] italic text-brand">Content that builds brands.</p>
@@ -172,6 +177,7 @@ export function ProjectBrief() {
 
   return (
     <main className="min-h-screen bg-background">
+      {celebrate && <Celebration />}
       {/* Header */}
       <header className="flex items-center justify-between bg-foreground px-6 py-4">
         <div>
@@ -238,7 +244,7 @@ export function ProjectBrief() {
         <div key={step} className={dir === "forward" ? "brief-slide-right" : "brief-slide-left"}>
           {step === 0 && (
             <section className="space-y-10">
-              <div>
+              <div className="brief-stagger">
                 <SectionLabel>Part 1 — Tell Us About Yourself</SectionLabel>
                 <ScopeUpload onExtracted={applyExtracted} />
                 <TextField label="Full Name" required placeholder="Your full name" value={form.fullName} onChange={set("fullName")} />
@@ -252,7 +258,7 @@ export function ProjectBrief() {
                 <RadioGroup label="Are you the decision maker?" required options={["Yes, I make the final call", "No, I need approval from someone else"]} value={form.decisionMaker} onChange={set("decisionMaker")} />
               </div>
 
-              <div>
+              <div className="brief-stagger">
                 <SectionLabel>Part 2 — Your Project</SectionLabel>
                 <RadioGroup label="What type of service do you need?" required options={["Full Production (Shoot + Edit)", "Shoot Only — I need footage captured", "Edit Only — I have existing footage", "Not sure — let's talk"]} value={form.serviceType} onChange={set("serviceType")} />
                 <CheckGroup label="Type of Project" required options={["Event Coverage", "Commercial", "Brand Film", "Wedding", "Social Media Content", "Other"]} values={form.projectType} onChange={set("projectType")} />
@@ -269,7 +275,7 @@ export function ProjectBrief() {
 
           {step === 1 && (
             <section className="space-y-10">
-              <div>
+              <div className="brief-stagger">
                 <SectionLabel>Part 1 — Budget</SectionLabel>
                 {notice && (
                   <div role="status" aria-live="polite" className="sticky top-3 z-30 mb-4 flex justify-center">
@@ -293,14 +299,14 @@ export function ProjectBrief() {
                         type="button"
                         onClick={() => selectTier(tier.name)}
                         aria-pressed={selected}
-                        className={`mb-2.5 block w-full rounded-lg border-2 p-4 text-left transition-all ${
+                        className={`mb-2.5 block w-full rounded-lg border-2 p-4 text-left transition-all duration-200 ease-out ${
                           selected
                             ? tier.recommended
-                              ? "border-green bg-green-bg ring-2 ring-green/15"
-                              : "border-brand bg-accent ring-2 ring-brand/15"
+                              ? "scale-[1.01] border-green bg-green-bg shadow-lg shadow-green/20 ring-2 ring-green/15"
+                              : "scale-[1.01] border-brand bg-accent shadow-lg shadow-brand/20 ring-2 ring-brand/15"
                             : tier.recommended
-                              ? "border-green/60 bg-surface hover:border-green"
-                              : "border-brand-border bg-surface hover:border-brand/50"
+                              ? "border-green/60 bg-surface hover:border-green hover:shadow-md"
+                              : "border-brand-border bg-surface hover:border-brand/50 hover:shadow-md"
                         }`}
                       >
                         <div className="mb-1 flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
@@ -358,7 +364,7 @@ export function ProjectBrief() {
                 </div>
               </div>
 
-              <div>
+              <div className="brief-stagger">
                 <SectionLabel>Part 2 — Timeline & Urgency</SectionLabel>
                 <RadioGroup label="How soon do you want to get started?" required options={["Within 2 weeks", "1–2 months", "3–6 months", "Just exploring for now"]} value={form.startSoon} onChange={set("startSoon")} />
                 <RadioGroup label="Do you have a delivery deadline?" required options={["Yes — hard deadline", "Preferred date but flexible", "No deadline"]} value={form.deadline} onChange={set("deadline")} />
@@ -372,14 +378,14 @@ export function ProjectBrief() {
 
           {step === 2 && (
             <section className="space-y-10">
-              <div>
+              <div className="brief-stagger">
                 <SectionLabel>Part 1 — Creative Direction</SectionLabel>
                 <TextField label="Reference videos or inspiration" placeholder="Paste YouTube, Instagram, or Vimeo links here" value={form.references} onChange={set("references")} />
                 <CheckGroup label="Tone / Style of video" options={["Cinematic & Dramatic", "Clean & Corporate", "Fun & Energetic", "Emotional & Storytelling", "Not sure — open to suggestions"]} values={form.tone} onChange={set("tone")} />
                 <TextArea label="Any additional notes for our team?" placeholder="Anything else we should know — special requests, concerns, or ideas." value={form.notes} onChange={set("notes")} />
               </div>
 
-              <div>
+              <div className="brief-stagger">
                 <SectionLabel>Part 2 — Agreements & Next Steps</SectionLabel>
                 <div className="mb-6 rounded-lg border border-brand bg-accent p-4">
                   <p className="mb-1.5 font-serif text-[13px] font-bold text-brand">Please review before submitting.</p>

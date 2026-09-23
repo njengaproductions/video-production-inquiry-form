@@ -23,7 +23,7 @@ export function Splash({ onStart }: { onStart: () => void }) {
 
     // Start typing after the logo has faded in.
     const startDelay = 900
-    const charDelay = 55
+    const charDelay = 45
     const timers: ReturnType<typeof setTimeout>[] = []
 
     for (let i = 0; i <= TAGLINE.length; i++) {
