@@ -7,6 +7,8 @@ import { BUDGET_TIERS, INITIAL_FORM, SECTIONS, type BriefForm } from "./data"
 import { CheckGroup, RadioGroup, SectionLabel, TextArea, TextField } from "./fields"
 import { ScopeUpload } from "./scope-upload"
 import { Celebration } from "./celebration"
+import type { Gap, MeetingPlan } from "./gaps"
+import { GapCheck, gapQuestions, type GapQuestion } from "./gap-check"
 
 const AGREEMENTS: { key: "depositAck" | "revisionAck" | "responseAck"; text: string }[] = [
   { key: "depositAck", text: "I understand a deposit is required to secure my project date." },
@@ -27,6 +29,12 @@ export function ProjectBrief() {
   const [notice, setNotice] = useState<string | null>(null)
   const noticeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [form, setForm] = useState<BriefForm>(INITIAL_FORM)
+  // Step C: ambiguities from the uploaded SOW, sent with the brief.
+  const [docGaps, setDocGaps] = useState<Gap[]>([])
+  // Stored for step E (booking page on the success screen). Not displayed yet.
+  const [, setMeeting] = useState<MeetingPlan | null>(null)
+  // Step D: null = not yet checked; [] or list = checked once.
+  const [questions, setQuestions] = useState<GapQuestion[] | null>(null)
 
   const showNotice = (msg: string) => {
     setNotice(msg)
@@ -85,17 +93,26 @@ export function ProjectBrief() {
       // Only fill empty string fields so we never overwrite what the client already typed.
       const strKeys = [
         "fullName", "email", "phone", "serviceType", "projectDate", "location",
-        "subjects", "projectDesc", "customBudget", "deadlineDate", "references", "notes",
+        "subjects", "projectDesc", "customBudget", "customDesc", "deadlineDate", "references", "notes",
       ] as const
       for (const k of strKeys) {
         const v = data[k]
         if (typeof v === "string" && v.trim() && !next[k]) next[k] = v.trim()
       }
       // Array fields: only set if the client hasn't chosen any yet.
-      if (data.projectType?.length && next.projectType.length === 0) next.projectType = data.projectType
-      if (data.tone?.length && next.tone.length === 0) next.tone = data.tone
+      if (data.projectType?.length && next.projectType.length === 0) next.projectType = [...data.projectType]
+      if (data.tone?.length && next.tone.length === 0) next.tone = [...data.tone]
       return next
     })
+    setDocGaps(
+      (data.ambiguities ?? []).map((a, i) => ({
+        id: `doc-${i}`,
+        severity: a.severity,
+        label: a.evidence ? `${a.issue} ("${a.evidence}")` : a.issue,
+        agenda: a.agenda,
+        source: "document" as const,
+      })),
+    )
   }
 
   const progress = (step / (SECTIONS.length - 1)) * 100
@@ -104,13 +121,29 @@ export function ProjectBrief() {
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())
   const emailError = form.email.trim().length > 0 && !emailValid ? "Please enter a valid email address." : undefined
 
+  // Soft nudge only: a budget without a number still lets the client continue,
+  // but it's flagged as a critical gap and asked again at submit.
+  const budgetHint =
+    form.customBudget.trim() && !/\d/.test(form.customBudget)
+      ? "Add a dollar range, like $1,500 – $3,000, so we know what we're working with."
+      : undefined
+
   const handleSubmit = async () => {
     if (!agreementsDone || sending) return
+    // Step D — first press: if critical gaps the client can answer remain, ask once instead of sending.
+    if (questions === null) {
+      const qs = gapQuestions(form)
+      if (qs.length) {
+        setQuestions(qs)
+        return
+      }
+    }
     setSending(true)
     setError(null)
-    const result = await submitBrief(form)
+    const result = await submitBrief(form, docGaps)
     setSending(false)
     if (result.ok) {
+      setMeeting(result.meeting)
       setSubmitted(true)
     } else {
       setError(result.error)
@@ -359,13 +392,27 @@ export function ProjectBrief() {
                   )
                 })}
 
-                <div className="mt-4 rounded-lg border border-brand-border bg-muted p-4">
-                  <p className="mb-2 font-serif text-sm font-bold text-foreground">{"Don't see what you're looking for?"}</p>
-                  <p className="mb-3 font-sans text-xs leading-relaxed text-muted-foreground">
-                    No problem — every project is unique. Tell us your budget and vision.
+                {/* Custom budget: emphasized whenever no tier is picked, so a range is the clear next move. */}
+                <div
+                  className={`mt-4 rounded-lg p-4 transition-colors ${
+                    form.budgetTier ? "border border-brand-border bg-muted" : "border-2 border-brand bg-accent"
+                  }`}
+                >
+                  <p className="mb-2 font-serif text-sm font-bold text-foreground">
+                    {form.budgetTier ? "Don't see what you're looking for?" : "Not seeing a fit? Share your budget range."}
                   </p>
-                  <TextField label="My budget is" placeholder="e.g. $750" value={form.customBudget} onChange={setCustom("customBudget")} />
-                  <TextArea label="Describe what you're looking for" placeholder="Tell us what you have in mind. We'll build something around you." value={form.customDesc} onChange={setCustom("customDesc")} />
+                  <p className="mb-3 font-sans text-xs leading-relaxed text-muted-foreground">
+                    A range tells us what we&apos;re working with, so we can shape the right package around it. It&apos;s a
+                    starting point, not a commitment.
+                  </p>
+                  <TextField
+                    label="My budget range"
+                    placeholder="$1,500 – $3,000"
+                    value={form.customBudget}
+                    onChange={setCustom("customBudget")}
+                    error={budgetHint}
+                  />
+                  <TextArea label="What you're looking for" placeholder="Tell us what you have in mind. We'll build something around you." value={form.customDesc} onChange={setCustom("customDesc")} />
                 </div>
               </div>
 
@@ -431,6 +478,15 @@ export function ProjectBrief() {
                     <strong className="text-foreground">NJENGA Productions Co.</strong>
                   </p>
                 </div>
+
+                {/* Step D — optional gap questions, shown once on first submit press. */}
+                {questions && questions.length > 0 && (
+                  <GapCheck
+                    questions={questions}
+                    form={form}
+                    onAnswer={(field, value) => setForm((f) => ({ ...f, [field]: value }))}
+                  />
+                )}
               </div>
             </section>
           )}
@@ -467,7 +523,7 @@ export function ProjectBrief() {
               disabled={!agreementsDone || sending}
               className="rounded-md bg-brand px-6 py-2.5 font-sans text-[13px] font-semibold text-primary-foreground transition-colors disabled:cursor-default disabled:bg-input"
             >
-              {sending ? "Sending…" : "Submit Brief"}
+              {sending ? "Sending…" : questions?.length ? "Send brief" : "Submit Brief"}
             </button>
           )}
         </div>

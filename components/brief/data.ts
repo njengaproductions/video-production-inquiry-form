@@ -53,6 +53,7 @@ export type BriefForm = {
   heardFrom: string
   referral: string
   decisionMaker: string
+  approver: string
   serviceType: string
   projectType: string[]
   projectDate: string
@@ -86,6 +87,7 @@ export const INITIAL_FORM: BriefForm = {
   heardFrom: "",
   referral: "",
   decisionMaker: "",
+  approver: "",
   serviceType: "",
   projectType: [],
   projectDate: "",
