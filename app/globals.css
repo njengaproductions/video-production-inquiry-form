@@ -211,3 +211,24 @@
     animation: none !important;
   }
 }
+
+/* === Upload feedback animations (append to the END of app/globals.css) === */
+
+/* Check mark pops in on the upload success card */
+@keyframes brief-pop {
+  0% { transform: scale(0.4); opacity: 0; }
+  70% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); }
+}
+.brief-pop { animation: brief-pop 0.5s ease-out both; }
+
+/* Required fields still empty after an upload pulse 3 times, then keep their outline */
+@keyframes brief-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(181, 82, 10, 0); }
+  50% { box-shadow: 0 0 0 6px rgba(181, 82, 10, 0.28); }
+}
+.brief-pulse { animation: brief-pulse 1.2s ease-in-out 3; }
+
+@media (prefers-reduced-motion: reduce) {
+  .brief-pop, .brief-pulse { animation: none; }
+}

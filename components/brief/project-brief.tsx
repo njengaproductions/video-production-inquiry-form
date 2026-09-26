@@ -5,12 +5,18 @@ import { submitBrief } from "@/app/actions/submit-brief"
 import { suggestTier } from "@/app/actions/suggest-tier"
 import type { ExtractedBrief } from "@/app/actions/extract-brief"
 import { BUDGET_TIERS, INITIAL_FORM, SECTIONS, type BriefForm } from "./data"
-import { CheckGroup, RadioGroup, SectionLabel, TextArea, TextField } from "./fields"
-import { ScopeUpload } from "./scope-upload"
+import { CheckGroup, RadioGroup, SectionLabel, TextArea, TextField, type FieldStatus } from "./fields"
+import { ScopeUpload, type UploadSummary } from "./scope-upload"
 import { Celebration } from "./celebration"
 import type { Gap, MeetingPlan } from "./gaps"
 import { GapCheck, gapQuestions, type GapQuestion } from "./gap-check"
 import { budgetErrors, budgetLabel, budgetRule, budgetValid, fmtMoney, onlyDigits, parseBudgetRange } from "./budget"
+
+// Required on step 1, in on-screen order (used for "Show me" and the remaining count).
+const REQUIRED_STEP0 = [
+  "fullName", "email", "phone", "contactMethod", "heardFrom",
+  "decisionMaker", "serviceType", "projectType", "projectDesc",
+] as const
 
 const AGREEMENTS: { key: "depositAck" | "revisionAck" | "responseAck"; text: string }[] = [
   { key: "depositAck", text: "I understand a deposit is required to secure my project date." },
@@ -41,6 +47,10 @@ export function ProjectBrief() {
   const [tierReason, setTierReason] = useState("")
   const [suggesting, setSuggesting] = useState(false)
   const suggestKey = useRef("")
+  // Upload feedback: which fields the document filled, and whether to flag the empty required ones.
+  const [autoFilled, setAutoFilled] = useState<Set<keyof BriefForm>>(new Set())
+  const [flagMissing, setFlagMissing] = useState(false)
+  const [filledCount, setFilledCount] = useState<number | null>(null)
 
   const showNotice = (msg: string) => {
     setNotice(msg)
@@ -86,10 +96,20 @@ export function ProjectBrief() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step])
 
+  const unmark = (...keys: (keyof BriefForm)[]) =>
+    setAutoFilled((s) => {
+      if (!keys.some((k) => s.has(k))) return s
+      const n = new Set(s)
+      keys.forEach((k) => n.delete(k))
+      return n
+    })
+
   const set =
     <K extends keyof BriefForm>(key: K) =>
-    (val: BriefForm[K]) =>
+    (val: BriefForm[K]) => {
       setForm((f) => ({ ...f, [key]: val }))
+      unmark(key)
+    }
 
   const toggleAck = (key: (typeof AGREEMENTS)[number]["key"]) =>
     setForm((f) => ({ ...f, [key]: !f[key] }))
@@ -116,6 +136,7 @@ export function ProjectBrief() {
   const setCustomDesc = (val: string) => {
     const hadTier = form.budgetTier !== ""
     setForm((f) => ({ ...f, customDesc: val, budgetTier: "", tierTentative: false, addOns: [] }))
+    unmark("customDesc")
     if (hadTier) showNotice("Cleared to use your custom budget")
   }
 
@@ -127,6 +148,7 @@ export function ProjectBrief() {
       const next = { ...f, [key]: digits, budgetTier: "", tierTentative: false, addOns: [] }
       return { ...next, customBudget: budgetLabel(next.budgetMin, next.budgetMax) }
     })
+    unmark("budgetMin", "budgetMax")
     if (hadTier) showNotice("Cleared to use your custom budget")
   }
 
@@ -138,30 +160,64 @@ export function ProjectBrief() {
         : [...f.addOns, "producer"],
     }))
 
+  const isEmpty = (f: BriefForm, k: keyof BriefForm) => {
+    const v = f[k]
+    if (k === "email") return !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v).trim())
+    return Array.isArray(v) ? v.length === 0 : typeof v === "string" ? !v.trim() : false
+  }
+
+  const missingKeys = REQUIRED_STEP0.filter((k) => isEmpty(form, k))
+
+  // Status passed to each field: "missing" (required, empty, after an upload) beats "filled".
+  const st = (k: keyof BriefForm, required = false): FieldStatus | undefined =>
+    required && flagMissing && isEmpty(form, k) ? "missing" : autoFilled.has(k) ? "filled" : undefined
+
+  const scrollToMissing = (keys: readonly (keyof BriefForm)[] = missingKeys) => {
+    const first = keys[0]
+    if (first) document.getElementById(`field-${first}`)?.scrollIntoView({ behavior: "smooth", block: "center" })
+  }
+
   const applyExtracted = (data: ExtractedBrief) => {
-    setForm((f) => {
-      const next = { ...f }
-      // Only fill empty string fields so we never overwrite what the client already typed.
-      const strKeys = [
-        "fullName", "email", "phone", "serviceType", "projectDate", "location",
-        "subjects", "projectDesc", "customDesc", "deadlineDate", "references", "notes",
-      ] as const
-      for (const k of strKeys) {
-        const v = data[k]
-        if (typeof v === "string" && v.trim() && !next[k]) next[k] = v.trim()
+    // Computed from current state (upload is a single user action) so we can count what was filled.
+    const next = { ...form }
+    const filled: (keyof BriefForm)[] = []
+    // Only fill empty fields so we never overwrite what the client already typed.
+    const strKeys = [
+      "fullName", "email", "phone", "serviceType", "projectDate", "location",
+      "subjects", "projectDesc", "customDesc", "deadlineDate", "references", "notes",
+    ] as const
+    for (const k of strKeys) {
+      const v = data[k]
+      if (typeof v === "string" && v.trim() && !next[k]) {
+        next[k] = v.trim()
+        filled.push(k)
       }
-      // Budget text from the SOW ("$1k-2k") becomes numeric From/To.
-      if (data.customBudget?.trim() && !next.budgetMin && !next.budgetTier) {
-        const { min, max } = parseBudgetRange(data.customBudget)
+    }
+    // Budget text from the SOW ("$1k-2k") becomes numeric From/To.
+    if (data.customBudget?.trim() && !next.budgetMin && !next.budgetTier) {
+      const { min, max } = parseBudgetRange(data.customBudget)
+      if (min) {
         next.budgetMin = min
         next.budgetMax = max
         next.customBudget = budgetLabel(min, max)
+        filled.push("budgetMin")
+        if (max) filled.push("budgetMax")
       }
-      // Array fields: only set if the client hasn't chosen any yet.
-      if (data.projectType?.length && next.projectType.length === 0) next.projectType = [...data.projectType]
-      if (data.tone?.length && next.tone.length === 0) next.tone = [...data.tone]
-      return next
-    })
+    }
+    // Array fields: only set if the client hasn't chosen any yet.
+    if (data.projectType?.length && next.projectType.length === 0) {
+      next.projectType = [...data.projectType]
+      filled.push("projectType")
+    }
+    if (data.tone?.length && next.tone.length === 0) {
+      next.tone = [...data.tone]
+      filled.push("tone")
+    }
+    setForm(next)
+    setAutoFilled(new Set(filled))
+    setFilledCount(filled.length)
+    setFlagMissing(true)
+
     setDocGaps(
       (data.ambiguities ?? []).map((a, i) => ({
         id: `doc-${i}`,
@@ -171,7 +227,14 @@ export function ProjectBrief() {
         source: "document" as const,
       })),
     )
+
+    // Let the check mark land, then glide to the first required field still empty.
+    const stillMissing = REQUIRED_STEP0.filter((k) => isEmpty(next, k))
+    if (stillMissing.length) setTimeout(() => scrollToMissing(stillMissing), 1200)
   }
+
+  const uploadSummary: UploadSummary | null =
+    filledCount === null ? null : { filled: filledCount, remaining: missingKeys.length }
 
   const progress = (step / (SECTIONS.length - 1)) * 100
   const agreementsDone = form.depositAck && form.revisionAck && form.responseAck
@@ -339,29 +402,29 @@ export function ProjectBrief() {
             <section className="space-y-10">
               <div className="brief-stagger">
                 <SectionLabel>Part 1 — Tell Us About Yourself</SectionLabel>
-                <ScopeUpload onExtracted={applyExtracted} />
-                <TextField label="Full Name" required placeholder="Your full name" value={form.fullName} onChange={set("fullName")} />
-                <TextField label="Email Address" required type="email" placeholder="your@email.com" value={form.email} onChange={set("email")} error={emailError} />
-                <TextField label="Phone Number" required type="tel" placeholder="(000) 000-0000" value={form.phone} onChange={set("phone")} />
-                <RadioGroup label="Preferred Contact Method" required options={["Email", "Phone Call", "Text"]} value={form.contactMethod} onChange={set("contactMethod")} />
-                <RadioGroup label="How did you hear about us?" required options={["Instagram", "Referral", "Google", "Other"]} value={form.heardFrom} onChange={set("heardFrom")} />
+                <ScopeUpload onExtracted={applyExtracted} summary={uploadSummary} onShowMe={() => scrollToMissing()} />
+                <TextField label="Full Name" required id="field-fullName" status={st("fullName", true)} placeholder="Your full name" value={form.fullName} onChange={set("fullName")} />
+                <TextField label="Email Address" required id="field-email" status={st("email", true)} type="email" placeholder="your@email.com" value={form.email} onChange={set("email")} error={emailError} />
+                <TextField label="Phone Number" required id="field-phone" status={st("phone", true)} type="tel" placeholder="(000) 000-0000" value={form.phone} onChange={set("phone")} />
+                <RadioGroup label="Preferred Contact Method" required id="field-contactMethod" status={st("contactMethod", true)} options={["Email", "Phone Call", "Text"]} value={form.contactMethod} onChange={set("contactMethod")} />
+                <RadioGroup label="How did you hear about us?" required id="field-heardFrom" status={st("heardFrom", true)} options={["Instagram", "Referral", "Google", "Other"]} value={form.heardFrom} onChange={set("heardFrom")} />
                 {form.heardFrom === "Referral" && (
                   <TextField label="Who referred you?" placeholder="Name of referral" value={form.referral} onChange={set("referral")} />
                 )}
-                <RadioGroup label="Are you the decision maker?" required options={["Yes, I make the final call", "No, I need approval from someone else"]} value={form.decisionMaker} onChange={set("decisionMaker")} />
+                <RadioGroup label="Are you the decision maker?" required id="field-decisionMaker" status={st("decisionMaker", true)} options={["Yes, I make the final call", "No, I need approval from someone else"]} value={form.decisionMaker} onChange={set("decisionMaker")} />
               </div>
 
               <div className="brief-stagger">
                 <SectionLabel>Part 2 — Your Project</SectionLabel>
-                <RadioGroup label="What type of service do you need?" required options={["Full Production (Shoot + Edit)", "Shoot Only — I need footage captured", "Edit Only — I have existing footage", "Not sure — let's talk"]} value={form.serviceType} onChange={set("serviceType")} />
-                <CheckGroup label="Type of Project" required options={["Event Coverage", "Commercial", "Brand Film", "Wedding", "Social Media Content", "Other"]} values={form.projectType} onChange={set("projectType")} />
-                <TextField label="Project / Event Date" placeholder="MM / DD / YYYY" value={form.projectDate} onChange={set("projectDate")} />
-                <TextField label="Project Location" placeholder="City, venue, or address" value={form.location} onChange={set("location")} />
+                <RadioGroup label="What type of service do you need?" required id="field-serviceType" status={st("serviceType", true)} options={["Full Production (Shoot + Edit)", "Shoot Only — I need footage captured", "Edit Only — I have existing footage", "Not sure — let's talk"]} value={form.serviceType} onChange={set("serviceType")} />
+                <CheckGroup label="Type of Project" required id="field-projectType" status={st("projectType", true)} options={["Event Coverage", "Commercial", "Brand Film", "Wedding", "Social Media Content", "Other"]} values={form.projectType} onChange={set("projectType")} />
+                <TextField label="Project / Event Date" id="field-projectDate" status={st("projectDate")} placeholder="MM / DD / YYYY" value={form.projectDate} onChange={set("projectDate")} />
+                <TextField label="Project Location" id="field-location" status={st("location")} placeholder="City, venue, or address" value={form.location} onChange={set("location")} />
                 <RadioGroup label="Indoor or Outdoor?" options={["Indoor", "Outdoor", "Both", "N/A — Edit Only"]} value={form.indoorOutdoor} onChange={set("indoorOutdoor")} />
-                <TextField label="Estimated number of subjects / people" placeholder="e.g. 2 people, 50 guests" value={form.subjects} onChange={set("subjects")} />
+                <TextField label="Estimated number of subjects / people" id="field-subjects" status={st("subjects")} placeholder="e.g. 2 people, 50 guests" value={form.subjects} onChange={set("subjects")} />
                 <RadioGroup label="Will you need a script or voiceover?" options={["Yes", "No", "Not sure"]} value={form.voiceover} onChange={set("voiceover")} />
                 <RadioGroup label="Have you worked with a videographer before?" options={["Yes", "No"]} value={form.priorVideographer} onChange={set("priorVideographer")} />
-                <TextArea label="Tell us about your project" required placeholder="Describe your vision, goals, and any details that will help us understand what you're looking for." value={form.projectDesc} onChange={set("projectDesc")} />
+                <TextArea label="Tell us about your project" required id="field-projectDesc" status={st("projectDesc", true)} placeholder="Describe your vision, goals, and any details that will help us understand what you're looking for." value={form.projectDesc} onChange={set("projectDesc")} />
               </div>
             </section>
           )}
@@ -510,6 +573,7 @@ export function ProjectBrief() {
                       type="tel"
                       placeholder={fmtMoney(rule.suggest[0])}
                       value={fmtMoney(form.budgetMin)}
+                      status={st("budgetMin")}
                       onChange={setBudget("budgetMin")}
                       error={bErr.min}
                     />
@@ -518,11 +582,12 @@ export function ProjectBrief() {
                       type="tel"
                       placeholder={fmtMoney(rule.suggest[1])}
                       value={fmtMoney(form.budgetMax)}
+                      status={st("budgetMax")}
                       onChange={setBudget("budgetMax")}
                       error={bErr.max}
                     />
                   </div>
-                  <TextArea label="What you're looking for" placeholder="Tell us what you have in mind. We'll build something around you." value={form.customDesc} onChange={setCustomDesc} />
+                  <TextArea label="What you're looking for" status={st("customDesc")} placeholder="Tell us what you have in mind. We'll build something around you." value={form.customDesc} onChange={setCustomDesc} />
                 </div>
               </div>
 
@@ -531,7 +596,7 @@ export function ProjectBrief() {
                 <RadioGroup label="How soon do you want to get started?" required options={["Within 2 weeks", "1–2 months", "3–6 months", "Just exploring for now"]} value={form.startSoon} onChange={set("startSoon")} />
                 <RadioGroup label="Do you have a delivery deadline?" required options={["Yes — hard deadline", "Preferred date but flexible", "No deadline"]} value={form.deadline} onChange={set("deadline")} />
                 {form.deadline === "Yes — hard deadline" && (
-                  <TextField label="What is your delivery deadline?" placeholder="MM / DD / YYYY" value={form.deadlineDate} onChange={set("deadlineDate")} />
+                  <TextField label="What is your delivery deadline?" id="field-deadlineDate" status={st("deadlineDate")} placeholder="MM / DD / YYYY" value={form.deadlineDate} onChange={set("deadlineDate")} />
                 )}
                 <RadioGroup label="Turnaround time expectation" options={["Standard (2–4 weeks)", "Expedited (1–2 weeks)", "Rush (under 1 week — additional fees apply)"]} value={form.turnaround} onChange={set("turnaround")} />
               </div>
@@ -542,9 +607,9 @@ export function ProjectBrief() {
             <section className="space-y-10">
               <div className="brief-stagger">
                 <SectionLabel>Part 1 — Creative Direction</SectionLabel>
-                <TextField label="Reference videos or inspiration" placeholder="Paste YouTube, Instagram, or Vimeo links here" value={form.references} onChange={set("references")} />
-                <CheckGroup label="Tone / Style of video" options={["Cinematic & Dramatic", "Clean & Corporate", "Fun & Energetic", "Emotional & Storytelling", "Not sure — open to suggestions"]} values={form.tone} onChange={set("tone")} />
-                <TextArea label="Any additional notes for our team?" placeholder="Anything else we should know — special requests, concerns, or ideas." value={form.notes} onChange={set("notes")} />
+                <TextField label="Reference videos or inspiration" id="field-references" status={st("references")} placeholder="Paste YouTube, Instagram, or Vimeo links here" value={form.references} onChange={set("references")} />
+                <CheckGroup label="Tone / Style of video" id="field-tone" status={st("tone")} options={["Cinematic & Dramatic", "Clean & Corporate", "Fun & Energetic", "Emotional & Storytelling", "Not sure — open to suggestions"]} values={form.tone} onChange={set("tone")} />
+                <TextArea label="Any additional notes for our team?" id="field-notes" status={st("notes")} placeholder="Anything else we should know — special requests, concerns, or ideas." value={form.notes} onChange={set("notes")} />
               </div>
 
               <div className="brief-stagger">
