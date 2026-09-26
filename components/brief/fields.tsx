@@ -37,7 +37,7 @@ export function SectionLabel({ children }: { children: ReactNode }) {
 
 // Background and border are chosen per state (not overridden), so classes never conflict.
 const controlBase =
-  "w-full rounded-md border px-3.5 py-2.5 font-sans text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/70 focus:border-brand focus:ring-2 focus:ring-brand/15"
+  "w-full rounded-md border px-3.5 py-2.5 font-sans text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/70 focus:border-brand focus:ring-2 focus:ring-brand/[0.13]"
 
 function controlClass(status?: FieldStatus, error?: string) {
   const bg = status === "filled" ? "bg-accent" : "bg-field"
