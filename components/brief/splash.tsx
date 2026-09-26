@@ -4,9 +4,27 @@ import { useEffect, useState } from "react"
 
 const TAGLINE = "Content that builds brands."
 
-const BASE_URL = "https://video-production-inquiry-form.vercel.app/"
-const ROW_1 = ["A.png", "B.png", "C.png", "D.png", "E.png", "F.png", "G.png", "H.png", "I.png"]
-const ROW_2 = ["J.png", "K.png", "L.png", "M.png", "N.png", "O.png", "P.png", "Q.png"]
+const ROW_1 = [
+  "/images/A.png",
+  "/images/B.png",
+  "/images/C.png",
+  "/images/D.png",
+  "/images/E.png",
+  "/images/F.png",
+  "/images/G.png",
+  "/images/H.png",
+  "/images/I.png",
+]
+const ROW_2 = [
+  "/images/J.png",
+  "/images/K.png",
+  "/images/L.png",
+  "/images/M.png",
+  "/images/N.png",
+  "/images/O.png",
+  "/images/P.png",
+  "/images/Q.png",
+]
 
 function MarqueeRow({
   images,
@@ -26,7 +44,7 @@ function MarqueeRow({
       {doubled.map((file, i) => (
         <img
           key={`${file}-${i}`}
-          src={`${BASE_URL}${file}`}
+          src={file}
           alt=""
           aria-hidden="true"
           loading="lazy"
