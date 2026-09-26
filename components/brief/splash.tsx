@@ -93,7 +93,7 @@ export function Splash({ onStart }: { onStart: () => void }) {
   }, [])
 
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-foreground px-6 text-center">
+    <main className="relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden bg-foreground px-6 text-center">
       {/* Dual scrolling marquee background */}
       <div
         aria-hidden="true"
@@ -106,8 +106,8 @@ export function Splash({ onStart }: { onStart: () => void }) {
       {/* Dark overlay keeps the hero text legible over the marquee */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-0"
-        style={{ backgroundColor: "rgba(26, 26, 26, 0.65)" }}
+        className="pointer-events-none absolute inset-0 z-[1]"
+        style={{ backgroundColor: "rgba(26, 26, 26, 0.7)" }}
       />
 
       {/* Animated film grain overlay */}
