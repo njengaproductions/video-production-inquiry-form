@@ -65,7 +65,11 @@ export type BriefForm = {
   projectDesc: string
   budgetTier: string
   addOns: string[]
-  customBudget: string
+  customBudget: string // derived label, e.g. "$1,500 – $3,000"
+  budgetMin: string // digits only
+  budgetMax: string // digits only, optional
+  suggestedTier: string // AI-matched tier ("" if none)
+  tierTentative: boolean // tier chosen from the AI suggestion, to confirm on the pre-pro call
   customDesc: string
   startSoon: string
   deadline: string
@@ -100,6 +104,10 @@ export const INITIAL_FORM: BriefForm = {
   budgetTier: "",
   addOns: [],
   customBudget: "",
+  budgetMin: "",
+  budgetMax: "",
+  suggestedTier: "",
+  tierTentative: false,
   customDesc: "",
   startSoon: "",
   deadline: "",

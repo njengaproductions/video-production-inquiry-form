@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { submitBrief } from "@/app/actions/submit-brief"
+import { suggestTier } from "@/app/actions/suggest-tier"
 import type { ExtractedBrief } from "@/app/actions/extract-brief"
 import { BUDGET_TIERS, INITIAL_FORM, SECTIONS, type BriefForm } from "./data"
 import { CheckGroup, RadioGroup, SectionLabel, TextArea, TextField } from "./fields"
@@ -9,6 +10,7 @@ import { ScopeUpload } from "./scope-upload"
 import { Celebration } from "./celebration"
 import type { Gap, MeetingPlan } from "./gaps"
 import { GapCheck, gapQuestions, type GapQuestion } from "./gap-check"
+import { budgetErrors, budgetLabel, budgetRule, budgetValid, fmtMoney, onlyDigits, parseBudgetRange } from "./budget"
 
 const AGREEMENTS: { key: "depositAck" | "revisionAck" | "responseAck"; text: string }[] = [
   { key: "depositAck", text: "I understand a deposit is required to secure my project date." },
@@ -35,6 +37,10 @@ export function ProjectBrief() {
   const [, setMeeting] = useState<MeetingPlan | null>(null)
   // Step D: null = not yet checked; [] or list = checked once.
   const [questions, setQuestions] = useState<GapQuestion[] | null>(null)
+  // AI tier match: the AI picks one of our tiers from what the client described; prices stay ours.
+  const [tierReason, setTierReason] = useState("")
+  const [suggesting, setSuggesting] = useState(false)
+  const suggestKey = useRef("")
 
   const showNotice = (msg: string) => {
     setNotice(msg)
@@ -45,6 +51,39 @@ export function ProjectBrief() {
   // Scroll to the top on every step transition (forward and back).
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" })
+  }, [step])
+
+  // On reaching the budget step, match the described project to a tier.
+  // Re-runs only if the project details changed since the last match.
+  useEffect(() => {
+    if (step !== 1) return
+    const input = {
+      serviceType: form.serviceType,
+      projectType: form.projectType,
+      projectDesc: form.projectDesc,
+      subjects: form.subjects,
+      location: form.location,
+      indoorOutdoor: form.indoorOutdoor,
+      voiceover: form.voiceover,
+      turnaround: form.turnaround,
+      projectDate: form.projectDate,
+    }
+    const key = JSON.stringify(input)
+    if (key === suggestKey.current) return
+    suggestKey.current = key
+    setSuggesting(true)
+    suggestTier(input)
+      .then((r) => {
+        const tier = r.ok && r.data.confident ? r.data.tier : ""
+        setTierReason(tier && r.ok ? r.data.reason : "")
+        setForm((f) => ({ ...f, suggestedTier: tier }))
+      })
+      .catch(() => {
+        setTierReason("")
+        setForm((f) => ({ ...f, suggestedTier: "" }))
+      })
+      .finally(() => setSuggesting(false))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step])
 
   const set =
@@ -58,26 +97,38 @@ export function ProjectBrief() {
   // Selecting a tier clears add-ons unless it's the Shoot Only tier, so a Producer
   // Services selection can never persist as stale state under a different tier.
   // Selecting a tier is also mutually exclusive with the custom budget path.
-  const selectTier = (name: string) => {
-    const hadCustom = form.customBudget.trim() !== "" || form.customDesc.trim() !== ""
+  const selectTier = (name: string, tentative = false) => {
+    const hadCustom = form.budgetMin !== "" || form.budgetMax !== "" || form.customDesc.trim() !== ""
     setForm((f) => ({
       ...f,
       budgetTier: name,
+      tierTentative: tentative,
       addOns: name === "Shoot Only" ? f.addOns : [],
       customBudget: "",
+      budgetMin: "",
+      budgetMax: "",
       customDesc: "",
     }))
     if (hadCustom) showNotice(`Cleared to use ${name}`)
   }
 
   // Typing in either custom-budget field clears any tier selection (and add-ons).
-  const setCustom =
-    (key: "customBudget" | "customDesc") =>
-    (val: string) => {
-      const hadTier = form.budgetTier !== ""
-      setForm((f) => ({ ...f, [key]: val, budgetTier: "", addOns: [] }))
-      if (hadTier) showNotice("Cleared to use your custom budget")
-    }
+  const setCustomDesc = (val: string) => {
+    const hadTier = form.budgetTier !== ""
+    setForm((f) => ({ ...f, customDesc: val, budgetTier: "", tierTentative: false, addOns: [] }))
+    if (hadTier) showNotice("Cleared to use your custom budget")
+  }
+
+  // Numbers only. Keeps customBudget (the label gaps/email read) in sync.
+  const setBudget = (key: "budgetMin" | "budgetMax") => (val: string) => {
+    const hadTier = form.budgetTier !== ""
+    const digits = onlyDigits(val)
+    setForm((f) => {
+      const next = { ...f, [key]: digits, budgetTier: "", tierTentative: false, addOns: [] }
+      return { ...next, customBudget: budgetLabel(next.budgetMin, next.budgetMax) }
+    })
+    if (hadTier) showNotice("Cleared to use your custom budget")
+  }
 
   const toggleProducer = () =>
     setForm((f) => ({
@@ -93,11 +144,18 @@ export function ProjectBrief() {
       // Only fill empty string fields so we never overwrite what the client already typed.
       const strKeys = [
         "fullName", "email", "phone", "serviceType", "projectDate", "location",
-        "subjects", "projectDesc", "customBudget", "customDesc", "deadlineDate", "references", "notes",
+        "subjects", "projectDesc", "customDesc", "deadlineDate", "references", "notes",
       ] as const
       for (const k of strKeys) {
         const v = data[k]
         if (typeof v === "string" && v.trim() && !next[k]) next[k] = v.trim()
+      }
+      // Budget text from the SOW ("$1k-2k") becomes numeric From/To.
+      if (data.customBudget?.trim() && !next.budgetMin && !next.budgetTier) {
+        const { min, max } = parseBudgetRange(data.customBudget)
+        next.budgetMin = min
+        next.budgetMax = max
+        next.customBudget = budgetLabel(min, max)
       }
       // Array fields: only set if the client hasn't chosen any yet.
       if (data.projectType?.length && next.projectType.length === 0) next.projectType = [...data.projectType]
@@ -121,12 +179,9 @@ export function ProjectBrief() {
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())
   const emailError = form.email.trim().length > 0 && !emailValid ? "Please enter a valid email address." : undefined
 
-  // Soft nudge only: a budget without a number still lets the client continue,
-  // but it's flagged as a critical gap and asked again at submit.
-  const budgetHint =
-    form.customBudget.trim() && !/\d/.test(form.customBudget)
-      ? "Add a dollar range, like $1,500 – $3,000, so we know what we're working with."
-      : undefined
+  // Smart minimum for the custom budget path, based on service + project type.
+  const rule = budgetRule(form)
+  const bErr = budgetErrors(form)
 
   const handleSubmit = async () => {
     if (!agreementsDone || sending) return
@@ -167,7 +222,7 @@ export function ProjectBrief() {
     // Step 2 — Budget + Timeline. A tier OR a completed custom request, plus timeline answers.
     if (step === 1)
       return Boolean(
-        (form.budgetTier || (form.customBudget.trim() && form.customDesc.trim())) &&
+        (form.budgetTier || (budgetValid(form) && form.customDesc.trim())) &&
           form.startSoon &&
           form.deadline,
       )
@@ -357,11 +412,22 @@ export function ProjectBrief() {
                                 RECOMMENDED
                               </span>
                             )}
+                            {form.suggestedTier === tier.name && (
+                              <span className="rounded-full bg-brand px-2 py-0.5 text-[10px] font-bold tracking-wide text-primary-foreground">
+                                LIKELY FIT
+                              </span>
+                            )}
                           </div>
                           <span className="font-serif text-[15px] font-bold text-foreground">{tier.range}</span>
                         </div>
                         <p className="m-0 font-sans text-xs leading-relaxed text-muted-foreground">{tier.desc}</p>
                       </button>
+
+                      {selected && form.tierTentative && (
+                        <p className="-mt-1 mb-3 ml-4 font-sans text-[11px] italic leading-relaxed text-muted-foreground">
+                          Tentative — a member of our team will review this with you on your pre-production call.
+                        </p>
+                      )}
 
                       {isShootOnly && selected && (
                         <label
@@ -405,14 +471,58 @@ export function ProjectBrief() {
                     A range tells us what we&apos;re working with, so we can shape the right package around it. It&apos;s a
                     starting point, not a commitment.
                   </p>
-                  <TextField
-                    label="My budget range"
-                    placeholder="$1,500 – $3,000"
-                    value={form.customBudget}
-                    onChange={setCustom("customBudget")}
-                    error={budgetHint}
-                  />
-                  <TextArea label="What you're looking for" placeholder="Tell us what you have in mind. We'll build something around you." value={form.customDesc} onChange={setCustom("customDesc")} />
+                  {!form.budgetTier && suggesting && (
+                    <p className="mb-3 font-sans text-xs italic text-muted-foreground" aria-live="polite">
+                      Finding the best fit for what you&apos;ve described…
+                    </p>
+                  )}
+                  {!form.budgetTier && !suggesting && form.suggestedTier && (() => {
+                    const t = BUDGET_TIERS.find((b) => b.name === form.suggestedTier)
+                    if (!t) return null
+                    return (
+                      <div className="brief-badge-in mb-4 rounded-md border border-brand/40 bg-surface p-3" aria-live="polite">
+                        <p className="m-0 font-serif text-[14px] font-bold text-foreground">
+                          Your project most likely fits <span className="text-brand">{t.name} ({t.range})</span>
+                        </p>
+                        {tierReason && (
+                          <p className="mt-1 mb-0 font-sans text-xs leading-relaxed text-muted-foreground">{tierReason}</p>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => selectTier(t.name, true)}
+                          className="mt-3 rounded-md bg-brand px-4 py-2 font-sans text-[12px] font-semibold text-primary-foreground"
+                        >
+                          Use {t.name} as my tentative tier
+                        </button>
+                        <p className="mt-2 mb-0 font-sans text-[11px] leading-relaxed text-muted-foreground">
+                          Tentative — a member of our team will review it with you on your pre-production call. Or enter
+                          your own range below.
+                        </p>
+                      </div>
+                    )
+                  })()}
+                  <p className="mb-3 font-sans text-xs font-semibold text-brand">
+                    Suggested for {rule.label.toLowerCase()}: ${fmtMoney(rule.suggest[0])} – ${fmtMoney(rule.suggest[1])}
+                  </p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <TextField
+                      label="From ($)"
+                      type="tel"
+                      placeholder={fmtMoney(rule.suggest[0])}
+                      value={fmtMoney(form.budgetMin)}
+                      onChange={setBudget("budgetMin")}
+                      error={bErr.min}
+                    />
+                    <TextField
+                      label="To ($, optional)"
+                      type="tel"
+                      placeholder={fmtMoney(rule.suggest[1])}
+                      value={fmtMoney(form.budgetMax)}
+                      onChange={setBudget("budgetMax")}
+                      error={bErr.max}
+                    />
+                  </div>
+                  <TextArea label="What you're looking for" placeholder="Tell us what you have in mind. We'll build something around you." value={form.customDesc} onChange={setCustomDesc} />
                 </div>
               </div>
 

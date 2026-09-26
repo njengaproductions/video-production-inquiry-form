@@ -90,25 +90,23 @@ export function structuralGaps(f: BriefForm): Gap[] {
     })
 
   // ---- Minor ----
-  // Budget: no tier picked. A range with numbers is workable (minor);
-  // anything without a number ("TBD", "not sure", blank) blocks quoting (critical).
-  if (!f.budgetTier) {
-    if (/\d/.test(f.customBudget))
-      add({
-        id: "custom-budget",
-        severity: "minor",
-        label: `Custom budget: ${f.customBudget.trim()}`,
-        agenda: "Map the custom budget to deliverables",
-      })
-    else
-      add({
-        id: "no-budget-range",
-        severity: "critical",
-        label: f.customBudget.trim() ? `No usable budget range ("${f.customBudget.trim()}")` : "No budget range given",
-        agenda: "Establish a working budget range before scoping",
-        clientQuestion: "What budget range should we plan around?",
-      })
-  }
+  // Budget: no tier picked. The form enforces a numeric range above the service minimum,
+  // so this is informational — map the custom range to deliverables.
+  if (!f.budgetTier && !empty(f.customBudget))
+    add({
+      id: "custom-budget",
+      severity: "minor",
+      label: `Custom budget: ${f.customBudget.trim()}${f.suggestedTier ? ` (likely fit: ${f.suggestedTier})` : ""}`,
+      agenda: "Map the custom budget to deliverables",
+    })
+
+  if (f.tierTentative && f.budgetTier)
+    add({
+      id: "tier-tentative",
+      severity: "minor",
+      label: `Tentative tier: ${f.budgetTier} (picked from AI suggestion)`,
+      agenda: `Confirm ${f.budgetTier} fits the scope`,
+    })
 
   if (f.budgetTier === "Premium")
     add({ id: "premium-quote", severity: "minor", label: "Premium tier — custom quote required", agenda: "Scope days, deliverables, and creative direction for a custom quote" })

@@ -51,7 +51,7 @@ function quoteRange(f: BriefForm): string {
     if (tier.name === "Premium") return `$5K+ — custom quote${rush}`
     const producer =
       tier.name === "Shoot Only" && f.addOns.includes("producer") ? " + Producer Services $400–$600" : ""
-    return `${tier.range} (${tier.name})${producer}${rush}`
+    return `${tier.range} (${tier.name}${f.tierTentative ? ", tentative" : ""})${producer}${rush}`
   }
   if (f.customBudget.trim()) return `Client-stated: ${f.customBudget.trim()} — custom, map to deliverables${rush}`
   return "No budget given — establish in meeting"
@@ -89,7 +89,8 @@ function buildRows(form: BriefForm): { section: string; rows: Row[] }[] {
     {
       section: "Budget",
       rows: [
-        { label: "Selected Tier", value: fmt(form.budgetTier) },
+        { label: "Selected Tier", value: fmt(form.budgetTier ? `${form.budgetTier}${form.tierTentative ? " (tentative — confirm on pre-pro call)" : ""}` : "") },
+        { label: "AI Likely Fit", value: fmt(form.suggestedTier) },
         { label: "Add-Ons", value: fmt(form.addOns?.includes("producer") ? "Producer Services ($400–$600)" : "") },
         { label: "Custom Budget", value: fmt(form.customBudget) },
         { label: "Custom Description", value: fmt(form.customDesc) },
