@@ -36,8 +36,18 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const marqueeImages = [
+    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I',
+    'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q',
+  ]
+
   return (
     <html lang="en" className="bg-background font-sans antialiased">
+      <head>
+        {marqueeImages.map((name) => (
+          <link key={name} rel="preload" as="image" href={`/images/${name}.png`} />
+        ))}
+      </head>
       <body className="antialiased">
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}

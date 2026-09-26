@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 const TAGLINE = "Content that builds brands."
 
@@ -29,9 +29,13 @@ const ROW_2 = [
 function MarqueeRow({
   images,
   direction,
+  playing,
+  onImageLoad,
 }: {
   images: string[]
   direction: "left" | "right"
+  playing: boolean
+  onImageLoad: () => void
 }) {
   // Duplicate the set so the -50% translate loops seamlessly.
   const doubled = [...images, ...images]
@@ -40,6 +44,7 @@ function MarqueeRow({
       className={`splash-marquee-track gap-3 ${
         direction === "right" ? "splash-marquee-right" : "splash-marquee-left"
       }`}
+      style={{ willChange: "transform", animationPlayState: playing ? "running" : "paused" }}
     >
       {doubled.map((file, i) => (
         <img
@@ -47,7 +52,10 @@ function MarqueeRow({
           src={file}
           alt=""
           aria-hidden="true"
-          loading="lazy"
+          loading="eager"
+          fetchPriority="high"
+          onLoad={onImageLoad}
+          onError={onImageLoad}
           className="h-40 w-auto flex-shrink-0 rounded-lg object-cover sm:h-52"
         />
       ))}
@@ -55,10 +63,27 @@ function MarqueeRow({
   )
 }
 
+const TOTAL_MARQUEE_IMAGES = (ROW_1.length + ROW_2.length) * 2
+
 export function Splash({ onStart }: { onStart: () => void }) {
   const [typed, setTyped] = useState("")
   const [typingDone, setTypingDone] = useState(false)
   const [showButton, setShowButton] = useState(false)
+  const [marqueePlaying, setMarqueePlaying] = useState(false)
+  const loadedCount = useRef(0)
+
+  const handleImageLoad = () => {
+    loadedCount.current += 1
+    if (loadedCount.current >= TOTAL_MARQUEE_IMAGES) {
+      setMarqueePlaying(true)
+    }
+  }
+
+  // Safety net: start the marquee even if some images never fire load/error.
+  useEffect(() => {
+    const t = setTimeout(() => setMarqueePlaying(true), 3000)
+    return () => clearTimeout(t)
+  }, [])
 
   useEffect(() => {
     const prefersReduced =
@@ -99,8 +124,8 @@ export function Splash({ onStart }: { onStart: () => void }) {
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 z-0 flex flex-col justify-center gap-3"
       >
-        <MarqueeRow images={ROW_1} direction="right" />
-        <MarqueeRow images={ROW_2} direction="left" />
+        <MarqueeRow images={ROW_1} direction="right" playing={marqueePlaying} onImageLoad={handleImageLoad} />
+        <MarqueeRow images={ROW_2} direction="left" playing={marqueePlaying} onImageLoad={handleImageLoad} />
       </div>
 
       {/* Dark overlay keeps the hero text legible over the marquee */}
