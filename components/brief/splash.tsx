@@ -4,6 +4,39 @@ import { useEffect, useState } from "react"
 
 const TAGLINE = "Content that builds brands."
 
+const BASE_URL = "https://video-production-inquiry-form.vercel.app/"
+const ROW_1 = ["A.png", "B.png", "C.png", "D.png", "E.png", "F.png", "G.png", "H.png", "I.png"]
+const ROW_2 = ["J.png", "K.png", "L.png", "M.png", "N.png", "O.png", "P.png", "Q.png"]
+
+function MarqueeRow({
+  images,
+  direction,
+}: {
+  images: string[]
+  direction: "left" | "right"
+}) {
+  // Duplicate the set so the -50% translate loops seamlessly.
+  const doubled = [...images, ...images]
+  return (
+    <div
+      className={`splash-marquee-track gap-3 ${
+        direction === "right" ? "splash-marquee-right" : "splash-marquee-left"
+      }`}
+    >
+      {doubled.map((file, i) => (
+        <img
+          key={`${file}-${i}`}
+          src={`${BASE_URL}${file}`}
+          alt=""
+          aria-hidden="true"
+          loading="lazy"
+          className="h-40 w-auto flex-shrink-0 rounded-lg object-cover sm:h-52"
+        />
+      ))}
+    </div>
+  )
+}
+
 export function Splash({ onStart }: { onStart: () => void }) {
   const [typed, setTyped] = useState("")
   const [typingDone, setTypingDone] = useState(false)
@@ -43,6 +76,22 @@ export function Splash({ onStart }: { onStart: () => void }) {
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-foreground px-6 text-center">
+      {/* Dual scrolling marquee background */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-0 flex flex-col justify-center gap-3"
+      >
+        <MarqueeRow images={ROW_1} direction="right" />
+        <MarqueeRow images={ROW_2} direction="left" />
+      </div>
+
+      {/* Dark overlay keeps the hero text legible over the marquee */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-0"
+        style={{ backgroundColor: "rgba(26, 26, 26, 0.65)" }}
+      />
+
       {/* Animated film grain overlay */}
       <div
         aria-hidden="true"
