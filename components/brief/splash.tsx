@@ -14,6 +14,10 @@ const ROW_1 = [
   "/images/G.png",
   "/images/H.png",
   "/images/I.png",
+  "/images/R.png",
+  "/images/S.png",
+  "/images/T.png",
+  "/images/U.png",
 ]
 const ROW_2 = [
   "/images/J.png",
@@ -24,6 +28,9 @@ const ROW_2 = [
   "/images/O.png",
   "/images/P.png",
   "/images/Q.png",
+  "/images/V.png",
+  "/images/W.png",
+  "/images/X.png",
 ]
 
 function MarqueeRow({
