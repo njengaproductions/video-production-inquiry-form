@@ -232,3 +232,26 @@
 @media (prefers-reduced-motion: reduce) {
   .brief-pop, .brief-pulse { animation: none; }
 }
+
+/* === Splash marquee background === */
+@keyframes splash-marquee-right {
+  from { transform: translate3d(-50%, 0, 0); }
+  to { transform: translate3d(0, 0, 0); }
+}
+@keyframes splash-marquee-left {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+.splash-marquee-track {
+  display: flex;
+  width: max-content;
+  flex-shrink: 0;
+  will-change: transform;
+}
+.splash-marquee-right { animation: splash-marquee-right 40s linear infinite; }
+.splash-marquee-left { animation: splash-marquee-left 35s linear infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .splash-marquee-right,
+  .splash-marquee-left { animation: none; }
+}
