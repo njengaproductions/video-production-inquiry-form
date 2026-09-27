@@ -72,10 +72,18 @@ function MarqueeRow({
 
 const TOTAL_MARQUEE_IMAGES = (ROW_1.length + ROW_2.length) * 2
 
-export function Splash({ onStart }: { onStart: () => void }) {
-  const [typed, setTyped] = useState("")
-  const [typingDone, setTypingDone] = useState(false)
-  const [showButton, setShowButton] = useState(false)
+export function Splash({
+  onStart,
+  hasProgress = false,
+  instant = false,
+}: {
+  onStart: () => void
+  hasProgress?: boolean // client already has answers → "Continue Your Brief"
+  instant?: boolean // returning via the logo → skip the typing intro
+}) {
+  const [typed, setTyped] = useState(instant ? TAGLINE : "")
+  const [typingDone, setTypingDone] = useState(instant)
+  const [showButton, setShowButton] = useState(instant)
   const [marqueePlaying, setMarqueePlaying] = useState(false)
   const loadedCount = useRef(0)
 
@@ -88,11 +96,13 @@ export function Splash({ onStart }: { onStart: () => void }) {
 
   // Safety net: start the marquee even if some images never fire load/error.
   useEffect(() => {
-    const t = setTimeout(() => setMarqueePlaying(true), 3000)
+    const t = setTimeout(() => setMarqueePlaying(true), instant ? 300 : 3000)
     return () => clearTimeout(t)
-  }, [])
+  }, [instant])
 
   useEffect(() => {
+    if (instant) return
+
     const prefersReduced =
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -122,10 +132,19 @@ export function Splash({ onStart }: { onStart: () => void }) {
     }
 
     return () => timers.forEach(clearTimeout)
-  }, [])
+  }, [instant])
 
   return (
     <main className="relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden bg-foreground px-6 text-center">
+      {/* Team login — the only entry point to the back office. Small and muted on purpose. */}
+      <a
+        href="/admin"
+        rel="nofollow"
+        className="absolute right-5 top-4 z-20 rounded font-sans text-[11px] tracking-wide text-white/35 underline-offset-4 transition-colors hover:text-white/70 hover:underline focus:outline-none focus-visible:text-white/80 focus-visible:ring-2 focus-visible:ring-brand"
+      >
+        Team login
+      </a>
+
       {/* Dual scrolling marquee background */}
       <div
         aria-hidden="true"
@@ -172,7 +191,7 @@ export function Splash({ onStart }: { onStart: () => void }) {
             onClick={onStart}
             className="splash-fade-up splash-button-pulse mt-10 rounded-[9999px] bg-brand px-9 py-3.5 font-sans text-sm font-bold tracking-wide text-white transition-transform duration-200 hover:scale-105 hover:bg-brand/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-foreground"
           >
-            Start Your Project
+            {hasProgress ? "Continue Your Brief" : "Start Your Project"}
           </button>
         )}
       </div>

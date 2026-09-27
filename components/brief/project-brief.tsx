@@ -27,7 +27,13 @@ const AGREEMENTS: { key: "depositAck" | "revisionAck" | "responseAck"; text: str
   },
 ]
 
-export function ProjectBrief() {
+export function ProjectBrief({
+  onHome,
+  onProgress,
+}: {
+  onHome?: () => void // logo click → back to the splash page
+  onProgress?: (hasProgress: boolean) => void // lets the splash say "Continue your brief"
+}) {
   const [step, setStep] = useState(0)
   const [dir, setDir] = useState<"forward" | "back">("forward")
   const [celebrate, setCelebrate] = useState(false)
@@ -57,6 +63,11 @@ export function ProjectBrief() {
     if (noticeTimer.current) clearTimeout(noticeTimer.current)
     noticeTimer.current = setTimeout(() => setNotice(null), 5000)
   }
+
+  // Tell the page whether the client has started, so the splash can offer "Continue your brief".
+  useEffect(() => {
+    onProgress?.(step > 0 || JSON.stringify(form) !== JSON.stringify(INITIAL_FORM))
+  }, [form, step, onProgress])
 
   // Scroll to the top on every step transition (forward and back).
   useEffect(() => {
@@ -336,10 +347,17 @@ export function ProjectBrief() {
       {celebrate && <Celebration />}
       {/* Header */}
       <header className="flex items-center justify-between bg-foreground px-6 py-4">
-        <div>
-          <div className="font-serif text-lg font-bold text-brand">NJENGA Productions Co.</div>
-          <div className="mt-0.5 text-[11px] italic text-white/50">Content that builds brands.</div>
-        </div>
+        <button
+          type="button"
+          onClick={onHome}
+          aria-label="NJENGA Productions Co. — back to start"
+          className="group -m-1 rounded-md p-1 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-foreground"
+        >
+          <span className="block font-serif text-lg font-bold text-brand transition-opacity group-hover:opacity-80">
+            NJENGA Productions Co.
+          </span>
+          <span className="mt-0.5 block text-[11px] italic text-white/50">Content that builds brands.</span>
+        </button>
         <div className="text-[11px] text-white/40">Client Project Brief</div>
       </header>
 

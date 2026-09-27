@@ -10,7 +10,7 @@ import type { BriefForm } from "./data"
 import { structuralGaps } from "./gaps"
 import { RadioGroup, TextField } from "./fields"
 
-type AnswerField = "projectDate" | "location" | "deadlineDate" | "approver" | "serviceType" | "customBudget"
+type AnswerField = "projectDate" | "location" | "deadlineDate" | "approver" | "serviceType"
 
 export type GapQuestion = {
   gapId: string
@@ -55,13 +55,6 @@ const QUESTIONS: Record<string, GapQuestion> = {
     kind: "text",
     label: "What date do you need the final video by?",
     placeholder: "MM / DD / YYYY",
-  },
-  "no-budget-range": {
-    gapId: "no-budget-range",
-    field: "customBudget",
-    kind: "text",
-    label: "What budget range should we plan around?",
-    placeholder: "$1,500 – $3,000",
   },
   approver: {
     gapId: "approver",
