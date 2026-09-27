@@ -63,7 +63,7 @@ function MarqueeRow({
           fetchPriority="high"
           onLoad={onImageLoad}
           onError={onImageLoad}
-          className="h-40 w-auto flex-shrink-0 rounded-lg object-cover sm:h-52"
+          className="h-[41dvh] w-auto flex-shrink-0 rounded-lg object-cover"
         />
       ))}
     </div>
@@ -148,7 +148,7 @@ export function Splash({
       {/* Dual scrolling marquee background */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-0 flex flex-col justify-center gap-3"
+        className="pointer-events-none absolute inset-0 z-0 flex flex-col justify-center gap-3 py-[4dvh]"
       >
         <MarqueeRow images={ROW_1} direction="right" playing={marqueePlaying} onImageLoad={handleImageLoad} />
         <MarqueeRow images={ROW_2} direction="left" playing={marqueePlaying} onImageLoad={handleImageLoad} />
@@ -158,7 +158,17 @@ export function Splash({
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 z-[1]"
-        style={{ backgroundColor: "rgba(26, 26, 26, 0.7)" }}
+        style={{ backgroundColor: "rgba(26, 26, 26, 0.6)" }}
+      />
+
+      {/* Spotlight behind the logo + tagline so they read cleanly over the busy grid */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-[2]"
+        style={{
+          background:
+            "radial-gradient(ellipse 42% 38% at 50% 50%, rgba(26,26,26,0.92) 0%, rgba(26,26,26,0.75) 45%, rgba(26,26,26,0) 100%)",
+        }}
       />
 
       {/* Animated film grain overlay */}
@@ -180,7 +190,11 @@ export function Splash({
           className="splash-fade-up mt-6 h-px w-56 bg-gradient-to-r from-transparent via-brand to-transparent sm:w-72"
         />
 
-        <p className="mt-6 h-6 font-serif text-base italic text-mauve sm:text-lg" aria-label={TAGLINE}>
+        <p
+          className="mt-6 h-7 font-serif text-lg italic tracking-wide text-white/90 sm:text-xl"
+          style={{ textShadow: "0 2px 12px rgba(0,0,0,0.8)" }}
+          aria-label={TAGLINE}
+        >
           <span aria-hidden="true">{typed}</span>
           {!typingDone && <span className="splash-caret ml-0.5 inline-block">|</span>}
         </p>
