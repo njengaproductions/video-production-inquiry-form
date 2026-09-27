@@ -12,6 +12,7 @@
 import { Resend } from "resend"
 import { BUDGET_TIERS, type BriefForm } from "@/components/brief/data"
 import { normalizeForm, planMeeting, structuralGaps, type Gap, type MeetingPlan } from "@/components/brief/gaps"
+import { saveBrief } from "@/lib/briefs"
 
 const TO_EMAIL = "njengaproductions@gmail.com"
 
@@ -245,6 +246,9 @@ export async function submitBrief(
   const gaps = [...structuralGaps(form), ...sanitizeDocGaps(rawDocGaps)]
   const plan = planMeeting(gaps)
   const quote = quoteRange(form)
+
+  // Save for the back office first. saveBrief never throws, so the email below always sends.
+  await saveBrief({ form, gaps, meeting: plan, quote })
 
   const resend = new Resend(apiKey)
   const from = "NJENGA Brief <onboarding@resend.dev>"
