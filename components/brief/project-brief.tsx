@@ -255,6 +255,7 @@ export function ProjectBrief({
 
   // Smart minimum for the custom budget path, based on service + project type.
   const rule = budgetRule(form)
+
   const bErr = budgetErrors(form)
 
   const handleSubmit = async () => {
@@ -343,7 +344,7 @@ export function ProjectBrief({
   }
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-foreground">
       {celebrate && <Celebration />}
       {/* Header */}
       <header className="flex items-center justify-between bg-foreground px-6 py-4">
@@ -353,16 +354,16 @@ export function ProjectBrief({
           aria-label="NJENGA Productions Co. — back to start"
           className="group -m-1 rounded-md p-1 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-foreground"
         >
-          <span className="block font-serif text-lg font-bold text-brand transition-opacity group-hover:opacity-80">
-            NJENGA Productions Co.
+          <span className="block font-serif text-xl font-semibold leading-none tracking-[0.14em] text-brand transition-opacity group-hover:opacity-80">
+            NJENGA
           </span>
-          <span className="mt-0.5 block text-[11px] italic text-white/50">Content that builds brands.</span>
+          <span className="mt-1 block font-serif text-[9px] tracking-[0.45em] text-mauve">PRODUCTIONS CO.</span>
         </button>
         <div className="text-[11px] text-white/40">Client Project Brief</div>
       </header>
 
       {/* Progress */}
-      <div className="border-b border-hairline bg-surface px-6 py-3">
+      <div className="border-b border-white/10 bg-foreground px-6 py-3">
         <div className="mx-auto max-w-2xl">
           <div className="mb-2 flex justify-between">
             {SECTIONS.map((s, i) => (
@@ -378,7 +379,7 @@ export function ProjectBrief({
                       ? "bg-brand text-primary-foreground"
                       : i === step
                         ? "bg-brand text-primary-foreground ring-4 ring-brand/15"
-                        : "bg-hairline text-muted-foreground/60"
+                        : "bg-white/10 text-white/50"
                   }`}
                 >
                   {i < step ? (
@@ -392,7 +393,7 @@ export function ProjectBrief({
               </div>
             ))}
           </div>
-          <div className="h-[4px] overflow-hidden rounded-full bg-hairline">
+          <div className="h-[4px] overflow-hidden rounded-full bg-white/10">
             <div
               className="h-full rounded-full bg-brand transition-[width] duration-500 ease-out"
               style={{ width: `${progress}%` }}
@@ -404,7 +405,7 @@ export function ProjectBrief({
                 key={s}
                 className={`flex-1 text-[9px] ${
                   i === 0 ? "text-left" : i === SECTIONS.length - 1 ? "text-right" : "text-center"
-                } ${i === step ? "font-semibold text-brand" : "text-muted-foreground/60"}`}
+                } ${i === step ? "font-semibold text-brand" : "text-white/45"}`}
               >
                 {s}
               </div>
@@ -414,7 +415,8 @@ export function ProjectBrief({
       </div>
 
       {/* Body */}
-      <div className="mx-auto max-w-2xl px-6 py-8">
+      <div className="mx-auto max-w-2xl px-3 py-6 sm:px-6 sm:py-8">
+        <div className="rounded-xl bg-background px-5 py-7 shadow-2xl shadow-black/40 sm:px-8">
         <div key={step} className={dir === "forward" ? "brief-slide-right" : "brief-slide-left"}>
           {step === 0 && (
             <section className="space-y-10">
@@ -726,12 +728,14 @@ export function ProjectBrief({
             {error}
           </p>
         )}
+        </div>
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-hairline bg-surface px-6 py-5 text-center">
-        <p className="mb-1 font-serif text-xs font-bold text-brand">NJENGA Productions Co.</p>
-        <p className="m-0 font-sans text-[11px] text-muted-foreground/70">
+      <footer className="border-t border-white/10 bg-foreground px-6 py-6 text-center">
+        <p className="m-0 font-serif text-base font-semibold tracking-[0.14em] text-brand">NJENGA</p>
+        <p className="mb-2 mt-0.5 font-serif text-[9px] tracking-[0.45em] text-mauve">PRODUCTIONS CO.</p>
+        <p className="m-0 font-sans text-[11px] text-white/40">
           Pittsburgh · @njengaproductions
         </p>
       </footer>
