@@ -1,11 +1,11 @@
 // lib/briefs.ts — reading and writing briefs. SERVER ONLY.
 import { isAdmin } from "@/auth"
 import { ensureSchema, sql } from "@/lib/db"
+import { isStatus, type BriefStatus } from "@/lib/brief-status"
 import type { BriefForm } from "@/components/brief/data"
 import type { Gap, MeetingPlan } from "@/components/brief/gaps"
 
-export const STATUSES = ["active", "closed", "archived"] as const
-export type BriefStatus = (typeof STATUSES)[number]
+export { STATUSES, type BriefStatus } from "@/lib/brief-status"
 
 export type BriefRow = {
   id: string
@@ -19,8 +19,23 @@ export type BriefRow = {
   gap_count: number
 }
 
+export type BriefDetail = BriefRow & {
+  form: BriefForm
+  gaps: Gap[]
+  meeting: MeetingPlan | null
+  quote: string | null
+  notes: string
+}
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 async function requireAdmin() {
   if (!(await isAdmin())) throw new Error("Unauthorized")
+}
+
+function budgetLabelOf(f: BriefForm): string | null {
+  if (f.budgetTier) return `${f.budgetTier}${f.tierTentative ? " (tentative)" : ""}`
+  return f.customBudget || null
 }
 
 // Called by the public form. Never throws: if saving fails, the brief email still goes out.
@@ -33,15 +48,12 @@ export async function saveBrief(input: {
   try {
     await ensureSchema()
     const f = input.form
-    const budget = f.budgetTier
-      ? `${f.budgetTier}${f.tierTentative ? " (tentative)" : ""}`
-      : f.customBudget || null
     await sql()`
       INSERT INTO briefs (client_name, client_email, budget, meeting_type, gap_count, form, gaps, meeting, quote)
       VALUES (
         ${f.fullName.trim()},
         ${f.email.trim() || null},
-        ${budget},
+        ${budgetLabelOf(f)},
         ${input.meeting.type},
         ${input.gaps.length},
         ${JSON.stringify(f)}::jsonb,
@@ -78,4 +90,66 @@ export async function countBriefs(): Promise<Record<BriefStatus, number>> {
   const out: Record<BriefStatus, number> = { active: 0, closed: 0, archived: 0 }
   for (const r of rows) out[r.status] = r.n
   return out
+}
+
+export async function getBrief(id: string): Promise<BriefDetail | null> {
+  await requireAdmin()
+  if (!UUID.test(id)) return null
+  await ensureSchema()
+  const rows = (await sql()`
+    SELECT id, submitted_at, status, source, client_name, client_email, budget, meeting_type, gap_count,
+           form, gaps, meeting, quote, notes
+    FROM briefs WHERE id = ${id}`) as unknown as BriefDetail[]
+  return rows[0] ?? null
+}
+
+export async function setStatus(id: string, status: BriefStatus): Promise<void> {
+  await requireAdmin()
+  if (!UUID.test(id) || !isStatus(status)) throw new Error("Invalid request")
+  await sql()`UPDATE briefs SET status = ${status} WHERE id = ${id}`
+}
+
+export async function setNotes(id: string, notes: string): Promise<void> {
+  await requireAdmin()
+  if (!UUID.test(id)) throw new Error("Invalid request")
+  await sql()`UPDATE briefs SET notes = ${notes.slice(0, 10000)} WHERE id = ${id}`
+}
+
+export async function findByEmail(email: string): Promise<{ id: string; submitted_at: string } | null> {
+  await requireAdmin()
+  if (!email.trim()) return null
+  await ensureSchema()
+  const rows = (await sql()`
+    SELECT id, submitted_at FROM briefs
+    WHERE lower(client_email) = lower(${email.trim()})
+    ORDER BY submitted_at DESC LIMIT 1`) as unknown as { id: string; submitted_at: string }[]
+  return rows[0] ?? null
+}
+
+export async function insertImported(input: {
+  form: BriefForm
+  gaps: Gap[]
+  meeting: MeetingPlan
+  submittedAt: string // ISO
+}): Promise<string> {
+  await requireAdmin()
+  await ensureSchema()
+  const f = input.form
+  const rows = (await sql()`
+    INSERT INTO briefs (submitted_at, status, source, client_name, client_email, budget, meeting_type, gap_count, form, gaps, meeting)
+    VALUES (
+      ${input.submittedAt},
+      'archived',
+      'import',
+      ${f.fullName.trim()},
+      ${f.email.trim() || null},
+      ${budgetLabelOf(f)},
+      ${input.meeting.type},
+      ${input.gaps.length},
+      ${JSON.stringify(f)}::jsonb,
+      ${JSON.stringify(input.gaps)}::jsonb,
+      ${JSON.stringify(input.meeting)}::jsonb
+    )
+    RETURNING id`) as unknown as { id: string }[]
+  return rows[0].id
 }

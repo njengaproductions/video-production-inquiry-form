@@ -1,5 +1,6 @@
 // app/admin/login/page.tsx
 import type { Metadata } from "next"
+import Link from "next/link"
 import { redirect } from "next/navigation"
 import { isAdmin, signIn } from "@/auth"
 
@@ -11,7 +12,7 @@ export default async function AdminLogin({ searchParams }: { searchParams: Promi
   const { error } = await searchParams
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-foreground px-6">
+    <main className="flex min-h-screen flex-col items-center justify-center bg-foreground px-6">
       <div className="w-full max-w-sm rounded-lg bg-surface p-6 text-center">
         <p className="font-serif text-lg font-bold text-brand">NJENGA Productions Co.</p>
         <p className="mb-6 mt-1 font-sans text-xs text-muted-foreground">Back office — authorized access only</p>
@@ -38,6 +39,13 @@ export default async function AdminLogin({ searchParams }: { searchParams: Promi
           </button>
         </form>
       </div>
+
+      <Link
+        href="/"
+        className="mt-5 font-sans text-[12px] text-white/50 underline-offset-4 hover:text-white/80 hover:underline"
+      >
+        ← Back to site
+      </Link>
     </main>
   )
 }
