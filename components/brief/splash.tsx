@@ -33,16 +33,31 @@ const ROW_2 = [
   "/images/X.png",
 ]
 
+// Fisher–Yates shuffle (unbiased). Runs in the browser only, after the first render.
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+
+const ALL_IMAGES = [...ROW_1, ...ROW_2]
+const READY_AFTER = 8 // start the motion once this many photos have loaded
+
 function MarqueeRow({
   images,
   direction,
   playing,
   onImageLoad,
+  priorityCount = 0,
 }: {
   images: string[]
   direction: "left" | "right"
   playing: boolean
   onImageLoad: () => void
+  priorityCount?: number
 }) {
   // Duplicate the set so the -50% translate loops seamlessly.
   const doubled = [...images, ...images]
@@ -59,10 +74,12 @@ function MarqueeRow({
           src={file}
           alt=""
           aria-hidden="true"
-          loading="eager"
-          fetchPriority="high"
-          onLoad={onImageLoad}
-          onError={onImageLoad}
+          // Only the first copy loads eagerly; the loop copy reuses the cached file.
+          loading={i < images.length ? "eager" : "lazy"}
+          fetchPriority={i < priorityCount ? "high" : "auto"}
+          decoding="async"
+          onLoad={i < images.length ? onImageLoad : undefined}
+          onError={i < images.length ? onImageLoad : undefined}
           className="h-[41dvh] w-auto flex-shrink-0 rounded-lg object-cover"
         />
       ))}
@@ -70,7 +87,6 @@ function MarqueeRow({
   )
 }
 
-const TOTAL_MARQUEE_IMAGES = (ROW_1.length + ROW_2.length) * 2
 
 export function Splash({
   onStart,
@@ -85,18 +101,24 @@ export function Splash({
   const [typingDone, setTypingDone] = useState(instant)
   const [showButton, setShowButton] = useState(instant)
   const [marqueePlaying, setMarqueePlaying] = useState(false)
+  // Server renders the default order (so photos start downloading right away);
+  // the browser then shuffles while the grid is still faded out.
+  const [rows, setRows] = useState<[string[], string[]]>([ROW_1, ROW_2])
   const loadedCount = useRef(0)
+
+  useEffect(() => {
+    const mixed = shuffle(ALL_IMAGES)
+    setRows([mixed.slice(0, ROW_1.length), mixed.slice(ROW_1.length)])
+  }, [])
 
   const handleImageLoad = () => {
     loadedCount.current += 1
-    if (loadedCount.current >= TOTAL_MARQUEE_IMAGES) {
-      setMarqueePlaying(true)
-    }
+    if (loadedCount.current >= READY_AFTER) setMarqueePlaying(true)
   }
 
-  // Safety net: start the marquee even if some images never fire load/error.
+  // Safety net: fade in and start moving even if some photos are slow.
   useEffect(() => {
-    const t = setTimeout(() => setMarqueePlaying(true), instant ? 300 : 3000)
+    const t = setTimeout(() => setMarqueePlaying(true), instant ? 200 : 1500)
     return () => clearTimeout(t)
   }, [instant])
 
@@ -148,10 +170,12 @@ export function Splash({
       {/* Dual scrolling marquee background */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-0 flex flex-col justify-center gap-3 py-[4dvh]"
+        className={`pointer-events-none absolute inset-0 z-0 flex flex-col justify-center gap-3 py-[4dvh] transition-opacity duration-700 ease-out ${
+          marqueePlaying ? "opacity-100" : "opacity-0"
+        }`}
       >
-        <MarqueeRow images={ROW_1} direction="right" playing={marqueePlaying} onImageLoad={handleImageLoad} />
-        <MarqueeRow images={ROW_2} direction="left" playing={marqueePlaying} onImageLoad={handleImageLoad} />
+        <MarqueeRow images={rows[0]} direction="right" playing={marqueePlaying} onImageLoad={handleImageLoad} priorityCount={6} />
+        <MarqueeRow images={rows[1]} direction="left" playing={marqueePlaying} onImageLoad={handleImageLoad} />
       </div>
 
       {/* Dark overlay keeps the hero text legible over the marquee */}
