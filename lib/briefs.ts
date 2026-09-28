@@ -17,6 +17,7 @@ export type BriefRow = {
   budget: string | null
   meeting_type: string | null
   gap_count: number
+  deleted_at: string | null
 }
 
 export type BriefDetail = BriefRow & {
@@ -72,23 +73,55 @@ export async function listBriefs(status: BriefStatus): Promise<BriefRow[]> {
   await requireAdmin()
   await ensureSchema()
   const rows = await sql()`
-    SELECT id, submitted_at, status, source, client_name, client_email, budget, meeting_type, gap_count
+    SELECT id, submitted_at, status, source, client_name, client_email, budget, meeting_type, gap_count, deleted_at
     FROM briefs
-    WHERE status = ${status}
+    WHERE status = ${status} AND deleted_at IS NULL
     ORDER BY submitted_at DESC
     LIMIT 200`
   return rows as unknown as BriefRow[]
 }
 
-export async function countBriefs(): Promise<Record<BriefStatus, number>> {
+export async function listTrash(): Promise<BriefRow[]> {
   await requireAdmin()
   await ensureSchema()
-  const rows = (await sql()`SELECT status, count(*)::int AS n FROM briefs GROUP BY status`) as unknown as {
-    status: BriefStatus
-    n: number
-  }[]
-  const out: Record<BriefStatus, number> = { active: 0, closed: 0, archived: 0 }
-  for (const r of rows) out[r.status] = r.n
+  const rows = await sql()`
+    SELECT id, submitted_at, status, source, client_name, client_email, budget, meeting_type, gap_count, deleted_at
+    FROM briefs
+    WHERE deleted_at IS NOT NULL
+    ORDER BY deleted_at DESC
+    LIMIT 200`
+  return rows as unknown as BriefRow[]
+}
+
+export async function trashBrief(id: string): Promise<void> {
+  await requireAdmin()
+  if (!UUID.test(id)) throw new Error("Invalid request")
+  await sql()`UPDATE briefs SET deleted_at = now() WHERE id = ${id} AND deleted_at IS NULL`
+}
+
+export async function restoreBrief(id: string): Promise<void> {
+  await requireAdmin()
+  if (!UUID.test(id)) throw new Error("Invalid request")
+  await sql()`UPDATE briefs SET deleted_at = NULL WHERE id = ${id}`
+}
+
+// Permanent. Only allowed for briefs already in Trash.
+export async function purgeBrief(id: string): Promise<boolean> {
+  await requireAdmin()
+  if (!UUID.test(id)) throw new Error("Invalid request")
+  const rows = (await sql()`
+    DELETE FROM briefs WHERE id = ${id} AND deleted_at IS NOT NULL RETURNING id`) as unknown as { id: string }[]
+  return rows.length === 1
+}
+
+export async function countBriefs(): Promise<Record<BriefStatus | "trash", number>> {
+  await requireAdmin()
+  await ensureSchema()
+  const rows = (await sql()`
+    SELECT CASE WHEN deleted_at IS NULL THEN status ELSE 'trash' END AS bucket, count(*)::int AS n
+    FROM briefs GROUP BY bucket`) as unknown as { bucket: BriefStatus | "trash"; n: number }[]
+  const out: Record<BriefStatus | "trash", number> = { active: 0, closed: 0, archived: 0, trash: 0 }
+  for (const r of rows) out[r.bucket] = r.n
   return out
 }
 
@@ -97,7 +130,7 @@ export async function getBrief(id: string): Promise<BriefDetail | null> {
   if (!UUID.test(id)) return null
   await ensureSchema()
   const rows = (await sql()`
-    SELECT id, submitted_at, status, source, client_name, client_email, budget, meeting_type, gap_count,
+    SELECT id, submitted_at, status, source, client_name, client_email, budget, meeting_type, gap_count, deleted_at,
            form, gaps, meeting, quote, notes
     FROM briefs WHERE id = ${id}`) as unknown as BriefDetail[]
   return rows[0] ?? null
@@ -106,7 +139,7 @@ export async function getBrief(id: string): Promise<BriefDetail | null> {
 export async function setStatus(id: string, status: BriefStatus): Promise<void> {
   await requireAdmin()
   if (!UUID.test(id) || !isStatus(status)) throw new Error("Invalid request")
-  await sql()`UPDATE briefs SET status = ${status} WHERE id = ${id}`
+  await sql()`UPDATE briefs SET status = ${status} WHERE id = ${id} AND deleted_at IS NULL`
 }
 
 export async function setNotes(id: string, notes: string): Promise<void> {
@@ -121,7 +154,7 @@ export async function findByEmail(email: string): Promise<{ id: string; submitte
   await ensureSchema()
   const rows = (await sql()`
     SELECT id, submitted_at FROM briefs
-    WHERE lower(client_email) = lower(${email.trim()})
+    WHERE lower(client_email) = lower(${email.trim()}) AND deleted_at IS NULL
     ORDER BY submitted_at DESC LIMIT 1`) as unknown as { id: string; submitted_at: string }[]
   return rows[0] ?? null
 }
