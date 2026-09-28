@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { isAdmin, signIn } from "@/auth"
+import { AdminBackdrop } from "@/components/admin/admin-backdrop"
 
 export const dynamic = "force-dynamic"
 export const metadata: Metadata = { title: "Admin — NJENGA", robots: { index: false, follow: false } }
@@ -12,8 +13,9 @@ export default async function AdminLogin({ searchParams }: { searchParams: Promi
   const { error } = await searchParams
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-foreground px-6">
-      <div className="w-full max-w-sm rounded-lg bg-surface p-6 text-center">
+    <main className="relative isolate flex min-h-screen flex-col items-center justify-center px-6">
+      <AdminBackdrop />
+      <div className="w-full max-w-sm rounded-lg bg-surface p-6 text-center shadow-2xl shadow-black/40">
         <p className="font-serif text-lg font-bold text-brand">NJENGA Productions Co.</p>
         <p className="mb-6 mt-1 font-sans text-xs text-muted-foreground">Back office — authorized access only</p>
 

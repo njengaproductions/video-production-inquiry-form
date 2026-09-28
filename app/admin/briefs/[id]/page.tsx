@@ -7,6 +7,7 @@ import { isAdmin } from "@/auth"
 import { getBrief } from "@/lib/briefs"
 import { SECTIONS, display } from "@/lib/brief-rows"
 import { AdminHeader } from "@/components/admin/admin-header"
+import { AdminBackdrop } from "@/components/admin/admin-backdrop"
 import { StatusControl } from "@/components/admin/status-control"
 import { NotesEditor } from "@/components/admin/notes-editor"
 import type { Gap } from "@/components/brief/gaps"
@@ -44,7 +45,7 @@ function GapList({ gaps, tone }: { gaps: Gap[]; tone: "critical" | "minor" }) {
 
 function Card({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="rounded-lg border border-hairline bg-surface p-4">
+    <section className="rounded-lg border border-hairline bg-surface p-4 shadow-lg shadow-black/30">
       <h2 className="mb-3 font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-brand">{title}</h2>
       {children}
     </section>
@@ -66,14 +67,15 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
     : null
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="relative isolate min-h-screen">
+      <AdminBackdrop />
       <AdminHeader subtitle="Brief" />
       <div className="mx-auto max-w-2xl space-y-4 px-4 py-6">
-        <Link href={`/admin?status=${b.status}`} className="font-sans text-[12px] text-muted-foreground underline-offset-4 hover:underline">
+        <Link href={`/admin?status=${b.status}`} className="font-sans text-[12px] text-white/70 underline-offset-4 hover:underline">
           ← All briefs
         </Link>
 
-        <section className="rounded-lg border border-hairline bg-surface p-4">
+        <section className="rounded-lg border border-hairline bg-surface p-4 shadow-lg shadow-black/30">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <h1 className="m-0 font-serif text-[20px] font-bold text-foreground">{b.client_name}</h1>

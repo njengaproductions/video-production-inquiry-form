@@ -6,6 +6,7 @@ import { isAdmin } from "@/auth"
 import { countBriefs, listBriefs } from "@/lib/briefs"
 import { STATUSES, STATUS_LABEL, isStatus, type BriefStatus } from "@/lib/brief-status"
 import { AdminHeader } from "@/components/admin/admin-header"
+import { AdminBackdrop } from "@/components/admin/admin-backdrop"
 
 export const dynamic = "force-dynamic"
 export const metadata: Metadata = { title: "Briefs — NJENGA Admin", robots: { index: false, follow: false } }
@@ -21,7 +22,8 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
   const [rows, counts] = await Promise.all([listBriefs(status), countBriefs()])
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="relative isolate min-h-screen">
+      <AdminBackdrop />
       <AdminHeader />
       <div className="mx-auto max-w-2xl px-4 py-6">
         <nav aria-label="Brief status" className="mb-5 flex flex-wrap gap-2">
@@ -40,7 +42,7 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
         </nav>
 
         {rows.length === 0 ? (
-          <p className="rounded-lg border border-dashed border-hairline p-8 text-center font-sans text-sm text-muted-foreground">
+          <p className="rounded-lg border border-dashed border-hairline bg-surface/95 p-8 text-center font-sans text-sm text-muted-foreground">
             No {STATUS_LABEL[status].toLowerCase()} briefs yet.
             {status === "archived" && (
               <>
@@ -57,7 +59,7 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
               <li key={b.id}>
                 <Link
                   href={`/admin/briefs/${b.id}`}
-                  className="block rounded-lg border border-hairline bg-surface p-4 transition-colors hover:border-brand/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                  className="block rounded-lg border border-hairline bg-surface p-4 shadow-lg shadow-black/30 transition-colors hover:border-brand/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
