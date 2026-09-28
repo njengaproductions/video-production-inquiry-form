@@ -3,7 +3,7 @@
 // app/admin/actions.ts — every action re-checks admin access on the server.
 import { revalidatePath } from "next/cache"
 import { isAdmin } from "@/auth"
-import { findByEmail, insertImported, setNotes, setStatus } from "@/lib/briefs"
+import { findByEmail, getBrief, insertImported, purgeBrief, restoreBrief, setNotes, setStatus, trashBrief } from "@/lib/briefs"
 import { isStatus } from "@/lib/brief-status"
 import { parseBriefEmail, pickForm } from "@/lib/brief-rows"
 import { extractBrief } from "@/app/actions/extract-brief"
@@ -38,6 +38,53 @@ export async function saveNotes(id: string, notes: string): Promise<Result> {
     return { ok: true }
   } catch {
     return { ok: false, error: "Couldn't save notes. Try again." }
+  }
+}
+
+// Typed-name check, repeated on the server so the safeguard can't be skipped.
+const sameName = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase()
+
+export async function moveToTrash(id: string, typedName: string): Promise<Result> {
+  const denied = await guard()
+  if (denied) return denied
+  const b = await getBrief(id)
+  if (!b) return { ok: false, error: "Brief not found." }
+  if (!sameName(typedName, b.client_name)) return { ok: false, error: "The name doesn't match." }
+  try {
+    await trashBrief(id)
+    revalidatePath("/admin")
+    return { ok: true }
+  } catch {
+    return { ok: false, error: "Couldn't move it to Trash. Try again." }
+  }
+}
+
+export async function restoreFromTrash(id: string): Promise<Result> {
+  const denied = await guard()
+  if (denied) return denied
+  try {
+    await restoreBrief(id)
+    revalidatePath("/admin")
+    revalidatePath(`/admin/briefs/${id}`)
+    return { ok: true }
+  } catch {
+    return { ok: false, error: "Couldn't restore it. Try again." }
+  }
+}
+
+export async function deleteForever(id: string, typedName: string): Promise<Result> {
+  const denied = await guard()
+  if (denied) return denied
+  const b = await getBrief(id)
+  if (!b) return { ok: false, error: "Brief not found." }
+  if (!b.deleted_at) return { ok: false, error: "Move it to Trash first." }
+  if (!sameName(typedName, b.client_name)) return { ok: false, error: "The name doesn't match." }
+  try {
+    const gone = await purgeBrief(id)
+    revalidatePath("/admin")
+    return gone ? { ok: true } : { ok: false, error: "Couldn't delete it. Try again." }
+  } catch {
+    return { ok: false, error: "Couldn't delete it. Try again." }
   }
 }
 

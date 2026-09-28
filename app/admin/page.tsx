@@ -3,7 +3,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { isAdmin } from "@/auth"
-import { countBriefs, listBriefs } from "@/lib/briefs"
+import { countBriefs, listBriefs, listTrash } from "@/lib/briefs"
 import { STATUSES, STATUS_LABEL, isStatus, type BriefStatus } from "@/lib/brief-status"
 import { AdminHeader } from "@/components/admin/admin-header"
 import { AdminBackdrop } from "@/components/admin/admin-backdrop"
@@ -18,8 +18,9 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
   if (!(await isAdmin())) redirect("/admin/login")
 
   const { status: raw } = await searchParams
+  const trash = raw === "trash"
   const status: BriefStatus = isStatus(raw) ? raw : "active"
-  const [rows, counts] = await Promise.all([listBriefs(status), countBriefs()])
+  const [rows, counts] = await Promise.all([trash ? listTrash() : listBriefs(status), countBriefs()])
 
   return (
     <main className="relative isolate min-h-screen">
@@ -31,20 +32,29 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
             <Link
               key={s}
               href={`/admin?status=${s}`}
-              aria-current={s === status ? "page" : undefined}
+              aria-current={!trash && s === status ? "page" : undefined}
               className={`rounded-full border px-4 py-1.5 font-sans text-[13px] ${
-                s === status ? "border-brand bg-accent font-semibold text-brand" : "border-input bg-surface text-muted-foreground"
+                !trash && s === status ? "border-brand bg-accent font-semibold text-brand" : "border-input bg-surface text-muted-foreground"
               }`}
             >
               {STATUS_LABEL[s]} <span className="ml-1 text-[11px] opacity-70">{counts[s]}</span>
             </Link>
           ))}
+          <Link
+            href="/admin?status=trash"
+            aria-current={trash ? "page" : undefined}
+            className={`ml-auto rounded-full border px-4 py-1.5 font-sans text-[13px] ${
+              trash ? "border-brand bg-accent font-semibold text-brand" : "border-white/20 bg-black/30 text-white/70"
+            }`}
+          >
+            Trash <span className="ml-1 text-[11px] opacity-70">{counts.trash}</span>
+          </Link>
         </nav>
 
         {rows.length === 0 ? (
           <p className="rounded-lg border border-dashed border-hairline bg-surface/95 p-8 text-center font-sans text-sm text-muted-foreground">
-            No {STATUS_LABEL[status].toLowerCase()} briefs yet.
-            {status === "archived" && (
+            {trash ? "Trash is empty." : `No ${STATUS_LABEL[status].toLowerCase()} briefs yet.`}
+            {!trash && status === "archived" && (
               <>
                 {" "}
                 <Link href="/admin/import" className="text-brand underline underline-offset-4">
@@ -66,7 +76,9 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
                       <p className="truncate font-serif text-[15px] font-bold text-foreground">{b.client_name}</p>
                       <p className="truncate font-sans text-[12px] text-muted-foreground">{b.client_email ?? "—"}</p>
                     </div>
-                    <span className="flex-shrink-0 font-sans text-[11px] text-muted-foreground">{fmtDate(b.submitted_at)}</span>
+                    <span className="flex-shrink-0 font-sans text-[11px] text-muted-foreground">
+                      {b.deleted_at ? `Deleted ${fmtDate(b.deleted_at)}` : fmtDate(b.submitted_at)}
+                    </span>
                   </div>
                   <div className="mt-3 flex flex-wrap gap-1.5 font-sans text-[11px]">
                     {b.budget && <span className="rounded-full bg-accent px-2 py-0.5 text-brand">{b.budget}</span>}

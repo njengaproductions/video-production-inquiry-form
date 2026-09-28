@@ -10,6 +10,7 @@ import { AdminHeader } from "@/components/admin/admin-header"
 import { AdminBackdrop } from "@/components/admin/admin-backdrop"
 import { StatusControl } from "@/components/admin/status-control"
 import { NotesEditor } from "@/components/admin/notes-editor"
+import { DeleteControl } from "@/components/admin/delete-control"
 import type { Gap } from "@/components/brief/gaps"
 
 export const dynamic = "force-dynamic"
@@ -71,9 +72,11 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
       <AdminBackdrop />
       <AdminHeader subtitle="Brief" />
       <div className="mx-auto max-w-2xl space-y-4 px-4 py-6">
-        <Link href={`/admin?status=${b.status}`} className="font-sans text-[12px] text-white/70 underline-offset-4 hover:underline">
+        <Link href={b.deleted_at ? "/admin?status=trash" : `/admin?status=${b.status}`} className="font-sans text-[12px] text-white/70 underline-offset-4 hover:underline">
           ← All briefs
         </Link>
+
+        {b.deleted_at && <DeleteControl id={b.id} name={b.client_name} deletedAt={b.deleted_at} status={b.status} />}
 
         <section className="rounded-lg border border-hairline bg-surface p-4 shadow-lg shadow-black/30">
           <div className="flex items-start justify-between gap-3">
@@ -106,9 +109,11 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
             )}
             {f.contactMethod && <span className="text-muted-foreground">Prefers {f.contactMethod.toLowerCase()}</span>}
           </div>
-          <div className="mt-4">
-            <StatusControl id={b.id} status={b.status} />
-          </div>
+          {!b.deleted_at && (
+            <div className="mt-4">
+              <StatusControl id={b.id} status={b.status} />
+            </div>
+          )}
         </section>
 
         <Card title="Pre-pro packet">
@@ -145,6 +150,8 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
             </dl>
           </Card>
         ))}
+
+        {!b.deleted_at && <DeleteControl id={b.id} name={b.client_name} deletedAt={null} status={b.status} />}
       </div>
     </main>
   )
