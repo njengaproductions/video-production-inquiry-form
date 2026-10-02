@@ -10,6 +10,7 @@ export async function submitVoice(input: {
   words: string[]
   name: string
   company: string
+  role: string
 }) {
   const quote = input.quote.trim()
   if (!quote) return { ok: false as const, error: "Please share your experience before submitting." }
@@ -17,11 +18,13 @@ export async function submitVoice(input: {
   const words = input.words.filter(Boolean).slice(0, 12)
   const name = input.name.trim().slice(0, 120)
   const company = input.company.trim().slice(0, 160)
+  const role = input.role.trim().slice(0, 160)
+  if (!name) return { ok: false as const, error: "Please enter your name." }
   await ensureSchema()
   const voiceId = crypto.randomUUID()
   await sql()`
-    INSERT INTO voices (id, quote, words, name, company)
-    VALUES (${voiceId}, ${quote}, ${JSON.stringify(words)}::jsonb, ${name}, ${company})
+    INSERT INTO voices (id, quote, words, name, company, role)
+    VALUES (${voiceId}, ${quote}, ${JSON.stringify(words)}::jsonb, ${name}, ${company}, ${role})
   `
 
   const apiKey = process.env.RESEND_API_KEY
@@ -34,7 +37,7 @@ export async function submitVoice(input: {
       from: "NJENGA Voices <onboarding@resend.dev>",
       to: [TO_EMAIL],
       subject: "New Voice Submission — Pending Review",
-      html: `<div style="font-family:Arial,sans-serif;max-width:640px"><p style="color:#b5520a;font-weight:bold;letter-spacing:.12em">NEW VOICE SUBMISSION</p><blockquote style="font-family:Georgia,serif;font-style:italic;border-left:3px solid #b5520a;padding-left:16px">${esc(quote)}</blockquote><p><strong>Name:</strong> ${esc(name || "Not provided")}<br/><strong>Company:</strong> ${esc(company || "Not provided")}<br/><strong>Words:</strong> ${esc(words.join(", ") || "None selected")}</p><p style="color:#666">Status: Pending Review</p></div>`,
+      html: `<div style="font-family:Arial,sans-serif;max-width:640px"><p style="color:#b5520a;font-weight:bold;letter-spacing:.12em">NEW VOICE SUBMISSION</p><blockquote style="font-family:Georgia,serif;font-style:italic;border-left:3px solid #b5520a;padding-left:16px">${esc(quote)}</blockquote><p><strong>Name:</strong> ${esc(name || "Not provided")}<br/><strong>Company:</strong> ${esc(company || "Not provided")}<br/><strong>Role:</strong> ${esc(role || "Not provided")}<br/><strong>Words:</strong> ${esc(words.join(", ") || "None selected")}</p><p style="color:#666">Status: Pending Review</p></div>`,
     },
     { idempotencyKey: `voice-submission/${crypto.randomUUID()}` },
   )
