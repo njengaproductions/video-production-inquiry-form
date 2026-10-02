@@ -361,7 +361,10 @@ export function ProjectBrief({
           </span>
           <span className="mt-1 block font-serif text-[9px] tracking-[0.45em] text-mauve">PRODUCTIONS CO.</span>
         </button>
-        <Link href="/voices" className="rounded-full border border-brand bg-brand-light px-3 py-1.5 text-xs font-medium text-brand transition-opacity hover:opacity-80">Voices</Link>
+        <div className="flex items-center gap-3">
+          <span className="text-[11px] text-white/40">Client Project Brief</span>
+          <Link href="/voices" className="rounded-full border border-brand bg-brand-light px-3 py-1.5 text-xs font-medium text-brand transition-opacity hover:opacity-80">Voices</Link>
+        </div>
       </header>
 
       {/* Progress */}

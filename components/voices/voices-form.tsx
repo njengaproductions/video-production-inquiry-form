@@ -87,7 +87,10 @@ export function VoicesForm() {
           <span className="block font-serif text-xl font-semibold tracking-[0.14em] text-brand">NJENGA</span>
           <span className="block font-serif text-[9px] tracking-[0.45em] text-mauve">PRODUCTIONS CO.</span>
         </Link>
-        <Link href="/" className="rounded-full border border-brand bg-brand-light px-3 py-1.5 text-xs font-medium text-brand transition-opacity hover:opacity-80">Project brief</Link>
+        <div className="flex items-center gap-3">
+          <span className="text-[11px] text-white/40">Client Project Brief</span>
+          <Link href="/voices" className="rounded-full border border-brand bg-brand-light px-3 py-1.5 text-xs font-medium text-brand transition-opacity hover:opacity-80">Voices</Link>
+        </div>
       </header>
 
       <div className="mx-auto max-w-3xl py-16">
