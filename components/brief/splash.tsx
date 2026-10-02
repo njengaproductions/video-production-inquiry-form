@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
 
 const TAGLINE = "Content that builds brands."
@@ -100,6 +101,7 @@ export function Splash({
   const [typed, setTyped] = useState(instant ? TAGLINE : "")
   const [typingDone, setTypingDone] = useState(instant)
   const [showButton, setShowButton] = useState(instant)
+  const [logoReady, setLogoReady] = useState(instant)
   const [marqueePlaying, setMarqueePlaying] = useState(false)
   // Server renders the default order (so photos start downloading right away);
   // the browser then shuffles while the grid is still faded out.
@@ -120,6 +122,12 @@ export function Splash({
   useEffect(() => {
     const t = setTimeout(() => setMarqueePlaying(true), instant ? 200 : 1500)
     return () => clearTimeout(t)
+  }, [instant])
+
+  useEffect(() => {
+    if (instant) return
+    const timer = setTimeout(() => setLogoReady(true), 700)
+    return () => clearTimeout(timer)
   }, [instant])
 
   useEffect(() => {
@@ -158,14 +166,25 @@ export function Splash({
 
   return (
     <main className="relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden bg-foreground px-6 text-center">
-      {/* Team login — the only entry point to the back office. Small and muted on purpose. */}
-      <a
-        href="/admin"
-        rel="nofollow"
-        className="absolute right-5 top-4 z-20 rounded font-sans text-[11px] tracking-wide text-white/35 underline-offset-4 transition-colors hover:text-white/70 hover:underline focus:outline-none focus-visible:text-white/80 focus-visible:ring-2 focus-visible:ring-brand"
+      <nav
+        aria-label="Site navigation"
+        className={`absolute right-5 top-4 z-20 flex items-center gap-3 transition-opacity duration-500 ${logoReady ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
-        Team login
-      </a>
+        <Link
+          href="/voices"
+          className="rounded-full border border-brand bg-brand-light px-3 py-1.5 text-xs font-medium text-brand transition-opacity hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+        >
+          Voices
+        </Link>
+        <span aria-hidden="true" className="h-4 w-px bg-white/[0.12]" />
+        <Link
+          href="/admin"
+          rel="nofollow"
+          className="rounded-full border border-white/[0.15] bg-transparent px-3 py-1.5 text-xs font-medium text-white/[0.4] transition-colors hover:border-white/30 hover:text-white/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+        >
+          Admin
+        </Link>
+      </nav>
 
       {/* Dual scrolling marquee background */}
       <div
