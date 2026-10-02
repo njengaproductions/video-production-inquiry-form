@@ -10,6 +10,9 @@ export function AdminHeader({ subtitle = "Client briefs" }: { subtitle?: string 
         <span className="mt-0.5 block text-[11px] text-white/50">{subtitle}</span>
       </Link>
       <nav className="flex items-center gap-4 font-sans text-[12px]">
+        <Link href="/admin/voices" className="text-white/70 underline-offset-4 hover:underline">
+          Voices
+        </Link>
         <Link href="/admin/import" className="text-white/70 underline-offset-4 hover:underline">
           Import
         </Link>

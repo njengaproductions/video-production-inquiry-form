@@ -1,6 +1,7 @@
 "use server"
 
 import { Resend } from "resend"
+import { ensureSchema, sql } from "@/lib/db"
 
 const TO_EMAIL = "njengaproductions@gmail.com"
 
@@ -16,6 +17,13 @@ export async function submitVoice(input: {
   const words = input.words.filter(Boolean).slice(0, 12)
   const name = input.name.trim().slice(0, 120)
   const company = input.company.trim().slice(0, 160)
+  await ensureSchema()
+  const voiceId = crypto.randomUUID()
+  await sql()`
+    INSERT INTO voices (id, quote, words, name, company)
+    VALUES (${voiceId}, ${quote}, ${JSON.stringify(words)}::jsonb, ${name}, ${company})
+  `
+
   const apiKey = process.env.RESEND_API_KEY
   if (!apiKey) return { ok: false as const, error: "Email service is not configured." }
 

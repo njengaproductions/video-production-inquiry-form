@@ -6,61 +6,61 @@ import { submitVoice } from "@/app/actions/submit-voice"
 
 const WORDS = ["Cinematic", "Showed up", "Exceeded expectations", "Changed the game", "Professional", "Creative", "Fast turnaround", "On brand", "Storytelling", "Legendary", "Detail-oriented", "Easy to work with"]
 
-const TESTIMONIALS: Array<{
+export type ApprovedVoice = {
+  id: string
   name: string
   company: string
   quote: string
-  tags: string[]
-}> = []
+  words: string[]
+  logo_url: string | null
+}
 
 function TestimonialCard({
   testimonial,
   index,
 }: {
-  testimonial: (typeof TESTIMONIALS)[number]
+  testimonial: ApprovedVoice
   index: number
 }) {
   return (
     <article className={`w-[min(22rem,calc(100vw-3rem))] flex-shrink-0 border-l-2 ${index % 2 === 0 ? "border-brand" : "border-mauve"} bg-white/[0.04] p-5`}>
       <p className="font-serif text-lg italic leading-relaxed text-white/90">&ldquo;{testimonial.quote}&rdquo;</p>
       <div className="mt-5 flex items-center gap-3">
-        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand text-xs font-semibold text-foreground">
-          {testimonial.name.split(" ").map((word) => word[0]).join("").slice(0, 2)}
-        </div>
+        {testimonial.logo_url ? <img src={testimonial.logo_url} alt={`${testimonial.company || testimonial.name} logo`} className="h-9 w-9 rounded bg-white object-contain p-1" /> : <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand text-xs font-semibold text-foreground">{testimonial.name.split(" ").map((word) => word[0]).join("").slice(0, 2)}</div>}
         <div>
           <p className="text-sm font-medium">{testimonial.name}</p>
           <p className="text-xs text-white/50">{testimonial.company}</p>
         </div>
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
-        {testimonial.tags.map((tag) => <span key={tag} className="rounded-full bg-brand px-2.5 py-1 text-[10px] font-medium text-foreground">{tag}</span>)}
+        {testimonial.words.map((tag) => <span key={tag} className="rounded-full bg-brand px-2.5 py-1 text-[10px] font-medium text-foreground">{tag}</span>)}
       </div>
     </article>
   )
 }
 
-function Testimonials() {
-  if (TESTIMONIALS.length === 0) {
+function Testimonials({ testimonials }: { testimonials: ApprovedVoice[] }) {
+  if (testimonials.length === 0) {
     return <p className="py-16 text-center font-serif text-lg italic text-muted">No voices yet. Be the first to share yours.</p>
   }
 
-  if (TESTIMONIALS.length === 1) {
-    return <div className="flex justify-center"><TestimonialCard testimonial={TESTIMONIALS[0]} index={0} /></div>
+  if (testimonials.length === 1) {
+    return <div className="flex justify-center"><TestimonialCard testimonial={testimonials[0]} index={0} /></div>
   }
 
   return (
     <div className="overflow-hidden">
       <div className="voices-marquee flex w-max gap-4 hover:[animation-play-state:paused]">
-        {[...TESTIMONIALS, ...TESTIMONIALS].map((testimonial, index) => (
-          <TestimonialCard key={`${testimonial.name}-${index}`} testimonial={testimonial} index={index % TESTIMONIALS.length} />
+        {[...testimonials, ...testimonials].map((testimonial, index) => (
+          <TestimonialCard key={`${testimonial.id}-${index}`} testimonial={testimonial} index={index % testimonials.length} />
         ))}
       </div>
-      <p className="mt-5 text-center text-xs text-muted">{TESTIMONIALS.length} voices and counting.</p>
+      <p className="mt-5 text-center text-xs text-muted">{testimonials.length} voices and counting.</p>
     </div>
   )
 }
 
-export function VoicesForm() {
+export function VoicesForm({ testimonials }: { testimonials: ApprovedVoice[] }) {
   const [selected, setSelected] = useState<string[]>([])
   const [quote, setQuote] = useState("")
   const [name, setName] = useState("")
@@ -107,7 +107,7 @@ export function VoicesForm() {
               <p className="text-xs uppercase tracking-[0.25em] text-brand">The voices behind the work</p>
               <h1 className="mt-3 max-w-xl font-serif text-4xl leading-tight text-white sm:text-5xl">Words from the people we create with.</h1>
               <div className="mt-10">
-                <Testimonials />
+                <Testimonials testimonials={testimonials} />
               </div>
             </section>
 

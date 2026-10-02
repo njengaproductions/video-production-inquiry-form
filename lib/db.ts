@@ -36,6 +36,17 @@ export function ensureSchema(): Promise<void> {
         quote         text,
         notes         text NOT NULL DEFAULT ''
       )`
+    await db`CREATE TABLE IF NOT EXISTS voices (
+      id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+      submitted_at timestamptz NOT NULL DEFAULT now(),
+      quote        text NOT NULL,
+      words        jsonb NOT NULL DEFAULT '[]'::jsonb,
+      name         text NOT NULL DEFAULT '',
+      company      text NOT NULL DEFAULT '',
+      logo_url     text,
+      status       text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected'))
+    )`
+    await db`CREATE INDEX IF NOT EXISTS voices_status_submitted ON voices (status, submitted_at DESC)`
     await db`CREATE INDEX IF NOT EXISTS briefs_status_submitted ON briefs (status, submitted_at DESC)`
     // Trash support: a brief with deleted_at set is hidden everywhere except the Trash tab.
     await db`ALTER TABLE briefs ADD COLUMN IF NOT EXISTS deleted_at timestamptz`
