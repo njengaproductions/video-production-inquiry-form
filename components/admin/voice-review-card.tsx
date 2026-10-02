@@ -27,16 +27,19 @@ export function VoiceReviewCard({ voice }: { voice: Voice }) {
   }
 
   return (
-    <article className="rounded-lg border border-white/10 bg-surface p-5 shadow-lg shadow-black/20">
+    <article className="rounded-lg border border-white/10 bg-surface p-7 shadow-lg shadow-black/20">
       <blockquote className="border-l-2 border-brand pl-4 font-serif text-lg italic text-white/90">&ldquo;{voice.quote}&rdquo;</blockquote>
       <div className="mt-5 flex items-center gap-3">
         {voice.logo_url ? <img src={voice.logo_url} alt={`${voice.company || voice.name} logo`} className="h-10 w-10 rounded bg-white object-contain p-1" /> : <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand text-xs font-semibold text-foreground">{voice.name.split(" ").map((word) => word[0]).join("").slice(0, 2)}</div>}
-        <div><p className="text-sm font-medium">{voice.name || "Anonymous"}</p><p className="text-xs text-white/50">{voice.company || "No company provided"}</p></div>
+        <div className="min-w-0 flex-1"><div className="flex items-center justify-between gap-3"><p className="truncate text-sm font-medium">{voice.name || "Anonymous"}</p><p className="shrink-0 text-right text-xs text-muted-foreground">{date}</p></div><p className="text-xs text-white/50">{voice.company || "No company provided"}{voice.role ? ` · ${voice.role}` : ""}</p></div>
       </div>
-      <div className="mt-4 flex flex-wrap gap-2">{voice.words.map((word) => <span key={word} className="rounded-full bg-brand px-2.5 py-1 text-[10px] font-medium text-foreground">{word}</span>)}</div>
-      <p className="mt-4 text-xs text-white/40">Submitted {date}</p>
+      <div className="mt-4 flex items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-2">{voice.words.map((word) => <span key={word} className="rounded-full bg-brand px-2.5 py-1 text-[10px] font-medium text-foreground">{word}</span>)}</div>
+      </div>
+      <button type="button" disabled={busy} onClick={() => inputRef.current?.click()} className="mt-5 flex min-h-20 w-full items-center justify-center rounded-lg border border-dashed border-white/20 bg-black/10 p-4 text-xs text-white/50 hover:border-brand hover:text-white disabled:opacity-50">
+        {voice.logo_url ? <img src={voice.logo_url} alt="Uploaded company logo" className="h-12 max-w-40 object-contain" /> : "Click to upload a company logo (optional)"}
+      </button>
       <div className="mt-5 flex flex-wrap gap-2">
-        <button type="button" disabled={busy} onClick={() => inputRef.current?.click()} className="rounded border border-white/20 px-3 py-2 text-xs text-white/70 hover:border-brand hover:text-white disabled:opacity-50">Upload Logo</button>
         <input ref={inputRef} type="file" accept="image/*" className="sr-only" onChange={(event) => { const file = event.target.files?.[0]; if (file) void upload(file); event.currentTarget.value = "" }} />
         <button type="button" disabled={busy} onClick={() => void changeStatus("approved")} className="rounded bg-brand px-3 py-2 text-xs font-semibold text-foreground hover:brightness-110 disabled:opacity-50">Approve</button>
         <button type="button" disabled={busy} onClick={() => void changeStatus("rejected")} className="rounded border border-red-300/30 px-3 py-2 text-xs text-red-200 hover:border-red-300 disabled:opacity-50">Reject</button>

@@ -257,8 +257,8 @@
   flex-shrink: 0;
   will-change: transform;
 }
-.splash-marquee-right { animation: splash-marquee-right 40s linear infinite; }
-.splash-marquee-left { animation: splash-marquee-left 35s linear infinite; }
+.splash-marquee-right { animation: splash-marquee-right 65s linear infinite; }
+.splash-marquee-left { animation: splash-marquee-left 55s linear infinite; }
 
 @media (prefers-reduced-motion: reduce) {
   .splash-marquee-right,

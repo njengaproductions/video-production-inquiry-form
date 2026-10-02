@@ -1,8 +1,10 @@
 // components/admin/admin-header.tsx — shared header for all back-office pages (server component).
 import Link from "next/link"
 import { signOut } from "@/auth"
+import { countPendingVoices } from "@/lib/voices"
 
-export function AdminHeader({ subtitle = "Client briefs" }: { subtitle?: string }) {
+export async function AdminHeader({ subtitle = "Client briefs" }: { subtitle?: string }) {
+  const pendingVoices = await countPendingVoices()
   return (
     <header className="flex items-center justify-between gap-4 bg-foreground px-6 py-4">
       <Link href="/admin" className="rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-brand">
@@ -11,7 +13,7 @@ export function AdminHeader({ subtitle = "Client briefs" }: { subtitle?: string 
       </Link>
       <nav className="flex items-center gap-4 font-sans text-[12px]">
         <Link href="/admin/voices" className="text-white/70 underline-offset-4 hover:underline">
-          Voices
+          Voices{pendingVoices > 0 && <span className="ml-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-brand px-1 text-[10px] font-bold text-foreground">{pendingVoices}</span>}
         </Link>
         <Link href="/admin/import" className="text-white/70 underline-offset-4 hover:underline">
           Import

@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic"
 
 export default async function VoicesPage() {
   const voices = await listApprovedVoices()
-  return <VoicesForm testimonials={voices.map(({ id, name, company, quote, words, logo_url }) => ({ id, name, company, quote, words, logo_url }))} />
+  return <VoicesForm testimonials={voices.map(({ id, name, company, role, quote, words, logo_url }) => ({ id, name, company, role, quote, words, logo_url }))} />
 }
 
 export const metadata = {
