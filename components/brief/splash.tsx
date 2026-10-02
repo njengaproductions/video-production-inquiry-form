@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
 
 const TAGLINE = "Content that builds brands."
@@ -100,6 +101,7 @@ export function Splash({
   const [typed, setTyped] = useState(instant ? TAGLINE : "")
   const [typingDone, setTypingDone] = useState(instant)
   const [showButton, setShowButton] = useState(instant)
+  const [logoReady, setLogoReady] = useState(instant)
   const [marqueePlaying, setMarqueePlaying] = useState(false)
   // Server renders the default order (so photos start downloading right away);
   // the browser then shuffles while the grid is still faded out.
@@ -120,6 +122,12 @@ export function Splash({
   useEffect(() => {
     const t = setTimeout(() => setMarqueePlaying(true), instant ? 200 : 1500)
     return () => clearTimeout(t)
+  }, [instant])
+
+  useEffect(() => {
+    if (instant) return
+    const timer = setTimeout(() => setLogoReady(true), 700)
+    return () => clearTimeout(timer)
   }, [instant])
 
   useEffect(() => {
@@ -158,6 +166,13 @@ export function Splash({
 
   return (
     <main className="relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden bg-foreground px-6 text-center">
+      <Link
+        href="/voices"
+        className={`absolute right-5 top-12 z-20 rounded-full border border-brand bg-brand-light px-3 py-1.5 text-xs font-medium text-brand transition-opacity duration-500 hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand ${logoReady ? "opacity-100" : "pointer-events-none opacity-0"}`}
+      >
+        Voices
+      </Link>
+
       {/* Team login — the only entry point to the back office. Small and muted on purpose. */}
       <a
         href="/admin"

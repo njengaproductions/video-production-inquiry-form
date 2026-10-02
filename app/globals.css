@@ -233,6 +233,15 @@
   .brief-pop, .brief-pulse { animation: none; }
 }
 
+@keyframes voices-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(-50% - 0.5rem)); }
+}
+.voices-marquee { animation: voices-marquee 35s linear infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .voices-marquee { animation: none; }
+}
+
 /* === Splash marquee background === */
 @keyframes splash-marquee-right {
   from { transform: translate3d(-50%, 0, 0); }
