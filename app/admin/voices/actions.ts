@@ -1,9 +1,9 @@
 "use server"
 
-import { put } from "@vercel/blob"
+import { del, put } from "@vercel/blob"
 import { revalidatePath } from "next/cache"
 import { isAdmin } from "@/auth"
-import { updateVoiceLogo, updateVoiceStatus } from "@/lib/voices"
+import { updateVoiceLogo, updateVoiceNote, updateVoiceQuote, updateVoiceStatus } from "@/lib/voices"
 
 type Result = { ok: true; url?: string } | { ok: false; error: string }
 
@@ -17,6 +17,30 @@ export async function setVoiceStatus(id: string, status: "approved" | "rejected"
   } catch {
     return { ok: false, error: "Could not update this voice." }
   }
+}
+
+export async function deleteVoiceLogo(id: string, url: string): Promise<Result> {
+  if (!(await isAdmin())) return { ok: false, error: "Not authorized." }
+  try {
+    await del(url)
+    await updateVoiceLogo(id, null)
+    revalidatePath("/admin/voices")
+    revalidatePath("/voices")
+    return { ok: true }
+  } catch {
+    return { ok: false, error: "Could not remove this logo." }
+  }
+}
+
+export async function saveVoiceQuote(id: string, quote: string): Promise<Result> {
+  if (!(await isAdmin())) return { ok: false, error: "Not authorized." }
+  if (!quote.trim()) return { ok: false, error: "Quote cannot be empty." }
+  try { await updateVoiceQuote(id, quote.trim()); revalidatePath("/admin/voices"); revalidatePath("/voices"); return { ok: true } } catch { return { ok: false, error: "Could not save this quote." } }
+}
+
+export async function saveVoiceNote(id: string, note: string): Promise<Result> {
+  if (!(await isAdmin())) return { ok: false, error: "Not authorized." }
+  try { await updateVoiceNote(id, note); revalidatePath("/admin/voices"); return { ok: true } } catch { return { ok: false, error: "Could not save this note." } }
 }
 
 export async function uploadVoiceLogo(id: string, file: File): Promise<Result> {
