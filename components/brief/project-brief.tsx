@@ -1,6 +1,8 @@
 "use client"
 
+import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
+
 import { submitBrief } from "@/app/actions/submit-brief"
 import { suggestTier } from "@/app/actions/suggest-tier"
 import type { ExtractedBrief } from "@/app/actions/extract-brief"
@@ -359,7 +361,7 @@ export function ProjectBrief({
           </span>
           <span className="mt-1 block font-serif text-[9px] tracking-[0.45em] text-mauve">PRODUCTIONS CO.</span>
         </button>
-        <div className="text-[11px] text-white/40">Client Project Brief</div>
+        <Link href="/voices" className="rounded-full border border-brand bg-brand-light px-3 py-1.5 text-xs font-medium text-brand transition-opacity hover:opacity-80">Voices</Link>
       </header>
 
       {/* Progress */}
