@@ -25,6 +25,9 @@
   /* Brand tokens */
   --color-brand: var(--brand);
   --color-brand-light: var(--brand-light);
+  --color-brand-strong: var(--brand-strong);
+  --color-text-secondary: var(--text-secondary);
+  --color-border-danger: var(--border-danger);
   --color-brand-border: var(--brand-border);
   --color-hairline: var(--hairline);
   --color-green: var(--green);
@@ -81,6 +84,10 @@
   /* Brand */
   --brand: #b5520a;
   --brand-light: #fdf0e8;
+  /* AA-compliant variants of existing tokens (no new hues) */
+  --brand-strong: color-mix(in srgb, var(--brand) 78%, var(--foreground));
+  --text-secondary: var(--muted-foreground);
+  --border-danger: var(--destructive);
   --brand-border: #d8d0c8;
   --hairline: #ede8e3;
   --green: #2c5f2e;

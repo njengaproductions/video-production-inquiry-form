@@ -6,6 +6,21 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.8.1 — 2026-10-03
+
+**Admin — Voice review**
+- Moved the logo delete (trash) button off the avatar into the card's top-right corner.
+- Reject button now has a visible danger-colored border so it no longer looks disabled.
+- Internal note field is a compact 2-row textarea.
+- Replaced the text pencil glyph with a proper inline edit icon next to the quote.
+- Logo upload zone now appears on every pending card (between word chips and the note); shows "replace" when a logo exists.
+- Cards are capped at 560px wide.
+- Company/role line only renders when a value was submitted — no "No company provided" fallback.
+
+**Accessibility**
+- WCAG AA contrast pass on `/admin/voices`: muted and secondary text on cards now use `--text-secondary` (#555, 7.5:1) instead of near-white; button and avatar text on orange is white (5:1); word chips use `--brand-strong` on `--brand-light` (~6:1); tabs and eyebrow on the dark backdrop use light tokens.
+- Added token aliases derived from existing colors: `--brand-strong`, `--text-secondary`, `--border-danger`.
+
 ## 0.8.0 — 2026-10-03
 
 **Deployments**
