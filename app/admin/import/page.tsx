@@ -17,7 +17,7 @@ export default async function ImportPage() {
       <AdminBackdrop />
       <AdminHeader subtitle="Import past briefs" />
       <div className="mx-auto max-w-2xl px-4 py-6">
-        <Link href="/admin?status=archived" className="font-sans text-[12px] text-white/70 underline-offset-4 hover:underline">
+        <Link prefetch href="/admin?status=archived" className="font-sans text-[12px] text-white/70 underline-offset-4 hover:underline">
           ← Archived briefs
         </Link>
         <div className="mt-3 rounded-lg border border-hairline bg-surface p-5 shadow-lg shadow-black/30">

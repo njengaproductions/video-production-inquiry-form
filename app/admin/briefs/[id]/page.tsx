@@ -72,7 +72,7 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
       <AdminBackdrop />
       <AdminHeader subtitle="Brief" />
       <div className="mx-auto max-w-2xl space-y-4 px-4 py-6">
-        <Link href={b.deleted_at ? "/admin?status=trash" : `/admin?status=${b.status}`} className="font-sans text-[12px] text-white/70 underline-offset-4 hover:underline">
+        <Link prefetch href={b.deleted_at ? "/admin?status=trash" : `/admin?status=${b.status}`} className="font-sans text-[12px] text-white/70 underline-offset-4 hover:underline">
           ← All briefs
         </Link>
 

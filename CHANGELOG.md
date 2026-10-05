@@ -6,6 +6,17 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.9.0 — 2026-10-05
+
+**Navigation & performance**
+- Every route fades in on mount (opacity 0 → 1, 200ms ease-out) via `app/template.tsx`; disabled for reduced-motion users.
+- New 2px `--primary` progress bar at the top of the page during route changes, including browser back/forward (`components/route-progress.tsx`, no new dependency).
+- Internal nav links (Voices/Admin pills, logo, back links, admin header and tabs) now use `<Link prefetch>` so destinations load in the background. The admin brief list rows are left on the default to avoid prefetching every brief.
+
+**Splash**
+- All marquee photos (including R–X) are preloaded in the document head and load eagerly; the first 6 in each row get high fetch priority.
+- Marquee tracks are promoted to their own GPU layer (`translateZ(0)`, `backface-visibility: hidden`) alongside the existing `will-change: transform`.
+
 ## 0.8.1 — 2026-10-03
 
 **Admin — Voice review**

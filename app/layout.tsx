@@ -1,5 +1,7 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
+import { Suspense } from 'react'
+import { RouteProgress } from '@/components/route-progress'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -39,6 +41,7 @@ export default function RootLayout({
   const marqueeImages = [
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I',
     'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q',
+    'R', 'S', 'T', 'U', 'V', 'W', 'X',
   ]
 
   return (
@@ -49,6 +52,9 @@ export default function RootLayout({
         ))}
       </head>
       <body className="antialiased">
+        <Suspense fallback={null}>
+          <RouteProgress />
+        </Suspense>
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
