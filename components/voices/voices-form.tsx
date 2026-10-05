@@ -16,48 +16,75 @@ export type ApprovedVoice = {
   logo_url: string | null
 }
 
-function TestimonialCard({
-  testimonial,
-  index,
-}: {
-  testimonial: ApprovedVoice
-  index: number
-}) {
+function initials(name: string) {
+  return name.split(/\s+/).filter(Boolean).map((word) => word[0]).join("").slice(0, 2).toUpperCase()
+}
+
+function TestimonialCard({ testimonial }: { testimonial: ApprovedVoice }) {
   return (
-    <article className={`w-[min(22rem,calc(100vw-3rem))] flex-shrink-0 border-l-2 ${index % 2 === 0 ? "border-brand" : "border-mauve"} bg-white/[0.04] p-5`}>
-      <p className="font-serif text-lg italic leading-relaxed text-white/90">&ldquo;{testimonial.quote}&rdquo;</p>
-      <div className="mt-5 flex items-center gap-3">
-        {testimonial.logo_url ? <img src={testimonial.logo_url} alt={`${testimonial.company || testimonial.name} logo`} className="h-9 w-9 rounded bg-white object-contain p-1" /> : <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand text-xs font-semibold text-foreground">{testimonial.name.split(" ").map((word) => word[0]).join("").slice(0, 2)}</div>}
+    <article className="w-full border-l-[3px] border-primary bg-white/[0.04] p-8 shadow-[0_0_48px_-8px_rgba(181,82,10,0.18)] sm:p-10">
+      <div aria-hidden="true" className="mb-5 h-[1.5px] w-8 bg-primary/50" />
+      <blockquote className="font-serif text-base font-normal not-italic leading-[1.8] text-[rgba(255,255,255,0.9)]">{testimonial.quote}</blockquote>
+      <div className="mt-7 flex items-center gap-3">
+        {testimonial.logo_url ? (
+          <img src={testimonial.logo_url} alt={`${testimonial.company || testimonial.name} logo`} className="h-10 w-10 flex-shrink-0 rounded-full border border-primary/30 bg-white object-contain p-1" />
+        ) : (
+          <div aria-hidden="true" className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-primary/30 bg-primary/10 text-xs font-semibold text-primary">{initials(testimonial.name)}</div>
+        )}
         <div>
           <p className="text-sm font-medium">{testimonial.name}</p>
-          <p className="text-xs text-white/50">{testimonial.company}{testimonial.role ? ` · ${testimonial.role}` : ""}</p>
+          {(testimonial.company || testimonial.role) && <p className="text-xs text-white/50">{testimonial.company}{testimonial.company && testimonial.role ? " · " : ""}{testimonial.role}</p>}
         </div>
       </div>
-      <div className="mt-4 flex flex-wrap gap-2">
-        {testimonial.words.map((tag) => <span key={tag} className="rounded-full bg-brand px-2.5 py-1 text-[10px] font-medium text-foreground">{tag}</span>)}
-      </div>
+      {testimonial.words.length > 0 && (
+        <ul className="mt-6 flex flex-wrap gap-2" aria-label="Words used">
+          {testimonial.words.map((tag) => <li key={tag} className="rounded-full border border-primary/40 bg-transparent px-2.5 py-1 text-[11px] text-primary/70">{tag}</li>)}
+        </ul>
+      )}
     </article>
   )
 }
 
+function ArrowIcon({ direction }: { direction: "left" | "right" }) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+      {direction === "left" ? <path d="M19 12H5m6-6-6 6 6 6" /> : <path d="M5 12h14m-6-6 6 6-6 6" />}
+    </svg>
+  )
+}
+
 function Testimonials({ testimonials }: { testimonials: ApprovedVoice[] }) {
+  const [active, setActive] = useState(0)
+
   if (testimonials.length === 0) {
     return <p className="py-16 text-center font-serif text-lg italic text-muted">No voices yet. Be the first to share yours.</p>
   }
 
-  if (testimonials.length === 1) {
-    return <div className="flex justify-center"><TestimonialCard testimonial={testimonials[0]} index={0} /></div>
-  }
+  const count = testimonials.length
+  const current = Math.min(active, count - 1)
+  const go = (next: number) => setActive((next + count) % count)
 
   return (
-    <div className="overflow-hidden">
-      <div className="voices-marquee flex w-max gap-4 hover:[animation-play-state:paused]">
-        {[...testimonials, ...testimonials].map((testimonial, index) => (
-          <TestimonialCard key={`${testimonial.id}-${index}`} testimonial={testimonial} index={index % testimonials.length} />
-        ))}
+    <section aria-roledescription="carousel" aria-label="Client testimonials" className="mx-auto max-w-2xl">
+      <div aria-live="polite" aria-atomic="true">
+        <TestimonialCard key={testimonials[current].id} testimonial={testimonials[current]} />
       </div>
-      <p className="mt-5 text-center text-xs text-muted">{testimonials.length} voices and counting.</p>
-    </div>
+      {count > 1 && (
+        <div className="mt-8 flex items-center justify-center gap-6">
+          <button type="button" onClick={() => go(current - 1)} aria-label="Previous testimonial" className="text-white/40 transition-colors hover:text-primary">
+            <ArrowIcon direction="left" />
+          </button>
+          <div className="flex items-center gap-2">
+            {testimonials.map((testimonial, index) => (
+              <button key={testimonial.id} type="button" onClick={() => go(index)} aria-label={`Show testimonial ${index + 1} of ${count}`} aria-current={index === current} className={`h-1.5 rounded-full transition-all ${index === current ? "w-5 bg-primary" : "w-1.5 bg-white/25 hover:bg-white/50"}`} />
+            ))}
+          </div>
+          <button type="button" onClick={() => go(current + 1)} aria-label="Next testimonial" className="text-white/40 transition-colors hover:text-primary">
+            <ArrowIcon direction="right" />
+          </button>
+        </div>
+      )}
+    </section>
   )
 }
 
@@ -88,7 +115,7 @@ export function VoicesForm({ testimonials }: { testimonials: ApprovedVoice[] }) 
       <header className="mx-auto flex max-w-3xl items-center justify-between">
         <Link prefetch href="/" className="text-left">
           <span className="block font-serif text-xl font-semibold tracking-[0.14em] text-brand">NJENGA</span>
-          <span className="block font-serif text-[9px] tracking-[0.45em] text-mauve">PRODUCTIONS CO.</span>
+          <span className="block font-serif text-[9px] font-light tracking-[6px] text-mauve">PRODUCTIONS CO.</span>
         </Link>
         <nav aria-label="Site navigation" className="flex items-center gap-3">
           <Link prefetch href="/voices" className="rounded-full border border-brand bg-brand-light px-3 py-1.5 text-xs font-medium text-brand transition-opacity hover:opacity-80">Voices</Link>
@@ -107,9 +134,9 @@ export function VoicesForm({ testimonials }: { testimonials: ApprovedVoice[] }) 
         ) : (
           <>
             <section>
-              <p className="text-xs uppercase tracking-[0.25em] text-brand">The voices behind the work</p>
-              <h1 className="mt-3 max-w-xl font-serif text-4xl leading-tight text-white sm:text-5xl">Words from the people we create with.</h1>
-              <div className="mt-10">
+              <p className="text-xs uppercase tracking-[4px] text-brand">The voices behind the work</p>
+              <h1 className="mt-4 max-w-xl font-serif text-4xl leading-tight text-white sm:text-5xl">Words from the people we create with.</h1>
+              <div className="mt-16 sm:mt-20">
                 <Testimonials testimonials={testimonials} />
               </div>
             </section>

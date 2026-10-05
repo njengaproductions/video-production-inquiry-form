@@ -6,6 +6,19 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.9.1 — 2026-10-05
+
+**Voices page (luxury refinement)**
+- Word chips are now outline-only (1px primary border at 40%, primary text at 70%, 11px).
+- Quote card has a 3px primary left border, a faint warm glow, and more padding.
+- Quote text is Georgia, upright, 16px, line-height 1.8, white at 90%, with no decorative quote marks. A short 32px primary rule sits above it.
+- Client logos and initials avatars are 40×40 circles with a 1px primary border at 30%.
+- Replaced the scrolling marquee with a single-card carousel: thin arrows and dot indicators centered below the card.
+- Eyebrow label tracking increased to 4px; "PRODUCTIONS CO." is light weight with 6px tracking.
+- More vertical space between the headline and the card.
+
+---
+
 ## 0.9.0 — 2026-10-05
 
 **Navigation & performance**
