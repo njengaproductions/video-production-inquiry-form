@@ -42,7 +42,7 @@ export default async function AdminLogin({ searchParams }: { searchParams: Promi
         </form>
       </div>
 
-      <Link
+      <Link prefetch
         href="/"
         className="mt-5 font-sans text-[12px] text-white/50 underline-offset-4 hover:text-white/80 hover:underline"
       >

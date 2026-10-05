@@ -75,8 +75,7 @@ function MarqueeRow({
           src={file}
           alt=""
           aria-hidden="true"
-          // Only the first copy loads eagerly; the loop copy reuses the cached file.
-          loading={i < images.length ? "eager" : "lazy"}
+          loading="eager"
           fetchPriority={i < priorityCount ? "high" : "auto"}
           decoding="async"
           onLoad={i < images.length ? onImageLoad : undefined}
@@ -170,14 +169,14 @@ export function Splash({
         aria-label="Site navigation"
         className={`absolute right-5 top-4 z-20 flex items-center gap-3 transition-opacity duration-500 ${logoReady ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
-        <Link
+        <Link prefetch
           href="/voices"
           className="rounded-full border border-brand bg-brand-light px-3 py-1.5 text-xs font-medium text-brand transition-opacity hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
         >
           Voices
         </Link>
         <span aria-hidden="true" className="h-4 w-px bg-white/[0.12]" />
-        <Link
+        <Link prefetch
           href="/admin"
           rel="nofollow"
           className="rounded-full border border-white/[0.15] bg-transparent px-3 py-1.5 text-xs font-medium text-white/[0.4] transition-colors hover:border-white/30 hover:text-white/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
@@ -194,7 +193,7 @@ export function Splash({
         }`}
       >
         <MarqueeRow images={rows[0]} direction="right" playing={marqueePlaying} onImageLoad={handleImageLoad} priorityCount={6} />
-        <MarqueeRow images={rows[1]} direction="left" playing={marqueePlaying} onImageLoad={handleImageLoad} />
+        <MarqueeRow images={rows[1]} direction="left" playing={marqueePlaying} onImageLoad={handleImageLoad} priorityCount={6} />
       </div>
 
       {/* Dark overlay keeps the hero text legible over the marquee */}
