@@ -261,8 +261,22 @@
 @media (prefers-reduced-motion: no-preference) {
   html { scroll-behavior: smooth; }
 }
+.voices-chip-marquee-left { animation: voices-chip-marquee 45s linear infinite; }
+.voices-chip-marquee-right { animation: voices-chip-marquee 30s linear infinite reverse; }
+@keyframes voices-scroll-cue {
+  0%, 100% { transform: scaleY(0.3); transform-origin: top; opacity: 0.4; }
+  50% { transform: scaleY(1); transform-origin: top; opacity: 1; }
+}
+.voices-scroll-cue { animation: voices-scroll-cue 2.4s ease-in-out infinite; }
+.voices-counter-number { color: rgba(181,82,10,0.08); transform: scale(0.7); transition: color 1.2s ease, transform 1.2s cubic-bezier(0.22,1,0.36,1); }
+.voices-counter-label, .voices-counter-phrase { opacity: 0; transform: translateY(8px); transition: opacity 0.8s ease, transform 0.8s ease; }
+.voices-counter[data-visible="true"] .voices-counter-number { color: rgba(181,82,10,0.45); transform: scale(1); }
+.voices-counter[data-visible="true"] .voices-counter-label { opacity: 1; transform: none; transition-delay: 0.5s; }
+.voices-counter[data-visible="true"] .voices-counter-phrase { opacity: 1; transform: none; transition-delay: 0.8s; }
 @media (prefers-reduced-motion: reduce) {
-  .voices-chip-marquee { animation: none; }
+  .voices-chip-marquee, .voices-chip-marquee-left, .voices-chip-marquee-right, .voices-scroll-cue { animation: none; }
+  .voices-counter-number { color: rgba(181,82,10,0.45); transform: none; transition: none; }
+  .voices-counter-label, .voices-counter-phrase { opacity: 1; transform: none; transition: none; }
   .reveal { opacity: 1; transform: none; transition: none; }
 }
 

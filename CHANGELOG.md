@@ -6,6 +6,22 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.12.0 — 2026-10-06
+
+**Voices page — scroll-driven redesign (`/voices`)**
+- Full-height hero on #0a0806: NJENGA wordmark + "+ Add your voice" pill (Lenis smooth-scrolls to the form), three-line 52px Georgia headline with "the people" at 18% opacity, a ghost "VOICES" wordmark behind it, eyebrow + live voice count (52px) at the bottom, and a "Scroll to explore" cue.
+- Pinned quote scene (140vh, sticky): the featured voice lights up word by word as you scroll; the last three words light in primary, and the name/role fade in after 85%.
+- Double chip marquee: two rows scrolling in opposite directions (row two slower), outline chips with hairlines.
+- Horizontal voices scene (200vh, sticky): cards slide left as you scroll down, with an "ALL VOICES" eyebrow, a live "2 / 5" counter, and a progress bar. Every other card uses the mauve accent.
+- Giant counter scene: 120px count scales and brightens into view, then the label (0.5s) and an italic phrase (0.8s) fade in.
+- Form heading is now 36px. Form logic, validation, and Resend/database wiring are unchanged.
+- Approved voices are shuffled on every page load (server-side), and the first one is featured.
+
+**Global**
+- Added Lenis (`lenis`) momentum smooth scrolling on the Voices page; it's turned off under reduced motion.
+
+---
+
 ## 0.11.0 — 2026-10-06
 
 **Voices page redesign (`/voices`)**
