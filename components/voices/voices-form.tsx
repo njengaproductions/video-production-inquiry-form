@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react"
 import { submitVoice } from "@/app/actions/submit-voice"
 import { SmoothScroll } from "./smooth-scroll"
-import { DoubleMarquee, GiantCounter, HEADLINE, HorizontalVoices, PinnedQuote, VoicesHero, WORDS } from "./voices-scenes"
+import { ChipBurst, GiantCounter, HEADLINE, HorizontalVoices, PinnedQuote, SCENE_EDGE, VoicesHero, WORDS } from "./voices-scenes"
 
 export type ApprovedVoice = {
   id: string
@@ -61,7 +61,7 @@ export function VoicesForm({ testimonials }: { testimonials: ApprovedVoice[] }) 
   }
 
   return (
-    <main className="min-h-screen bg-[#0a0806] text-white">
+    <main className="min-h-screen bg-gradient-to-b from-[#0a0806] to-[#0f0c08] text-white">
       <SmoothScroll />
 
       {status === "success" ? (
@@ -76,11 +76,11 @@ export function VoicesForm({ testimonials }: { testimonials: ApprovedVoice[] }) 
         <>
           <VoicesHero count={testimonials.length} />
           <PinnedQuote voice={testimonials[0]} />
-          <DoubleMarquee />
+          <ChipBurst />
           <HorizontalVoices voices={testimonials} />
-          <GiantCounter count={testimonials.length} />
+          <GiantCounter count={testimonials.length} overlap={testimonials.length > 0} />
 
-          <section id="add-your-voice" className="scroll-mt-6 border-t border-primary/15 bg-[#0a0806] px-6 py-24 md:py-32">
+          <section id="add-your-voice" className={`${SCENE_EDGE} z-50 scroll-mt-6 border-t border-primary/15 bg-[#0f0c08] px-6 py-24 md:py-32`}>
             <Reveal className="mx-auto max-w-2xl">
               <form onSubmit={handleSubmit}>
                 <p className="text-[9px] font-semibold uppercase tracking-[5px] text-primary">Share your experience</p>
