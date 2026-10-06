@@ -15,9 +15,10 @@ export default async function AdminLogin({ searchParams }: { searchParams: Promi
   return (
     <main className="relative isolate flex min-h-screen flex-col items-center justify-center px-6">
       <AdminBackdrop />
-      <div className="w-full max-w-sm rounded-lg bg-surface p-6 text-center shadow-2xl shadow-black/40">
-        <p className="font-serif text-lg font-bold text-brand">NJENGA Productions Co.</p>
-        <p className="mb-6 mt-1 font-sans text-xs text-muted-foreground">Back office — authorized access only</p>
+      <div className="lux-card w-full max-w-sm rounded-lg bg-surface p-6 text-center shadow-2xl shadow-black/40">
+        <p className="font-serif text-lg font-bold tracking-[0.14em] text-brand">NJENGA</p>
+        <p className="font-serif text-[9px] font-light tracking-[6px] text-mauve">PRODUCTIONS CO.</p>
+        <p className="mb-6 mt-3 font-sans text-xs text-muted-foreground">Back office — authorized access only</p>
 
         {error && (
           <p role="alert" className="mb-4 rounded-md bg-accent p-3 font-sans text-[12px] leading-relaxed text-brand">

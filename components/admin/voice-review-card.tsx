@@ -43,7 +43,7 @@ export function VoiceReviewCard({ voice, approved = false }: { voice: Voice; app
   }
 
   return (
-    <article className="relative w-full max-w-[560px] rounded-lg border border-border bg-surface p-7 shadow-lg shadow-black/10">
+    <article className="lux-card relative w-full max-w-[560px] rounded-lg border border-border bg-surface p-7 shadow-lg shadow-black/10">
       {voice.logo_url && (
         <button type="button" aria-label="Delete logo" disabled={busy} onClick={() => void run(() => deleteVoiceLogo(voice.id, voice.logo_url!), "Logo removed.")} className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded text-muted-foreground hover:bg-background hover:text-destructive disabled:opacity-60">
           <TrashIcon />

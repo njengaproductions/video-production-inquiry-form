@@ -220,9 +220,9 @@ export function Splash({
       />
 
       <div className="relative z-10 flex flex-col items-center">
-        <h1 className="splash-logo font-serif text-5xl font-semibold tracking-[0.14em] text-brand sm:text-7xl">
+        <h1 className="splash-logo font-serif text-5xl font-bold tracking-[0.14em] text-brand sm:text-7xl">
           NJENGA
-          <span className="mt-2 block font-serif text-base font-normal tracking-[0.5em] text-mauve sm:text-xl">
+          <span className="mt-2 block font-serif text-base font-light tracking-[0.5em] text-mauve sm:text-xl">
             PRODUCTIONS CO.
           </span>
         </h1>

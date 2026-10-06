@@ -26,7 +26,7 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
     <main className="relative isolate min-h-screen">
       <AdminBackdrop />
       <AdminHeader />
-      <div className="mx-auto max-w-2xl px-4 py-6">
+      <div className="mx-auto max-w-2xl px-4 py-12 sm:py-20">
         <nav aria-label="Brief status" className="mb-5 flex flex-wrap gap-2">
           {STATUSES.map((s) => (
             <Link
@@ -69,7 +69,7 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
               <li key={b.id}>
                 <Link
                   href={`/admin/briefs/${b.id}`}
-                  className="block rounded-lg border border-hairline bg-surface p-4 shadow-lg shadow-black/30 transition-colors hover:border-brand/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                  className="lux-card block rounded-lg border border-hairline bg-surface p-4 shadow-lg shadow-black/30 transition-colors hover:border-brand/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
