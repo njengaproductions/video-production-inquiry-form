@@ -6,6 +6,20 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.11.0 — 2026-10-06
+
+**Voices page redesign (`/voices`)**
+- Two-column hero: eyebrow + 52px Georgia headline (#f0ece6) on the left; live approved-voice count (64px, faded primary), "Voices & counting" label, and a "+ Add your voice" outline pill on the right that smooth-scrolls to the form.
+- Full-width chip marquee of all 12 words (30s loop, outline chips, primary hairlines above and below).
+- Testimonials now render in an asymmetric bento grid (one large card + two stacked), repeating per group of three; the second small card uses the mauve accent. Fewer than 3 voices shows a single centred card. The carousel is removed.
+- Cards, the new "Every project. Every moment. Captured with intention." statement, and the form section fade/slide in on scroll via Intersection Observer (content already on screen at load doesn't animate).
+- Form moved into a full-width dark section ("Add your voice." at 34px #f0ece6). Form logic, validation, and the Resend/database wiring are unchanged.
+
+**Global**
+- Smooth scrolling for in-page links (`scroll-behavior: smooth`, off under reduced motion).
+
+---
+
 ## 0.10.0 — 2026-10-05
 
 **Global luxury system (all pages)**

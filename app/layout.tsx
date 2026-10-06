@@ -45,7 +45,7 @@ export default function RootLayout({
   ]
 
   return (
-    <html lang="en" className="bg-background font-sans antialiased">
+    <html lang="en" data-scroll-behavior="smooth" className="bg-background font-sans antialiased">
       <head>
         {marqueeImages.map((name) => (
           <link key={name} rel="preload" as="image" href={`/images/${name}.png`} />

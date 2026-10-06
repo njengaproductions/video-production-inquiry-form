@@ -249,6 +249,23 @@
   .voices-marquee { animation: none; }
 }
 
+/* === Voices chip marquee + scroll reveals === */
+@keyframes voices-chip-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(-50% - 0.375rem)); }
+}
+.voices-chip-marquee { animation: voices-chip-marquee 30s linear infinite; }
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.8s ease, transform 0.8s ease; }
+.reveal.is-visible { opacity: 1; transform: none; }
+.reveal.reveal-instant { transition: none; }
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .voices-chip-marquee { animation: none; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+}
+
 /* === Splash marquee background === */
 @keyframes splash-marquee-right {
   from { transform: translate3d(-50%, 0, 0); }
