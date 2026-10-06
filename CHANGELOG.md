@@ -6,6 +6,25 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.10.0 — 2026-10-05
+
+**Global luxury system (all pages)**
+- New shared styles in `globals.css`: eyebrow labels (9px, 5px tracking, primary, 600), serif headlines (Georgia 400, 28px mobile / 40px desktop, line-height 1.15), form labels (10px uppercase, 1.5px tracking, muted, 500), outline chips, a warm-tint card wash (rgba(181,82,10,0.03)), and a fading gradient section divider.
+- Major sections use at least 80px of vertical padding on desktop.
+- Header wordmark is the same everywhere: "NJENGA" in serif bold, with "PRODUCTIONS CO." in light serif, 6px tracking, mauve. The admin header and login page now match. The logo image is unchanged.
+
+**Brief form (/)**
+- More padding on each step. Field labels and chips use the shared label and chip styles. Gradient dividers separate the major sections.
+
+**Voices (/voices)**
+- Quote text is 22px Georgia regular with line-height 1.75. The card has a 2px primary left border, and dot navigation stays below the carousel.
+- Word chips and form labels use the shared styles. A gradient divider separates the testimonials from the form.
+
+**Admin (/admin)**
+- Cards get the warm tint, page padding is larger, and headings and section labels use the shared headline and eyebrow styles.
+
+No form logic, database, auth, or Resend changes.
+
 ## 0.9.1 — 2026-10-05
 
 **Voices page (luxury refinement)**

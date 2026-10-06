@@ -333,7 +333,7 @@ export function ProjectBrief({
               <path d="M20 6 9 17l-5-5" />
             </svg>
           </div>
-          <h1 className="brief-cinematic-delay mb-3 text-balance font-serif text-[26px] leading-tight text-white">
+          <h1 className="brief-cinematic-delay lux-headline mb-3 text-balance text-white">
             {"We're excited to create something legendary with you."}
           </h1>
           <p className="brief-cinematic-delay mb-6 font-sans text-sm leading-relaxed text-white/60">
@@ -356,10 +356,10 @@ export function ProjectBrief({
           aria-label="NJENGA Productions Co. — back to start"
           className="group -m-1 rounded-md p-1 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-foreground"
         >
-          <span className="block font-serif text-xl font-semibold leading-none tracking-[0.14em] text-brand transition-opacity group-hover:opacity-80">
+          <span className="block font-serif text-xl font-bold leading-none tracking-[0.14em] text-brand transition-opacity group-hover:opacity-80">
             NJENGA
           </span>
-          <span className="mt-1 block font-serif text-[9px] tracking-[0.45em] text-mauve">PRODUCTIONS CO.</span>
+          <span className="mt-1 block font-serif text-[9px] font-light tracking-[6px] text-mauve">PRODUCTIONS CO.</span>
         </button>
         <nav aria-label="Site navigation" className="flex items-center gap-3">
           <Link prefetch href="/voices" className="rounded-full border border-brand bg-brand-light px-3 py-1.5 text-xs font-medium text-brand transition-opacity hover:opacity-80">Voices</Link>
@@ -421,11 +421,11 @@ export function ProjectBrief({
       </div>
 
       {/* Body */}
-      <div className="mx-auto max-w-2xl px-3 py-6 sm:px-6 sm:py-8">
-        <div className="rounded-xl bg-background px-5 py-7 shadow-2xl shadow-black/40 sm:px-8">
+      <div className="mx-auto max-w-2xl px-3 py-12 sm:px-6 sm:py-20">
+        <div className="lux-card rounded-xl bg-background px-6 py-10 shadow-2xl shadow-black/40 sm:px-12 sm:py-14">
         <div key={step} className={dir === "forward" ? "brief-slide-right" : "brief-slide-left"}>
           {step === 0 && (
-            <section className="space-y-10">
+            <section className="lux-divided space-y-10">
               <div className="brief-stagger">
                 <SectionLabel>Part 1 — Tell Us About Yourself</SectionLabel>
                 <ScopeUpload onExtracted={applyExtracted} summary={uploadSummary} onShowMe={() => scrollToMissing()} />
@@ -456,7 +456,7 @@ export function ProjectBrief({
           )}
 
           {step === 1 && (
-            <section className="space-y-10">
+            <section className="lux-divided space-y-10">
               <div className="brief-stagger">
                 <SectionLabel>Part 1 — Budget</SectionLabel>
                 {notice && (
@@ -630,7 +630,7 @@ export function ProjectBrief({
           )}
 
           {step === 2 && (
-            <section className="space-y-10">
+            <section className="lux-divided space-y-10">
               <div className="brief-stagger">
                 <SectionLabel>Part 1 — Creative Direction</SectionLabel>
                 <TextField label="Reference videos or inspiration" id="field-references" status={st("references")} placeholder="Paste YouTube, Instagram, or Vimeo links here" value={form.references} onChange={set("references")} />
@@ -739,8 +739,8 @@ export function ProjectBrief({
 
       {/* Footer */}
       <footer className="border-t border-white/10 bg-foreground px-6 py-6 text-center">
-        <p className="m-0 font-serif text-base font-semibold tracking-[0.14em] text-brand">NJENGA</p>
-        <p className="mb-2 mt-0.5 font-serif text-[9px] tracking-[0.45em] text-mauve">PRODUCTIONS CO.</p>
+        <p className="m-0 font-serif text-base font-bold tracking-[0.14em] text-brand">NJENGA</p>
+        <p className="mb-2 mt-0.5 font-serif text-[9px] font-light tracking-[6px] text-mauve">PRODUCTIONS CO.</p>
         <p className="m-0 font-sans text-[11px] text-white/40">
           Pittsburgh · @njengaproductions
         </p>

@@ -46,8 +46,8 @@ function GapList({ gaps, tone }: { gaps: Gap[]; tone: "critical" | "minor" }) {
 
 function Card({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="rounded-lg border border-hairline bg-surface p-4 shadow-lg shadow-black/30">
-      <h2 className="mb-3 font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-brand">{title}</h2>
+    <section className="lux-card rounded-lg border border-hairline bg-surface p-4 shadow-lg shadow-black/30">
+      <h2 className="lux-eyebrow mb-3">{title}</h2>
       {children}
     </section>
   )
@@ -71,17 +71,17 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
     <main className="relative isolate min-h-screen">
       <AdminBackdrop />
       <AdminHeader subtitle="Brief" />
-      <div className="mx-auto max-w-2xl space-y-4 px-4 py-6">
+      <div className="mx-auto max-w-2xl space-y-4 px-4 py-12 sm:py-20">
         <Link prefetch href={b.deleted_at ? "/admin?status=trash" : `/admin?status=${b.status}`} className="font-sans text-[12px] text-white/70 underline-offset-4 hover:underline">
           ← All briefs
         </Link>
 
         {b.deleted_at && <DeleteControl id={b.id} name={b.client_name} deletedAt={b.deleted_at} status={b.status} />}
 
-        <section className="rounded-lg border border-hairline bg-surface p-4 shadow-lg shadow-black/30">
+        <section className="lux-card rounded-lg border border-hairline bg-surface p-4 shadow-lg shadow-black/30">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <h1 className="m-0 font-serif text-[20px] font-bold text-foreground">{b.client_name}</h1>
+              <h1 className="lux-headline m-0 text-foreground">{b.client_name}</h1>
               <p className="m-0 font-sans text-[12px] text-muted-foreground">
                 {fmtDate(b.submitted_at)}
                 {b.source === "import" ? " · Imported" : ""}

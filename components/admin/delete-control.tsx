@@ -131,7 +131,7 @@ export function DeleteControl({
   // ----- Normal brief: danger zone -----
   return (
     <section className="rounded-lg border border-hairline bg-surface p-4 shadow-lg shadow-black/30">
-      <h2 className="mb-2 font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-brand">Danger zone</h2>
+      <h2 className="lux-eyebrow mb-2">Danger zone</h2>
       {!open ? (
         <div className="flex items-center justify-between gap-3">
           <p className="m-0 font-sans text-[12px] text-muted-foreground">

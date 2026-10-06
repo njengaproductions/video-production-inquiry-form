@@ -300,3 +300,71 @@
   .splash-marquee-right,
   .splash-marquee-left { animation: none; }
 }
+
+/* Global luxury system — in the components layer so Tailwind utilities can still override per page */
+@layer components {
+  .lux-eyebrow {
+    font-family: var(--font-sans);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--primary);
+  }
+
+  .lux-headline {
+    font-family: var(--font-serif);
+    font-size: 28px;
+    font-weight: 400;
+    line-height: 1.15;
+  }
+  @media (min-width: 768px) {
+    .lux-headline { font-size: 40px; }
+  }
+
+  .lux-label {
+    font-family: var(--font-sans);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+
+  .lux-chip {
+    border-radius: 9999px;
+    border: 1px solid color-mix(in srgb, var(--primary) 35%, transparent);
+    background: transparent;
+    padding: 0.5rem 0.95rem;
+    font-family: var(--font-sans);
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    color: color-mix(in srgb, var(--primary) 65%, transparent);
+    transition: border-color 150ms ease-out, background-color 150ms ease-out, color 150ms ease-out;
+  }
+  .lux-chip:hover { border-color: color-mix(in srgb, var(--primary) 60%, transparent); }
+  .lux-chip[aria-pressed="true"] {
+    border-color: var(--primary);
+    background: rgba(181, 82, 10, 0.06);
+    color: color-mix(in srgb, var(--primary) 85%, transparent);
+  }
+  .lux-chip:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+  /* Layered over the existing surface colour, so light and dark cards both keep their base */
+  .lux-card { background-image: linear-gradient(rgba(181, 82, 10, 0.03), rgba(181, 82, 10, 0.03)); }
+
+  .lux-divider {
+    height: 1px;
+    border: 0;
+    background: linear-gradient(to right, rgba(181, 82, 10, 0.2), transparent);
+  }
+
+  .lux-divided > * + * { position: relative; padding-top: 2.5rem; }
+  .lux-divided > * + *::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 1px;
+    background: linear-gradient(to right, rgba(181, 82, 10, 0.2), transparent);
+  }
+}
