@@ -1,10 +1,12 @@
 "use client"
 
 import Link from "next/link"
-import { useState } from "react"
+import { useEffect, useRef, useState, type ReactNode } from "react"
 import { submitVoice } from "@/app/actions/submit-voice"
 
 const WORDS = ["Cinematic", "Showed up", "Exceeded expectations", "Changed the game", "Professional", "Creative", "Fast turnaround", "On brand", "Storytelling", "Legendary", "Detail-oriented", "Easy to work with"]
+
+const HEADLINE = "#f0ece6"
 
 export type ApprovedVoice = {
   id: string
@@ -16,75 +18,135 @@ export type ApprovedVoice = {
   logo_url: string | null
 }
 
+type Accent = "primary" | "mauve"
+
 function initials(name: string) {
   return name.split(/\s+/).filter(Boolean).map((word) => word[0]).join("").slice(0, 2).toUpperCase()
 }
 
-function TestimonialCard({ testimonial }: { testimonial: ApprovedVoice }) {
+function Reveal({ children, className = "" }: { children: ReactNode; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const node = ref.current
+    if (!node) return
+    let firstCheck = true
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        // Content already on screen at load is shown without animating; only scroll entry animates
+        if (firstCheck) node.classList.add("reveal-instant")
+        node.classList.add("is-visible")
+        observer.disconnect()
+      }
+      firstCheck = false
+    }, { threshold: 0.15 })
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
+
+  return <div ref={ref} className={`reveal ${className}`}>{children}</div>
+}
+
+function VoiceCard({ voice, accent = "primary", large = false }: { voice: ApprovedVoice; accent?: Accent; large?: boolean }) {
+  const isMauve = accent === "mauve"
   return (
-    <article className="lux-card w-full border-l-2 border-primary bg-white/[0.04] p-8 shadow-[0_0_48px_-8px_rgba(181,82,10,0.18)] sm:p-10">
-      <div aria-hidden="true" className="mb-5 h-[1.5px] w-8 bg-primary/50" />
-      <blockquote className="font-serif text-[22px] font-normal not-italic leading-[1.75] text-[rgba(255,255,255,0.9)]">{testimonial.quote}</blockquote>
-      <div className="mt-7 flex items-center gap-3">
-        {testimonial.logo_url ? (
-          <img src={testimonial.logo_url} alt={`${testimonial.company || testimonial.name} logo`} className="h-10 w-10 flex-shrink-0 rounded-full border border-primary/30 bg-white object-contain p-1" />
-        ) : (
-          <div aria-hidden="true" className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-primary/30 bg-primary/10 text-xs font-semibold text-primary">{initials(testimonial.name)}</div>
-        )}
-        <div>
-          <p className="text-sm font-medium">{testimonial.name}</p>
-          {(testimonial.company || testimonial.role) && <p className="text-xs text-white/50">{testimonial.company}{testimonial.company && testimonial.role ? " · " : ""}{testimonial.role}</p>}
+    <article className={`flex h-full flex-col rounded-r-[10px] border-l-2 bg-[rgba(181,82,10,0.03)] p-7 ${isMauve ? "border-mauve" : "border-primary"}`}>
+      <div aria-hidden="true" className={`h-px w-8 ${isMauve ? "bg-mauve" : "bg-primary"}`} />
+      <blockquote className={`mt-6 font-serif font-normal not-italic text-white/[0.88] ${large ? "text-[22px] leading-[1.6] md:text-[26px]" : "text-[17px] leading-[1.65]"}`}>{voice.quote}</blockquote>
+      <div className="mt-auto pt-8">
+        <div className="flex items-center gap-3">
+          {voice.logo_url ? (
+            <img src={voice.logo_url} alt={`${voice.company || voice.name} logo`} className="h-10 w-10 flex-shrink-0 rounded-full border border-white/15 bg-white object-contain p-1" />
+          ) : (
+            <div aria-hidden="true" className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border text-xs font-semibold ${isMauve ? "border-mauve/40 bg-mauve/10 text-mauve" : "border-primary/30 bg-primary/10 text-primary"}`}>{initials(voice.name)}</div>
+          )}
+          <div>
+            <p className="text-sm font-medium text-white">{voice.name}</p>
+            {(voice.company || voice.role) && <p className="text-xs text-white/50">{voice.company}{voice.company && voice.role ? " · " : ""}{voice.role}</p>}
+          </div>
         </div>
+        {voice.words.length > 0 && (
+          <ul className="mt-5 flex flex-wrap gap-2" aria-label="Words used">
+            {voice.words.map((word) => <li key={word} className={`rounded-full border px-2.5 py-1 text-[10px] tracking-[0.5px] ${isMauve ? "border-mauve/40 text-mauve" : "border-primary/30 text-primary/70"}`}>{word}</li>)}
+          </ul>
+        )}
       </div>
-      {testimonial.words.length > 0 && (
-        <ul className="mt-6 flex flex-wrap gap-2" aria-label="Words used">
-          {testimonial.words.map((tag) => <li key={tag} className="rounded-full border border-primary/40 bg-transparent px-2.5 py-1 text-[11px] text-primary/70">{tag}</li>)}
-        </ul>
-      )}
     </article>
   )
 }
 
-function ArrowIcon({ direction }: { direction: "left" | "right" }) {
+function BentoGrid({ voices }: { voices: ApprovedVoice[] }) {
+  if (voices.length === 0) {
+    return <p className="py-16 text-center font-serif text-lg text-white/50">No voices yet. Be the first to share yours.</p>
+  }
+
+  if (voices.length < 3) {
+    return (
+      <div className="mx-auto max-w-2xl">
+        <Reveal><VoiceCard voice={voices[0]} large /></Reveal>
+      </div>
+    )
+  }
+
+  const groups: ApprovedVoice[][] = []
+  for (let index = 0; index < voices.length; index += 3) groups.push(voices.slice(index, index + 3))
+
   return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-      {direction === "left" ? <path d="M19 12H5m6-6-6 6 6 6" /> : <path d="M5 12h14m-6-6 6 6-6 6" />}
-    </svg>
+    <div className="flex flex-col gap-5">
+      {groups.map((group) =>
+        group.length === 3 ? (
+          <div key={group[0].id} className="grid gap-5 md:grid-cols-2 md:grid-rows-2">
+            <Reveal className="md:row-span-2"><VoiceCard voice={group[0]} large /></Reveal>
+            <Reveal><VoiceCard voice={group[1]} /></Reveal>
+            <Reveal><VoiceCard voice={group[2]} accent="mauve" /></Reveal>
+          </div>
+        ) : (
+          <div key={group[0].id} className="grid gap-5 md:grid-cols-2">
+            {group.map((voice, index) => <Reveal key={voice.id}><VoiceCard voice={voice} accent={index === 1 ? "mauve" : "primary"} /></Reveal>)}
+          </div>
+        ),
+      )}
+    </div>
   )
 }
 
-function Testimonials({ testimonials }: { testimonials: ApprovedVoice[] }) {
-  const [active, setActive] = useState(0)
-
-  if (testimonials.length === 0) {
-    return <p className="py-16 text-center font-serif text-lg italic text-muted">No voices yet. Be the first to share yours.</p>
-  }
-
-  const count = testimonials.length
-  const current = Math.min(active, count - 1)
-  const go = (next: number) => setActive((next + count) % count)
-
+function ChipMarquee() {
   return (
-    <section aria-roledescription="carousel" aria-label="Client testimonials" className="mx-auto max-w-2xl">
-      <div aria-live="polite" aria-atomic="true">
-        <TestimonialCard key={testimonials[current].id} testimonial={testimonials[current]} />
+    <div className="overflow-hidden border-y border-primary/25 py-5" aria-label="Words clients use to describe us">
+      <ul className="voices-chip-marquee flex w-max gap-3">
+        {[...WORDS, ...WORDS].map((word, index) => (
+          <li key={`${word}-${index}`} aria-hidden={index >= WORDS.length} className="whitespace-nowrap rounded-full border border-primary/[0.28] px-4 py-1.5 text-[10px] tracking-[0.5px] text-primary/50">{word}</li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+function Hero({ count }: { count: number }) {
+  return (
+    <section className="mx-auto flex min-h-[280px] max-w-5xl flex-col gap-10 px-6 pb-16 pt-16 md:flex-row md:items-end md:justify-between">
+      <div className="max-w-xl">
+        <p className="text-[9px] font-semibold uppercase tracking-[5px] text-primary">The voices behind the work</p>
+        <h1 className="mt-5 text-balance font-serif text-[38px] font-normal leading-[1.1] md:text-[52px]" style={{ color: HEADLINE }}>Words from the people we create with.</h1>
       </div>
-      {count > 1 && (
-        <div className="mt-8 flex items-center justify-center gap-6">
-          <button type="button" onClick={() => go(current - 1)} aria-label="Previous testimonial" className="text-white/40 transition-colors hover:text-primary">
-            <ArrowIcon direction="left" />
-          </button>
-          <div className="flex items-center gap-2">
-            {testimonials.map((testimonial, index) => (
-              <button key={testimonial.id} type="button" onClick={() => go(index)} aria-label={`Show testimonial ${index + 1} of ${count}`} aria-current={index === current} className={`h-1.5 rounded-full transition-all ${index === current ? "w-5 bg-primary" : "w-1.5 bg-white/25 hover:bg-white/50"}`} />
-            ))}
-          </div>
-          <button type="button" onClick={() => go(current + 1)} aria-label="Next testimonial" className="text-white/40 transition-colors hover:text-primary">
-            <ArrowIcon direction="right" />
-          </button>
-        </div>
-      )}
+      <div className="flex flex-col items-start md:items-end">
+        <p className="font-serif text-[64px] font-normal leading-none text-[rgba(181,82,10,0.45)]">{count}</p>
+        <p className="mt-2 text-[9px] uppercase tracking-[3px] text-white/[0.22]">Voices &amp; counting</p>
+        <a href="#add-your-voice" className="mt-6 rounded-full border border-primary px-4 py-2 text-xs font-medium text-primary transition-colors hover:bg-primary/10">+ Add your voice</a>
+      </div>
     </section>
+  )
+}
+
+function Statement() {
+  return (
+    <Reveal>
+      <section className="border-y border-primary/25 px-6 py-20 text-center">
+        <p className="mx-auto max-w-3xl text-balance font-serif text-[24px] font-normal leading-[1.4] text-white/[0.82] md:text-[28px]">
+          Every project. Every moment. <span className="text-primary">Captured with intention.</span>
+        </p>
+      </section>
+    </Reveal>
   )
 }
 
@@ -111,8 +173,8 @@ export function VoicesForm({ testimonials }: { testimonials: ApprovedVoice[] }) 
   }
 
   return (
-    <main className="min-h-screen bg-foreground px-6 py-6 text-white">
-      <header className="mx-auto flex max-w-3xl items-center justify-between">
+    <main className="min-h-screen bg-foreground text-white">
+      <header className="mx-auto flex max-w-5xl items-center justify-between px-6 py-6">
         <Link prefetch href="/" className="text-left">
           <span className="block font-serif text-xl font-bold tracking-[0.14em] text-brand">NJENGA</span>
           <span className="block font-serif text-[9px] font-light tracking-[6px] text-mauve">PRODUCTIONS CO.</span>
@@ -124,43 +186,46 @@ export function VoicesForm({ testimonials }: { testimonials: ApprovedVoice[] }) 
         </nav>
       </header>
 
-      <div className="mx-auto max-w-3xl py-20">
-        {status === "success" ? (
+      {status === "success" ? (
+        <div className="mx-auto max-w-3xl px-6 py-20">
           <section className="lux-card rounded-xl border border-white/10 bg-foreground px-6 py-20 text-center">
             <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full border border-brand text-3xl text-brand">✓</div>
-            <h1 className="lux-headline text-brand">Thank you{name.trim() ? `, ${name.trim().split(/\s+/)[0]}` : ""}.</h1>
+            <h1 className="lux-headline" style={{ color: HEADLINE }}>Thank you{name.trim() ? `, ${name.trim().split(/\s+/)[0]}` : ""}.</h1>
             <p className="mt-3 text-sm text-white/60">We&apos;ll review your testimonial and be in touch soon.</p>
           </section>
-        ) : (
-          <>
-            <section>
-              <p className="lux-eyebrow">The voices behind the work</p>
-              <h1 className="lux-headline mt-4 max-w-xl text-balance text-white">Words from the people we create with.</h1>
-              <div className="mt-16 sm:mt-20">
-                <Testimonials testimonials={testimonials} />
-              </div>
-            </section>
+        </div>
+      ) : (
+        <>
+          <Hero count={testimonials.length} />
+          <ChipMarquee />
 
-            <hr className="lux-divider my-20" />
+          <section aria-label="Client testimonials" className="mx-auto max-w-5xl px-6 py-20">
+            <BentoGrid voices={testimonials} />
+          </section>
 
-            <form onSubmit={handleSubmit} className="lux-card rounded-xl border border-white/10 bg-[#1A1A1A] p-6 sm:p-10">
-              <p className="lux-eyebrow">Share your experience</p>
-              <h2 className="mt-3 font-serif text-2xl font-normal text-brand">Add your voice</h2>
-              <p className="mt-2 text-sm text-white/55">What did it feel like to work with NJENGA?</p>
-              <div className="mt-6 flex flex-wrap gap-2">{WORDS.map((word) => <button key={word} type="button" onClick={() => toggle(word)} aria-pressed={selected.includes(word)} className="lux-chip">{word}</button>)}</div>
-              <label className="lux-label mt-8 block text-white/55" htmlFor="voice-quote">In your own words <span className="text-brand">*</span></label>
-              <textarea id="voice-quote" required value={quote} onChange={(event) => setQuote(event.target.value)} placeholder="We showed up to our event nervous about how it would look on camera — we didn&apos;t need to be. NJENGA handled everything." className="mt-2 min-h-36 w-full resize-y rounded-lg border border-white/15 bg-black/20 p-3 text-sm text-white outline-none transition-colors placeholder:text-white/35 focus:border-brand focus:ring-2 focus:ring-brand/20" />
-              <label className="mt-6 block text-sm" htmlFor="voice-name"><span className="lux-label text-white/55">Your name <span className="text-brand">*</span></span><input id="voice-name" required value={name} onChange={(event) => setName(event.target.value)} placeholder="Your name" className="mt-2 w-full rounded-lg border border-white/15 bg-black/20 p-3 text-sm outline-none focus:border-brand" /></label>
-              <div className="mt-5">
-                <button type="button" aria-expanded={companyMode} onClick={() => { setCompanyMode((current) => { if (current) { setCompany(""); setRole("") }; return !current }) }} className="text-left text-sm text-white/70 hover:text-white">{companyMode ? "−" : "+"} Leaving this review on behalf of a company or organization?</button>
-                {companyMode && <div className="mt-4 grid gap-5 sm:grid-cols-2"><label className="text-sm"><span className="lux-label text-white/55">Company or organization name <span className="text-brand">*</span></span><input required value={company} onChange={(event) => setCompany(event.target.value)} placeholder="e.g. Phoinix Premier Events" className="mt-2 w-full rounded-lg border border-white/15 bg-black/20 p-3 text-sm outline-none focus:border-brand" /></label><label className="text-sm"><span className="lux-label text-white/55">Role or title</span><input value={role} onChange={(event) => setRole(event.target.value)} placeholder="e.g. Founder & Principal Planner" className="mt-2 w-full rounded-lg border border-white/15 bg-black/20 p-3 text-sm outline-none focus:border-brand" /></label></div>}
-              </div>
-              {error && <p className="mt-4 text-sm text-red-300" role="alert">{error}</p>}
-              <button type="submit" disabled={!quote.trim() || !name.trim() || (companyMode && !company.trim()) || status === "sending"} className="mt-7 rounded-full bg-brand px-5 py-3 text-sm font-semibold text-foreground transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:bg-white/15 disabled:text-white/40">{status === "sending" ? "Sending…" : "Submit your voice"}</button>
-            </form>
-          </>
-        )}
-      </div>
+          <Statement />
+
+          <section id="add-your-voice" className="scroll-mt-6 bg-[#141414] px-6 py-24">
+            <Reveal className="mx-auto max-w-2xl">
+              <form onSubmit={handleSubmit}>
+                <p className="text-[9px] font-semibold uppercase tracking-[5px] text-primary">Share your experience</p>
+                <h2 className="mt-4 font-serif text-[30px] font-normal leading-[1.15] md:text-[34px]" style={{ color: HEADLINE }}>Add your voice.</h2>
+                <p className="mt-3 text-sm text-white/55">What did it feel like to work with NJENGA? Pick any words that fit — all optional.</p>
+                <div className="mt-7 flex flex-wrap gap-2">{WORDS.map((word) => <button key={word} type="button" onClick={() => toggle(word)} aria-pressed={selected.includes(word)} className="lux-chip">{word}</button>)}</div>
+                <label className="lux-label mt-9 block text-white/55" htmlFor="voice-quote">In your own words <span className="text-brand">*</span></label>
+                <textarea id="voice-quote" required value={quote} onChange={(event) => setQuote(event.target.value)} placeholder="We showed up to our event nervous about how it would look on camera — we didn't need to be. NJENGA handled everything." className="mt-2 min-h-36 w-full resize-y rounded-lg border border-white/15 bg-black/20 p-3 text-sm text-white outline-none transition-colors placeholder:text-white/30 focus:border-brand focus:ring-2 focus:ring-brand/20" />
+                <label className="mt-6 block text-sm" htmlFor="voice-name"><span className="lux-label text-white/55">Your name <span className="text-brand">*</span></span><input id="voice-name" required value={name} onChange={(event) => setName(event.target.value)} placeholder="Your name" className="mt-2 w-full rounded-lg border border-white/15 bg-black/20 p-3 text-sm outline-none placeholder:text-white/30 focus:border-brand" /></label>
+                <div className="mt-5">
+                  <button type="button" aria-expanded={companyMode} onClick={() => { setCompanyMode((current) => { if (current) { setCompany(""); setRole("") }; return !current }) }} className="text-left text-sm text-white/70 hover:text-white">{companyMode ? "−" : "+"} Leaving this review on behalf of a company or organization?</button>
+                  {companyMode && <div className="mt-4 grid gap-5 sm:grid-cols-2"><label className="text-sm"><span className="lux-label text-white/55">Company or organization name <span className="text-brand">*</span></span><input required value={company} onChange={(event) => setCompany(event.target.value)} placeholder="e.g. Phoinix Premier Events" className="mt-2 w-full rounded-lg border border-white/15 bg-black/20 p-3 text-sm outline-none placeholder:text-white/30 focus:border-brand" /></label><label className="text-sm"><span className="lux-label text-white/55">Role or title</span><input value={role} onChange={(event) => setRole(event.target.value)} placeholder="e.g. Founder & Principal Planner" className="mt-2 w-full rounded-lg border border-white/15 bg-black/20 p-3 text-sm outline-none placeholder:text-white/30 focus:border-brand" /></label></div>}
+                </div>
+                {error && <p className="mt-4 text-sm text-red-300" role="alert">{error}</p>}
+                <button type="submit" disabled={!quote.trim() || !name.trim() || (companyMode && !company.trim()) || status === "sending"} className="mt-8 rounded-full bg-brand px-6 py-3 text-sm font-semibold text-foreground transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:bg-white/15 disabled:text-white/40">{status === "sending" ? "Sending…" : "Submit your voice"}</button>
+              </form>
+            </Reveal>
+          </section>
+        </>
+      )}
     </main>
   )
 }
