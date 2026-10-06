@@ -12,6 +12,9 @@ export const WORDS = ["Cinematic", "Showed up", "Exceeded expectations", "Change
 
 const FORM_ID = "add-your-voice"
 
+/** Opaque, stacked scene that casts a soft shadow upward as it slides over the previous one. */
+export const SCENE_EDGE = "relative shadow-[0_-40px_80px_rgba(0,0,0,0.65)]"
+
 function initials(name: string) {
   return name.split(/\s+/).filter(Boolean).map((word) => word[0]).join("").slice(0, 2).toUpperCase()
 }
@@ -28,7 +31,7 @@ function AddVoicePill() {
 
 export function VoicesHero({ count }: { count: number }) {
   return (
-    <section className="relative flex min-h-svh flex-col overflow-hidden bg-[#0a0806] px-6">
+    <section className="sticky top-0 z-0 flex min-h-screen flex-col overflow-hidden bg-[#0a0806] px-6">
       <header className="relative z-10 mx-auto flex w-full max-w-6xl items-center justify-between py-6">
         <Link prefetch href="/" className="text-left">
           <span className="block font-serif text-xl font-bold tracking-[0.14em] text-brand">NJENGA</span>
@@ -66,15 +69,15 @@ export function VoicesHero({ count }: { count: number }) {
 }
 
 export function PinnedQuote({ voice }: { voice?: ApprovedVoice }) {
-  const [ref, progress] = useScrollProgress<HTMLElement>()
+  const [ref, progress] = useScrollProgress<HTMLElement>(1)
   const quote = voice?.quote ?? "Every project. Every moment. Captured with intention."
   const words = quote.split(/\s+/).filter(Boolean)
   const accentFrom = Math.max(0, words.length - 3)
   const showAttribution = progress > 0.85
 
   return (
-    <section ref={ref} aria-label="Featured voice" className="relative min-h-[140vh] bg-[#0a0806]">
-      <div className="sticky top-0 flex h-svh items-center justify-center px-6">
+    <section ref={ref} aria-label="Featured voice" className={`${SCENE_EDGE} z-10 h-[240vh] bg-[#0b0907]`}>
+      <div className="sticky top-0 flex h-screen items-center justify-center px-6">
         <figure className="mx-auto max-w-3xl text-center">
           <blockquote className="font-serif text-[22px] font-normal leading-[1.55] md:text-[26px]">
             <span className="sr-only">{quote}</span>
@@ -98,24 +101,42 @@ export function PinnedQuote({ voice }: { voice?: ApprovedVoice }) {
   )
 }
 
-function MarqueeRow({ words, reverse = false }: { words: string[]; reverse?: boolean }) {
-  return (
-    <div className="overflow-hidden border-y border-primary/20 py-4">
-      <ul className={`flex w-max gap-3 ${reverse ? "voices-chip-marquee-right" : "voices-chip-marquee-left"}`}>
-        {[...words, ...words].map((word, index) => (
-          <li key={`${word}-${index}`} aria-hidden={index >= words.length} className="whitespace-nowrap rounded-full border border-primary/[0.22] px-4 py-1.5 text-[10px] tracking-[0.5px] text-primary/40">{word}</li>
-        ))}
-      </ul>
-    </div>
-  )
-}
+const BURST_CHIPS = WORDS.map((word, index) => ({
+  word,
+  angle: (index / WORDS.length) * Math.PI * 2 - Math.PI / 2 + (index % 2 ? 0.18 : -0.08),
+  reach: index % 3 === 0 ? 1 : index % 3 === 1 ? 0.72 : 0.86,
+  delay: (index % 4) * 0.08,
+}))
 
-export function DoubleMarquee() {
-  const half = Math.ceil(WORDS.length / 2)
+export function ChipBurst() {
+  const [ref, progress] = useScrollProgress<HTMLElement>(1)
+  const burst = Math.sin(Math.PI * progress)
+
   return (
-    <section aria-label="Words clients use to describe us" className="flex flex-col gap-4 bg-[#0a0806] py-16">
-      <MarqueeRow words={[...WORDS.slice(0, half), ...WORDS.slice(0, half)]} reverse />
-      <MarqueeRow words={[...WORDS.slice(half), ...WORDS.slice(half)]} />
+    <section ref={ref} aria-label="Words clients use to describe us" className={`${SCENE_EDGE} z-20 -mt-[100vh] h-[300vh] bg-[#0c0a07]`}>
+      <div className="sticky top-0 flex h-screen items-center justify-center overflow-hidden">
+        <p className="relative z-10 text-center font-serif text-[22px] font-normal md:text-[28px]" style={{ color: HEADLINE, opacity: 0.25 + burst * 0.75 }}>
+          In their <span className="text-primary">words.</span>
+        </p>
+        <ul className="absolute inset-0">
+          {BURST_CHIPS.map(({ word, angle, reach, delay }) => {
+            const local = Math.min(1, Math.max(0, (burst - delay) / (1 - delay)))
+            const distance = local * reach
+            return (
+              <li
+                key={word}
+                className="absolute left-1/2 top-1/2 whitespace-nowrap rounded-full border border-primary/30 bg-[#0c0a07] px-4 py-1.5 text-[10px] tracking-[0.5px] text-primary/80 will-change-transform md:text-xs"
+                style={{
+                  opacity: local,
+                  transform: `translate(-50%,-50%) translate(calc(${Math.cos(angle) * distance} * min(42vw, 420px)), calc(${Math.sin(angle) * distance} * min(34vh, 320px))) scale(${0.6 + local * 0.4})`,
+                }}
+              >
+                {word}
+              </li>
+            )
+          })}
+        </ul>
+      </div>
     </section>
   )
 }
@@ -147,7 +168,7 @@ function VoiceCard({ voice, mauve }: { voice: ApprovedVoice; mauve: boolean }) {
 }
 
 export function HorizontalVoices({ voices }: { voices: ApprovedVoice[] }) {
-  const [ref, progress] = useScrollProgress<HTMLElement>()
+  const [ref, progress] = useScrollProgress<HTMLElement>(1)
   const viewportRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
   const [maxShift, setMaxShift] = useState(0)
@@ -165,14 +186,14 @@ export function HorizontalVoices({ voices }: { voices: ApprovedVoice[] }) {
   }, [voices.length])
 
   if (voices.length === 0) {
-    return <p className="bg-[#0a0806] px-6 py-24 text-center font-serif text-lg text-white/50">No voices yet. Be the first to share yours.</p>
+    return <p className={`${SCENE_EDGE} z-30 bg-[#0d0a07] px-6 py-24 text-center font-serif text-lg text-white/50`}>No voices yet. Be the first to share yours.</p>
   }
 
   const current = Math.min(voices.length, Math.floor(progress * voices.length) + 1)
 
   return (
-    <section ref={ref} aria-label="All voices" className="relative min-h-[200vh] bg-[#0a0806]">
-      <div className="sticky top-0 flex h-svh flex-col justify-center gap-10 overflow-hidden py-12">
+    <section ref={ref} aria-label="All voices" className={`${SCENE_EDGE} z-30 -mt-[100vh] h-[300vh] bg-[#0d0a07]`}>
+      <div className="sticky top-0 flex h-screen flex-col justify-center gap-10 overflow-hidden py-12">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6">
           <p className="text-[9px] font-semibold uppercase tracking-[5px] text-primary">All voices</p>
           <p className="font-serif text-sm text-white/50" aria-live="polite"><span style={{ color: HEADLINE }}>{current}</span> / {voices.length}</p>
@@ -192,10 +213,10 @@ export function HorizontalVoices({ voices }: { voices: ApprovedVoice[] }) {
   )
 }
 
-export function GiantCounter({ count }: { count: number }) {
+export function GiantCounter({ count, overlap }: { count: number; overlap: boolean }) {
   const [ref, visible] = useInView<HTMLElement>()
   return (
-    <section ref={ref} data-visible={visible} className="voices-counter flex flex-col items-center bg-[#0a0806] px-6 py-32 text-center">
+    <section ref={ref} data-visible={visible} className={`voices-counter ${SCENE_EDGE} z-40 flex min-h-screen flex-col items-center justify-center bg-[#0e0b08] px-6 py-32 text-center ${overlap ? "-mt-[100vh]" : ""}`}>
       <p className="voices-counter-number font-serif text-[120px] font-normal leading-none">{count}</p>
       <p className="voices-counter-label mt-4 text-[8px] uppercase tracking-[3px] text-white/40">Voices &amp; counting</p>
       <p className="voices-counter-phrase mt-6 font-serif text-lg italic text-white/55">People we&apos;ve had the privilege of creating with.</p>

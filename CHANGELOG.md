@@ -6,6 +6,17 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.13.0 — 2026-10-06
+
+**Voices page — connected scene transitions (`/voices`)**
+- Replaced the standalone double marquee with a scroll-driven **chip burst** between the pinned quote and the horizontal voices: the 12 word chips burst out radially from an "In their words." center line (each at its own angle, distance, and stagger), then contract back as the horizontal section slides in. Fully tied to scroll position.
+- **Scene overlap:** every section is now an opaque, z-stacked layer. The hero stays pinned while the quote slides over it, and each pinned scene holds its last frame while the next one slides over it with a soft upward shadow. No more empty black gaps between sections.
+- The background warms gradually down the page, from #0a0806 (hero) to #0f0c08 (the "Add your voice" form).
+- The scroll-progress hook now ignores the overlap distance, so word lighting and the horizontal card track still finish before the next scene arrives.
+- Removed the now-unused marquee row styles.
+
+---
+
 ## 0.12.0 — 2026-10-06
 
 **Voices page — scroll-driven redesign (`/voices`)**
