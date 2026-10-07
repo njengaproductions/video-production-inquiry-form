@@ -34,48 +34,12 @@ const HERO_LINES = [
   { words: ["the", "people"], color: "rgba(240,236,230,0.18)" },
   { words: ["we", "create", "with."], color: HEADLINE },
 ]
-const HERO_WORD_COUNT = HERO_LINES.reduce((total, line) => total + line.words.length, 0)
-
-function useHeroReveal() {
-  const [reveal, setReveal] = useState(0)
-
-  useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setReveal(1)
-      return
-    }
-    let frame = 0
-    const update = () => {
-      frame = 0
-      setReveal(Math.round(Math.min(1, window.scrollY / (window.innerHeight * 0.35)) * 1000) / 1000)
-    }
-    const schedule = () => { if (!frame) frame = requestAnimationFrame(update) }
-    update()
-    window.addEventListener("scroll", schedule, { passive: true })
-    window.addEventListener("resize", schedule)
-    return () => {
-      window.removeEventListener("scroll", schedule)
-      window.removeEventListener("resize", schedule)
-      if (frame) cancelAnimationFrame(frame)
-    }
-  }, [])
-
-  return reveal
-}
-
 function HeroHeadline() {
-  const reveal = useHeroReveal()
-  let wordIndex = 0
-
   return (
     <h1 className="relative text-center font-serif text-[38px] font-normal leading-[1.1] md:text-[52px]" style={{ color: HEADLINE }}>
       {HERO_LINES.map((line) => (
         <span key={line.words.join(" ")} className="block" style={{ color: line.color }}>
-          {line.words.map((word, index) => {
-            const start = (wordIndex++ / HERO_WORD_COUNT) * 0.6
-            const opacity = Math.min(1, Math.max(0, (reveal - start) / 0.4))
-            return <span key={word} style={{ opacity }}>{word}{index < line.words.length - 1 ? " " : ""}</span>
-          })}
+          {line.words.join(" ")}
         </span>
       ))}
     </h1>
@@ -109,7 +73,7 @@ export function VoicesHero({ count }: { count: number }) {
           <p className="mt-2 text-[8px] uppercase tracking-[3px] text-[rgba(240,236,230,0.62)]">Voices &amp; counting</p>
         </div>
         <div aria-hidden="true" className="absolute bottom-8 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-3 sm:flex">
-          <span className="text-[8px] uppercase tracking-[3px] text-[rgba(240,236,230,0.62)]">Scroll to explore</span>
+          <span className="voices-scroll-label text-[8px] uppercase tracking-[3px] text-[rgba(240,236,230,0.62)]">Scroll to explore</span>
           <span className="voices-scroll-cue block h-8 w-px bg-primary/40" />
         </div>
       </div>

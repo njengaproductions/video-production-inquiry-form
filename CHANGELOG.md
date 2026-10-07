@@ -6,6 +6,12 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.13.7 — 2026-10-07
+
+### Voices page
+- Hero headline is now fully visible on page load; removed the scroll-tied word fade that hid it at scroll position 0.
+- "Scroll to explore" label now gently pulses alongside the animated cue line (disabled under reduced motion).
+
 ## 0.13.6 — 2026-10-07
 
 **Voices page (`/voices`)**
