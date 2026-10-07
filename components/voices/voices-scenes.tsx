@@ -125,8 +125,8 @@ export function PinnedQuote({ voice }: { voice?: ApprovedVoice }) {
   const showAttribution = progress > 0.85
 
   return (
-    <section ref={ref} aria-label="Featured voice" className={`${SCENE_EDGE} z-50 -mt-[100vh] h-[340vh] bg-[#0a0806]`}>
-      <div className="sticky bg-[#0a0806] top-0 flex h-screen items-center justify-center px-6">
+    <section ref={ref} aria-label="Featured voice" className={`${SCENE_EDGE} z-50 -mt-[calc(100vh+4px)] h-[calc(340vh+4px)] bg-[#0a0806]`}>
+      <div className="sticky bg-[#0a0806] top-0 flex h-screen items-center justify-center overflow-hidden px-6">
         <figure className="mx-auto max-w-3xl text-center">
           <blockquote className="font-serif text-[22px] font-normal leading-[1.55] md:text-[26px]">
             <span className="sr-only">{quote}</span>
@@ -162,7 +162,7 @@ export function ChipBurst() {
   const burst = Math.sin(Math.PI * progress)
 
   return (
-    <section ref={ref} aria-label="Words clients use to describe us" className={`${SCENE_EDGE} z-40 -mt-[100vh] h-[300vh] bg-[#0a0806]`}>
+    <section ref={ref} aria-label="Words clients use to describe us" className={`${SCENE_EDGE} z-40 -mt-[calc(100vh+4px)] h-[calc(300vh+4px)] bg-[#0a0806]`}>
       <div className="sticky bg-[#0a0806] top-0 flex h-screen items-center justify-center overflow-hidden">
         <p className="relative z-10 text-center font-serif text-[22px] font-normal md:text-[28px]" style={{ color: HEADLINE, opacity: 0.25 + burst * 0.75 }}>
           In their <span className="text-primary">words.</span>
@@ -241,7 +241,7 @@ export function HorizontalVoices({ voices }: { voices: ApprovedVoice[] }) {
   const current = Math.min(voices.length, Math.floor(progress * voices.length) + 1)
 
   return (
-    <section ref={ref} aria-label="All voices" className={`${SCENE_EDGE} z-30 -mt-[100vh] h-[300vh] bg-[#0a0806]`}>
+    <section ref={ref} aria-label="All voices" className={`${SCENE_EDGE} z-30 -mt-[calc(100vh+4px)] h-[calc(300vh+4px)] bg-[#0a0806]`}>
       <div className="sticky bg-[#0a0806] top-0 flex h-screen flex-col justify-center gap-10 overflow-hidden py-12">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6">
           <p className="text-[9px] font-semibold uppercase tracking-[5px] text-primary">All voices</p>
@@ -266,7 +266,7 @@ export function GiantCounter({ count, overlap }: { count: number; overlap: boole
   const [ref, progress] = useScrollProgress<HTMLElement>(overlap ? 0.5 : -0.6)
   const visible = progress > 0
   return (
-    <section ref={ref} data-visible={visible} className={`voices-counter ${SCENE_EDGE} z-20 h-[200vh] bg-[#0a0806] ${overlap ? "-mt-[100vh]" : ""}`}>
+    <section ref={ref} data-visible={visible} className={`voices-counter ${SCENE_EDGE} z-20 bg-[#0a0806] ${overlap ? "-mt-[calc(100vh+4px)] h-[calc(200vh+4px)]" : "h-[200vh]"}`}>
       <div className="sticky top-0 flex h-screen flex-col items-center justify-center bg-[#0a0806] px-6 text-center">
         <p className="voices-counter-number font-serif text-[120px] font-normal leading-none">{count}</p>
         <p className="voices-counter-label mt-4 text-[8px] uppercase tracking-[3px] text-[rgba(240,236,230,0.62)]">Voices &amp; counting</p>
