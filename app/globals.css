@@ -379,6 +379,27 @@
   }
   .lux-chip:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 
+  .voices-chip {
+    border-radius: 9999px;
+    border: 1.5px solid rgba(240, 236, 230, 0.18);
+    background: transparent;
+    padding: 0.5rem 0.95rem;
+    font-family: var(--font-sans);
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    color: rgba(240, 236, 230, 0.62);
+    transition: all 150ms ease-out;
+  }
+  .voices-chip:hover { border-color: rgba(240, 236, 230, 0.35); color: #f0ece6; }
+  .voices-chip[aria-pressed="true"] {
+    border-color: var(--primary);
+    background: rgba(181, 82, 10, 0.14);
+    color: #b5520a;
+    box-shadow: 0 0 0 3px rgba(181, 82, 10, 0.18);
+    transform: scale(1.04);
+  }
+  .voices-chip:focus-visible { outline: 2px solid var(--primary); outline-offset: 4px; }
+
   /* Layered over the existing surface colour, so light and dark cards both keep their base */
   .lux-card { background-image: linear-gradient(rgba(181, 82, 10, 0.03), rgba(181, 82, 10, 0.03)); }
 
@@ -397,3 +418,7 @@
     background: linear-gradient(to right, rgba(181, 82, 10, 0.2), transparent);
   }
 }
+
+/* Unlayered so it beats the bg-background utility on <html> */
+html:has(.voices-page),
+html:has(.voices-page) body { background-color: #0a0806; }
