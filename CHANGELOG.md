@@ -6,6 +6,16 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.13.5 — 2026-10-06
+
+**Voices page (`/voices`)**
+- New `app/voices/layout.tsx` wraps the route in a `.voices-root` container with `#0a0806` hardcoded. The `html:has(.voices-root)` / `body` canvas override and `overscroll-behavior: none` now apply before the page component mounts, and on every voices state.
+- `<main>` now sets its background (`#0a0806`) and `overscrollBehavior: none` inline.
+- The thank-you card no longer uses `bg-foreground` (#1a1a1a); it's hardcoded `#0a0806`, so every voices surface is the same tone.
+- No form, database, Resend, or auth changes.
+
+---
+
 ## 0.13.4 — 2026-10-06
 
 ### Voices page

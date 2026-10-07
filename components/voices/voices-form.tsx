@@ -61,12 +61,12 @@ export function VoicesForm({ testimonials }: { testimonials: ApprovedVoice[] }) 
   }
 
   return (
-    <main className="voices-page min-h-full bg-[#0a0806] text-[#f0ece6]">
+    <main className="voices-page min-h-full text-[#f0ece6]" style={{ backgroundColor: "#0a0806", overscrollBehavior: "none" }}>
       <SmoothScroll />
 
       {status === "success" ? (
         <div className="mx-auto max-w-3xl bg-[#0a0806] px-6 py-20">
-          <section className="lux-card rounded-xl border border-white/10 bg-foreground px-6 py-20 text-center">
+          <section className="lux-card rounded-xl border border-white/10 px-6 py-20 text-center" style={{ backgroundColor: "#0a0806" }}>
             <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full border border-brand text-3xl text-brand">✓</div>
             <h1 className="lux-headline" style={{ color: HEADLINE }}>Thank you{name.trim() ? `, ${name.trim().split(/\s+/)[0]}` : ""}.</h1>
             <p className="mt-3 text-sm text-[rgba(240,236,230,0.62)]">We&apos;ll review your testimonial and be in touch soon.</p>
