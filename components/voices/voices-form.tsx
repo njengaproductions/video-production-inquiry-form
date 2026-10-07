@@ -80,7 +80,7 @@ export function VoicesForm({ testimonials }: { testimonials: ApprovedVoice[] }) 
           <HorizontalVoices voices={testimonials} />
           <GiantCounter count={testimonials.length} overlap={testimonials.length > 0} />
 
-          <section id="add-your-voice" className={`${SCENE_EDGE} z-[1] scroll-mt-6 bg-[#0a0806] px-6 py-24 md:py-32`}>
+          <section id="add-your-voice" className={`${SCENE_EDGE} z-10 scroll-mt-6 bg-[#0a0806] px-6 py-24 md:py-32`}>
             <Reveal className="mx-auto max-w-2xl">
               <form onSubmit={handleSubmit}>
                 <p className="text-[9px] font-semibold uppercase tracking-[5px] text-primary">Share your experience</p>

@@ -6,6 +6,14 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.13.4 — 2026-10-06
+
+### Voices page
+- Section layering reversed so each new scene is revealed from underneath the previous one: every section is `position: relative` with an opaque `#0a0806` background and a descending z-index (hero 60 → pinned quote 50 → chip burst 40 → all voices 30 → counter 20 → form 10).
+- Pinned quote now tucks under the hero (`-mt-[100vh]`) and stays pinned while the hero slides up off it. The counter is now a pinned scene too, so it's revealed in place as the voices carousel slides away.
+- Scroll-driven scenes now start their animation only after the section above has fully slid off (lead offset instead of trailing overlap), and the counter animates on scroll position instead of IntersectionObserver so it doesn't play while it's still covered.
+- No borders, lines, or shadows between sections. Hero headline keeps the scroll-tied word fade from 0.13.3.
+
 ## 0.13.3 — 2026-10-06
 
 ### Voices page
