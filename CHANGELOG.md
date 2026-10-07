@@ -6,6 +6,15 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.13.1 — 2026-10-06
+
+**Voices page — chips, contrast, background (`/voices`)**
+- Expanded the word chip list to 18 (added Prepared, Communicative, High quality, Would refer, Already referred, Understood the vision). Same list feeds the chip burst.
+- New `.voices-chip` style for the form: unselected chips use a `rgba(240,236,230,0.18)` border with `0.62` text; selected chips get a 1.5px primary border, `rgba(181,82,10,0.14)` fill, full `#B5520A` text, a 3px outer ring, and scale to 1.04 (150ms ease-out).
+- Contrast pass: primary text is now `#f0ece6`, and all secondary/label text is at least `rgba(240,236,230,0.62)`. Placeholders sit at `0.28`. Chip text on voice cards and in the burst is now full primary.
+- `html`, `body`, and the page container are now solid `#0a0806` on `/voices`, so no grey shows during scroll.
+- No changes to form logic, validation, email, database, or auth.
+
 ## 0.13.0 — 2026-10-06
 
 **Voices page — connected scene transitions (`/voices`)**

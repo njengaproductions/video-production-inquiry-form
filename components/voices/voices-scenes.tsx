@@ -8,7 +8,7 @@ import type { ApprovedVoice } from "./voices-form"
 
 export const HEADLINE = "#f0ece6"
 
-export const WORDS = ["Cinematic", "Showed up", "Exceeded expectations", "Changed the game", "Professional", "Creative", "Fast turnaround", "On brand", "Storytelling", "Legendary", "Detail-oriented", "Easy to work with"]
+export const WORDS = ["Cinematic", "Showed up", "Exceeded expectations", "Changed the game", "Professional", "Creative", "Fast turnaround", "On brand", "Storytelling", "Legendary", "Detail-oriented", "Easy to work with", "Prepared", "Communicative", "High quality", "Would refer", "Already referred", "Understood the vision"]
 
 const FORM_ID = "add-your-voice"
 
@@ -40,7 +40,7 @@ export function VoicesHero({ count }: { count: number }) {
         <nav aria-label="Site navigation" className="flex items-center gap-3">
           <AddVoicePill />
           <span aria-hidden="true" className="h-4 w-px bg-white/[0.12]" />
-          <Link prefetch href="/admin" className="text-xs font-medium text-white/40 transition-colors hover:text-white/70">Admin</Link>
+          <Link prefetch href="/admin" className="text-xs font-medium text-[rgba(240,236,230,0.62)] transition-colors hover:text-[#f0ece6]">Admin</Link>
         </nav>
       </header>
 
@@ -57,10 +57,10 @@ export function VoicesHero({ count }: { count: number }) {
         <p className="max-w-[10rem] text-[9px] font-semibold uppercase tracking-[5px] text-primary">The voices behind the work</p>
         <div className="text-right">
           <p className="font-serif text-[52px] font-normal leading-none text-[rgba(181,82,10,0.35)]">{count}</p>
-          <p className="mt-2 text-[8px] uppercase tracking-[3px] text-white/30">Voices &amp; counting</p>
+          <p className="mt-2 text-[8px] uppercase tracking-[3px] text-[rgba(240,236,230,0.62)]">Voices &amp; counting</p>
         </div>
         <div aria-hidden="true" className="absolute bottom-8 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-3 sm:flex">
-          <span className="text-[8px] uppercase tracking-[3px] text-white/30">Scroll to explore</span>
+          <span className="text-[8px] uppercase tracking-[3px] text-[rgba(240,236,230,0.62)]">Scroll to explore</span>
           <span className="voices-scroll-cue block h-8 w-px bg-primary/40" />
         </div>
       </div>
@@ -91,8 +91,8 @@ export function PinnedQuote({ voice }: { voice?: ApprovedVoice }) {
           </blockquote>
           {voice && (
             <figcaption className={`mt-10 transition-all duration-700 ${showAttribution ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"}`}>
-              <p className="text-sm font-medium text-white">{voice.name}</p>
-              {(voice.company || voice.role) && <p className="mt-1 text-xs text-white/50">{voice.company}{voice.company && voice.role ? " · " : ""}{voice.role}</p>}
+              <p className="text-sm font-medium text-[#f0ece6]">{voice.name}</p>
+              {(voice.company || voice.role) && <p className="mt-1 text-xs text-[rgba(240,236,230,0.62)]">{voice.company}{voice.company && voice.role ? " · " : ""}{voice.role}</p>}
             </figcaption>
           )}
         </figure>
@@ -125,7 +125,7 @@ export function ChipBurst() {
             return (
               <li
                 key={word}
-                className="absolute left-1/2 top-1/2 whitespace-nowrap rounded-full border border-primary/30 bg-[#0c0a07] px-4 py-1.5 text-[10px] tracking-[0.5px] text-primary/80 will-change-transform md:text-xs"
+                className="absolute left-1/2 top-1/2 whitespace-nowrap rounded-full border border-primary/30 bg-[#0c0a07] px-4 py-1.5 text-[10px] tracking-[0.5px] text-primary will-change-transform md:text-xs"
                 style={{
                   opacity: local,
                   transform: `translate(-50%,-50%) translate(calc(${Math.cos(angle) * distance} * min(42vw, 420px)), calc(${Math.sin(angle) * distance} * min(34vh, 320px))) scale(${0.6 + local * 0.4})`,
@@ -144,7 +144,7 @@ export function ChipBurst() {
 function VoiceCard({ voice, mauve }: { voice: ApprovedVoice; mauve: boolean }) {
   return (
     <article className={`flex h-full w-[min(80vw,400px)] flex-shrink-0 flex-col rounded-r-[10px] border-l-2 bg-[rgba(181,82,10,0.03)] p-7 ${mauve ? "border-mauve" : "border-primary"}`}>
-      <blockquote className="font-serif text-[17px] font-normal leading-[1.65] text-white/[0.88]">{voice.quote}</blockquote>
+      <blockquote className="font-serif text-[17px] font-normal leading-[1.65] text-[#f0ece6]">{voice.quote}</blockquote>
       <div className="mt-auto pt-8">
         <div className="flex items-center gap-3">
           {voice.logo_url ? (
@@ -153,13 +153,13 @@ function VoiceCard({ voice, mauve }: { voice: ApprovedVoice; mauve: boolean }) {
             <div aria-hidden="true" className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border text-xs font-semibold ${mauve ? "border-mauve/40 bg-mauve/10 text-mauve" : "border-primary/30 bg-primary/10 text-primary"}`}>{initials(voice.name)}</div>
           )}
           <div>
-            <p className="text-sm font-medium text-white">{voice.name}</p>
-            {(voice.company || voice.role) && <p className="text-xs text-white/50">{voice.company}{voice.company && voice.role ? " · " : ""}{voice.role}</p>}
+            <p className="text-sm font-medium text-[#f0ece6]">{voice.name}</p>
+            {(voice.company || voice.role) && <p className="text-xs text-[rgba(240,236,230,0.62)]">{voice.company}{voice.company && voice.role ? " · " : ""}{voice.role}</p>}
           </div>
         </div>
         {voice.words.length > 0 && (
           <ul className="mt-5 flex flex-wrap gap-2" aria-label="Words used">
-            {voice.words.map((word) => <li key={word} className={`rounded-full border px-2.5 py-1 text-[10px] tracking-[0.5px] ${mauve ? "border-mauve/40 text-mauve" : "border-primary/30 text-primary/70"}`}>{word}</li>)}
+            {voice.words.map((word) => <li key={word} className={`rounded-full border px-2.5 py-1 text-[10px] tracking-[0.5px] ${mauve ? "border-mauve/40 text-mauve" : "border-primary/30 text-primary"}`}>{word}</li>)}
           </ul>
         )}
       </div>
@@ -186,7 +186,7 @@ export function HorizontalVoices({ voices }: { voices: ApprovedVoice[] }) {
   }, [voices.length])
 
   if (voices.length === 0) {
-    return <p className={`${SCENE_EDGE} z-30 bg-[#0d0a07] px-6 py-24 text-center font-serif text-lg text-white/50`}>No voices yet. Be the first to share yours.</p>
+    return <p className={`${SCENE_EDGE} z-30 bg-[#0d0a07] px-6 py-24 text-center font-serif text-lg text-[rgba(240,236,230,0.62)]`}>No voices yet. Be the first to share yours.</p>
   }
 
   const current = Math.min(voices.length, Math.floor(progress * voices.length) + 1)
@@ -196,7 +196,7 @@ export function HorizontalVoices({ voices }: { voices: ApprovedVoice[] }) {
       <div className="sticky top-0 flex h-screen flex-col justify-center gap-10 overflow-hidden py-12">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6">
           <p className="text-[9px] font-semibold uppercase tracking-[5px] text-primary">All voices</p>
-          <p className="font-serif text-sm text-white/50" aria-live="polite"><span style={{ color: HEADLINE }}>{current}</span> / {voices.length}</p>
+          <p className="font-serif text-sm text-[rgba(240,236,230,0.62)]" aria-live="polite"><span style={{ color: HEADLINE }}>{current}</span> / {voices.length}</p>
         </div>
         <div ref={viewportRef} className="mx-auto w-full max-w-6xl px-6">
           <div ref={trackRef} className="flex w-max gap-6 will-change-transform" style={{ transform: `translate3d(${-progress * maxShift}px,0,0)` }}>
@@ -218,8 +218,8 @@ export function GiantCounter({ count, overlap }: { count: number; overlap: boole
   return (
     <section ref={ref} data-visible={visible} className={`voices-counter ${SCENE_EDGE} z-40 flex min-h-screen flex-col items-center justify-center bg-[#0e0b08] px-6 py-32 text-center ${overlap ? "-mt-[100vh]" : ""}`}>
       <p className="voices-counter-number font-serif text-[120px] font-normal leading-none">{count}</p>
-      <p className="voices-counter-label mt-4 text-[8px] uppercase tracking-[3px] text-white/40">Voices &amp; counting</p>
-      <p className="voices-counter-phrase mt-6 font-serif text-lg italic text-white/55">People we&apos;ve had the privilege of creating with.</p>
+      <p className="voices-counter-label mt-4 text-[8px] uppercase tracking-[3px] text-[rgba(240,236,230,0.62)]">Voices &amp; counting</p>
+      <p className="voices-counter-phrase mt-6 font-serif text-lg italic text-[rgba(240,236,230,0.62)]">People we&apos;ve had the privilege of creating with.</p>
     </section>
   )
 }
