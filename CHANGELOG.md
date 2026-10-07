@@ -6,6 +6,13 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.13.3 — 2026-10-06
+
+### Voices page
+- Hero headline now fades in word by word as you begin scrolling (over the first ~35% of a screen), not on page load. Shown immediately for users with reduced motion.
+- Hero is no longer sticky: it sits at `position: relative; z-index: 2` with an opaque `#0a0806` background, so nothing beneath it shows through. All later sections are `z-index: 1` and keep their existing overlap order through DOM order.
+- Removed the top border on the "Add your voice" section so scenes blend into each other with no hard line.
+
 ## 0.13.2 — 2026-10-06
 
 ### Voices page
