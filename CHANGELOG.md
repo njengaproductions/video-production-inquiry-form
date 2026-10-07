@@ -6,6 +6,14 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.13.2 — 2026-10-06
+
+### Voices page
+- Seamless scrolling: every section, sticky pin container, the `<main>` wrapper, the success screen, `html`, `body`, `#__next`, and the Lenis root now use the same `#0a0806` background (previously five slightly different warm shades).
+- Removed the dark top shadow on overlapping scenes, which looked like a different-colored band as each section rolled up.
+- Added `overscroll-behavior: none` on `html`/`body` so rubber-band scrolling can't reveal a different canvas.
+- `<main>` now uses `min-h-full` instead of `min-h-screen`.
+
 ## 0.13.1 — 2026-10-06
 
 **Voices page — chips, contrast, background (`/voices`)**
