@@ -421,4 +421,16 @@
 
 /* Unlayered so it beats the bg-background utility on <html> */
 html:has(.voices-page),
-html:has(.voices-page) body { background-color: #0a0806; }
+html:has(.voices-page).lenis,
+html:has(.voices-page) body,
+html:has(.voices-page) #__next,
+.voices-page,
+.voices-page section,
+.voices-page section > .sticky {
+  background-color: #0a0806;
+}
+
+html:has(.voices-page),
+html:has(.voices-page) body {
+  overscroll-behavior: none;
+}

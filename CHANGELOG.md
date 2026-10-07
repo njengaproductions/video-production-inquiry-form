@@ -6,6 +6,29 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.13.4 — 2026-10-06
+
+### Voices page
+- Section layering reversed so each new scene is revealed from underneath the previous one: every section is `position: relative` with an opaque `#0a0806` background and a descending z-index (hero 60 → pinned quote 50 → chip burst 40 → all voices 30 → counter 20 → form 10).
+- Pinned quote now tucks under the hero (`-mt-[100vh]`) and stays pinned while the hero slides up off it. The counter is now a pinned scene too, so it's revealed in place as the voices carousel slides away.
+- Scroll-driven scenes now start their animation only after the section above has fully slid off (lead offset instead of trailing overlap), and the counter animates on scroll position instead of IntersectionObserver so it doesn't play while it's still covered.
+- No borders, lines, or shadows between sections. Hero headline keeps the scroll-tied word fade from 0.13.3.
+
+## 0.13.3 — 2026-10-06
+
+### Voices page
+- Hero headline now fades in word by word as you begin scrolling (over the first ~35% of a screen), not on page load. Shown immediately for users with reduced motion.
+- Hero is no longer sticky: it sits at `position: relative; z-index: 2` with an opaque `#0a0806` background, so nothing beneath it shows through. All later sections are `z-index: 1` and keep their existing overlap order through DOM order.
+- Removed the top border on the "Add your voice" section so scenes blend into each other with no hard line.
+
+## 0.13.2 — 2026-10-06
+
+### Voices page
+- Seamless scrolling: every section, sticky pin container, the `<main>` wrapper, the success screen, `html`, `body`, `#__next`, and the Lenis root now use the same `#0a0806` background (previously five slightly different warm shades).
+- Removed the dark top shadow on overlapping scenes, which looked like a different-colored band as each section rolled up.
+- Added `overscroll-behavior: none` on `html`/`body` so rubber-band scrolling can't reveal a different canvas.
+- `<main>` now uses `min-h-full` instead of `min-h-screen`.
+
 ## 0.13.1 — 2026-10-06
 
 **Voices page — chips, contrast, background (`/voices`)**

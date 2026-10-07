@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useLenis } from "lenis/react"
 import { useEffect, useRef, useState, type MouseEvent } from "react"
-import { useInView, useScrollProgress } from "./use-scroll-progress"
+import { useScrollProgress } from "./use-scroll-progress"
 import type { ApprovedVoice } from "./voices-form"
 
 export const HEADLINE = "#f0ece6"
@@ -13,7 +13,7 @@ export const WORDS = ["Cinematic", "Showed up", "Exceeded expectations", "Change
 const FORM_ID = "add-your-voice"
 
 /** Opaque, stacked scene that casts a soft shadow upward as it slides over the previous one. */
-export const SCENE_EDGE = "relative shadow-[0_-40px_80px_rgba(0,0,0,0.65)]"
+export const SCENE_EDGE = "relative bg-[#0a0806]"
 
 function initials(name: string) {
   return name.split(/\s+/).filter(Boolean).map((word) => word[0]).join("").slice(0, 2).toUpperCase()
@@ -29,9 +29,62 @@ function AddVoicePill() {
   return <a href={`#${FORM_ID}`} onClick={onClick} className="rounded-full border border-primary px-4 py-2 text-xs font-medium text-primary transition-colors hover:bg-primary/10">+ Add your voice</a>
 }
 
+const HERO_LINES = [
+  { words: ["Words", "from"], color: HEADLINE },
+  { words: ["the", "people"], color: "rgba(240,236,230,0.18)" },
+  { words: ["we", "create", "with."], color: HEADLINE },
+]
+const HERO_WORD_COUNT = HERO_LINES.reduce((total, line) => total + line.words.length, 0)
+
+function useHeroReveal() {
+  const [reveal, setReveal] = useState(0)
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setReveal(1)
+      return
+    }
+    let frame = 0
+    const update = () => {
+      frame = 0
+      setReveal(Math.round(Math.min(1, window.scrollY / (window.innerHeight * 0.35)) * 1000) / 1000)
+    }
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(update) }
+    update()
+    window.addEventListener("scroll", schedule, { passive: true })
+    window.addEventListener("resize", schedule)
+    return () => {
+      window.removeEventListener("scroll", schedule)
+      window.removeEventListener("resize", schedule)
+      if (frame) cancelAnimationFrame(frame)
+    }
+  }, [])
+
+  return reveal
+}
+
+function HeroHeadline() {
+  const reveal = useHeroReveal()
+  let wordIndex = 0
+
+  return (
+    <h1 className="relative text-center font-serif text-[38px] font-normal leading-[1.1] md:text-[52px]" style={{ color: HEADLINE }}>
+      {HERO_LINES.map((line) => (
+        <span key={line.words.join(" ")} className="block" style={{ color: line.color }}>
+          {line.words.map((word, index) => {
+            const start = (wordIndex++ / HERO_WORD_COUNT) * 0.6
+            const opacity = Math.min(1, Math.max(0, (reveal - start) / 0.4))
+            return <span key={word} style={{ opacity }}>{word}{index < line.words.length - 1 ? " " : ""}</span>
+          })}
+        </span>
+      ))}
+    </h1>
+  )
+}
+
 export function VoicesHero({ count }: { count: number }) {
   return (
-    <section className="sticky top-0 z-0 flex min-h-screen flex-col overflow-hidden bg-[#0a0806] px-6">
+    <section className={`${SCENE_EDGE} z-[60] flex min-h-screen flex-col overflow-hidden bg-[#0a0806] px-6`}>
       <header className="relative z-10 mx-auto flex w-full max-w-6xl items-center justify-between py-6">
         <Link prefetch href="/" className="text-left">
           <span className="block font-serif text-xl font-bold tracking-[0.14em] text-brand">NJENGA</span>
@@ -46,11 +99,7 @@ export function VoicesHero({ count }: { count: number }) {
 
       <div className="relative mx-auto flex w-full max-w-6xl flex-1 items-center justify-center py-16">
         <span aria-hidden="true" className="pointer-events-none absolute select-none font-serif text-[clamp(96px,20vw,180px)] font-normal leading-none tracking-[0.04em] text-[rgba(181,82,10,0.03)]">VOICES</span>
-        <h1 className="relative text-center font-serif text-[38px] font-normal leading-[1.1] md:text-[52px]" style={{ color: HEADLINE }}>
-          <span className="block">Words from</span>
-          <span className="block" style={{ color: "rgba(240,236,230,0.18)" }}>the people</span>
-          <span className="block">we create with.</span>
-        </h1>
+        <HeroHeadline />
       </div>
 
       <div className="relative mx-auto flex w-full max-w-6xl items-end justify-between gap-6 pb-8">
@@ -76,8 +125,8 @@ export function PinnedQuote({ voice }: { voice?: ApprovedVoice }) {
   const showAttribution = progress > 0.85
 
   return (
-    <section ref={ref} aria-label="Featured voice" className={`${SCENE_EDGE} z-10 h-[240vh] bg-[#0b0907]`}>
-      <div className="sticky top-0 flex h-screen items-center justify-center px-6">
+    <section ref={ref} aria-label="Featured voice" className={`${SCENE_EDGE} z-50 -mt-[100vh] h-[340vh] bg-[#0a0806]`}>
+      <div className="sticky bg-[#0a0806] top-0 flex h-screen items-center justify-center px-6">
         <figure className="mx-auto max-w-3xl text-center">
           <blockquote className="font-serif text-[22px] font-normal leading-[1.55] md:text-[26px]">
             <span className="sr-only">{quote}</span>
@@ -113,8 +162,8 @@ export function ChipBurst() {
   const burst = Math.sin(Math.PI * progress)
 
   return (
-    <section ref={ref} aria-label="Words clients use to describe us" className={`${SCENE_EDGE} z-20 -mt-[100vh] h-[300vh] bg-[#0c0a07]`}>
-      <div className="sticky top-0 flex h-screen items-center justify-center overflow-hidden">
+    <section ref={ref} aria-label="Words clients use to describe us" className={`${SCENE_EDGE} z-40 -mt-[100vh] h-[300vh] bg-[#0a0806]`}>
+      <div className="sticky bg-[#0a0806] top-0 flex h-screen items-center justify-center overflow-hidden">
         <p className="relative z-10 text-center font-serif text-[22px] font-normal md:text-[28px]" style={{ color: HEADLINE, opacity: 0.25 + burst * 0.75 }}>
           In their <span className="text-primary">words.</span>
         </p>
@@ -125,7 +174,7 @@ export function ChipBurst() {
             return (
               <li
                 key={word}
-                className="absolute left-1/2 top-1/2 whitespace-nowrap rounded-full border border-primary/30 bg-[#0c0a07] px-4 py-1.5 text-[10px] tracking-[0.5px] text-primary will-change-transform md:text-xs"
+                className="absolute left-1/2 top-1/2 whitespace-nowrap rounded-full border border-primary/30 bg-[#0a0806] px-4 py-1.5 text-[10px] tracking-[0.5px] text-primary will-change-transform md:text-xs"
                 style={{
                   opacity: local,
                   transform: `translate(-50%,-50%) translate(calc(${Math.cos(angle) * distance} * min(42vw, 420px)), calc(${Math.sin(angle) * distance} * min(34vh, 320px))) scale(${0.6 + local * 0.4})`,
@@ -186,14 +235,14 @@ export function HorizontalVoices({ voices }: { voices: ApprovedVoice[] }) {
   }, [voices.length])
 
   if (voices.length === 0) {
-    return <p className={`${SCENE_EDGE} z-30 bg-[#0d0a07] px-6 py-24 text-center font-serif text-lg text-[rgba(240,236,230,0.62)]`}>No voices yet. Be the first to share yours.</p>
+    return <p className={`${SCENE_EDGE} z-30 bg-[#0a0806] px-6 py-24 text-center font-serif text-lg text-[rgba(240,236,230,0.62)]`}>No voices yet. Be the first to share yours.</p>
   }
 
   const current = Math.min(voices.length, Math.floor(progress * voices.length) + 1)
 
   return (
-    <section ref={ref} aria-label="All voices" className={`${SCENE_EDGE} z-30 -mt-[100vh] h-[300vh] bg-[#0d0a07]`}>
-      <div className="sticky top-0 flex h-screen flex-col justify-center gap-10 overflow-hidden py-12">
+    <section ref={ref} aria-label="All voices" className={`${SCENE_EDGE} z-30 -mt-[100vh] h-[300vh] bg-[#0a0806]`}>
+      <div className="sticky bg-[#0a0806] top-0 flex h-screen flex-col justify-center gap-10 overflow-hidden py-12">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6">
           <p className="text-[9px] font-semibold uppercase tracking-[5px] text-primary">All voices</p>
           <p className="font-serif text-sm text-[rgba(240,236,230,0.62)]" aria-live="polite"><span style={{ color: HEADLINE }}>{current}</span> / {voices.length}</p>
@@ -214,12 +263,15 @@ export function HorizontalVoices({ voices }: { voices: ApprovedVoice[] }) {
 }
 
 export function GiantCounter({ count, overlap }: { count: number; overlap: boolean }) {
-  const [ref, visible] = useInView<HTMLElement>()
+  const [ref, progress] = useScrollProgress<HTMLElement>(overlap ? 0.5 : -0.6)
+  const visible = progress > 0
   return (
-    <section ref={ref} data-visible={visible} className={`voices-counter ${SCENE_EDGE} z-40 flex min-h-screen flex-col items-center justify-center bg-[#0e0b08] px-6 py-32 text-center ${overlap ? "-mt-[100vh]" : ""}`}>
-      <p className="voices-counter-number font-serif text-[120px] font-normal leading-none">{count}</p>
-      <p className="voices-counter-label mt-4 text-[8px] uppercase tracking-[3px] text-[rgba(240,236,230,0.62)]">Voices &amp; counting</p>
-      <p className="voices-counter-phrase mt-6 font-serif text-lg italic text-[rgba(240,236,230,0.62)]">People we&apos;ve had the privilege of creating with.</p>
+    <section ref={ref} data-visible={visible} className={`voices-counter ${SCENE_EDGE} z-20 h-[200vh] bg-[#0a0806] ${overlap ? "-mt-[100vh]" : ""}`}>
+      <div className="sticky top-0 flex h-screen flex-col items-center justify-center bg-[#0a0806] px-6 text-center">
+        <p className="voices-counter-number font-serif text-[120px] font-normal leading-none">{count}</p>
+        <p className="voices-counter-label mt-4 text-[8px] uppercase tracking-[3px] text-[rgba(240,236,230,0.62)]">Voices &amp; counting</p>
+        <p className="voices-counter-phrase mt-6 font-serif text-lg italic text-[rgba(240,236,230,0.62)]">People we&apos;ve had the privilege of creating with.</p>
+      </div>
     </section>
   )
 }
