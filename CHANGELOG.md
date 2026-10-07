@@ -6,6 +6,15 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.13.6 — 2026-10-07
+
+**Voices page (`/voices`)**
+- Fixed a hairline seam at section boundaries caused by `100vh` subpixel rounding. Overlapping sections (Featured voice, chip burst, All voices, and the counter when it overlaps) now use `-mt-[calc(100vh+4px)]` with a matching `+4px` added to their height, so each section tucks 4px further under the one before it.
+- The Featured voice sticky container now has `overflow-hidden`.
+- No form, database, Resend, or auth changes.
+
+---
+
 ## 0.13.5 — 2026-10-06
 
 **Voices page (`/voices`)**
