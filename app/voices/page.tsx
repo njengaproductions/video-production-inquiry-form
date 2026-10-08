@@ -1,5 +1,6 @@
 import { VoicesForm } from "@/components/voices/voices-form"
 import { listApprovedVoices } from "@/lib/voices"
+import { MARQUEE_IMAGES } from "@/lib/marquee-images"
 
 export const dynamic = "force-dynamic"
 
@@ -14,7 +15,7 @@ function shuffle<T>(items: T[]) {
 
 export default async function VoicesPage() {
   const voices = await listApprovedVoices()
-  return <VoicesForm testimonials={shuffle(voices.map(({ id, name, company, role, quote, words, logo_url }) => ({ id, name, company, role, quote, words, logo_url })))} />
+  return <VoicesForm photos={MARQUEE_IMAGES.slice(0, 3)} testimonials={shuffle(voices.map(({ id, name, company, role, quote, words, logo_url }) => ({ id, name, company, role, quote, words, logo_url })))} />
 }
 
 export const metadata = {

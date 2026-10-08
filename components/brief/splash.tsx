@@ -2,37 +2,12 @@
 
 import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
+import { MARQUEE_ROW_1, MARQUEE_ROW_2 } from "@/lib/marquee-images"
 
 const TAGLINE = "Content that builds brands."
 
-const ROW_1 = [
-  "/images/A.png",
-  "/images/B.png",
-  "/images/C.png",
-  "/images/D.png",
-  "/images/E.png",
-  "/images/F.png",
-  "/images/G.png",
-  "/images/H.png",
-  "/images/I.png",
-  "/images/R.png",
-  "/images/S.png",
-  "/images/T.png",
-  "/images/U.png",
-]
-const ROW_2 = [
-  "/images/J.png",
-  "/images/K.png",
-  "/images/L.png",
-  "/images/M.png",
-  "/images/N.png",
-  "/images/O.png",
-  "/images/P.png",
-  "/images/Q.png",
-  "/images/V.png",
-  "/images/W.png",
-  "/images/X.png",
-]
+const ROW_1 = MARQUEE_ROW_1
+const ROW_2 = MARQUEE_ROW_2
 
 // Fisher–Yates shuffle (unbiased). Runs in the browser only, after the first render.
 function shuffle<T>(arr: T[]): T[] {
