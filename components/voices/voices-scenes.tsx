@@ -62,10 +62,10 @@ type PhotoLayer = {
   delay: number
 }
 
-// [xMin, xMax, yMin, yMax] as % of the hero, allowed to bleed off-screen: TL, TR, ML, MR, center, BL, BR, BC.
+// Top-left corner ranges [xMin, xMax, yMin, yMax] in viewport %, allowed to bleed off-screen: TL, TR, ML, MR, center, BL, BR, BC.
 const GHOST_ZONES: [number, number, number, number][] = [
-  [-13, 18, -6, 16], [64, 92, -6, 16], [-13, 14, 32, 54], [70, 95, 30, 54],
-  [32, 58, 24, 58], [-10, 20, 70, 94], [66, 94, 68, 94], [36, 60, 80, 100],
+  [-14, 6, -10, 8], [62, 82, -10, 8], [-16, 2, 28, 44], [66, 84, 26, 44],
+  [28, 44, 26, 44], [-12, 8, 62, 80], [62, 80, 62, 80], [30, 44, 70, 86],
 ]
 const GHOST_COUNT = GHOST_ZONES.length
 
@@ -74,23 +74,24 @@ const rand = (min: number, max: number) => min + Math.random() * (max - min)
 function buildPhotoLayers(photos: string[]): PhotoLayer[] {
   const zones = [...GHOST_ZONES].sort(() => Math.random() - 0.5)
   return zones.map(([xMin, xMax, yMin, yMax], index) => {
-    const opacity = rand(0.07, 0.16)
-    const depth = (opacity - 0.07) / 0.09
+    const opacity = rand(0.18, 0.38)
+    const depth = 1 - (opacity - 0.18) / 0.2
     const x = rand(xMin, xMax)
+    const w = rand(22, 42)
     return {
       src: photos[index % photos.length],
       x,
       y: rand(yMin, yMax),
-      w: rand(130, 225),
-      h: rand(180, 305),
+      w,
+      h: rand(22, 38),
       opacity,
       depth,
-      blur: 0.4 + depth * 1.6,
+      blur: 0.3 + depth * 1.2,
       dirY: Math.random() < 0.5 ? 1 : -1,
-      dirX: x < 50 ? 1 : -1,
-      speedY: rand(45, 145),
-      speedX: rand(8, 28),
-      delay: 180 + index * 120,
+      dirX: x + w / 2 < 50 ? 1 : -1,
+      speedY: rand(4, 14),
+      speedX: rand(1, 4),
+      delay: 200 + index * 130,
     }
   })
 }
@@ -111,11 +112,11 @@ function GhostPhotos({ photos, progress }: { photos: string[]; progress: number 
           key={index}
           className="absolute will-change-transform"
           style={{
-            left: `${layer.x}%`,
-            top: `${layer.y}%`,
-            width: layer.w,
-            height: layer.h,
-            transform: `translateY(${layer.dirY * layer.speedY * progress}px) translateX(${layer.dirX * layer.speedX * progress}px) scale(${1 - layer.depth * 0.04 * progress})`,
+            left: `${layer.x}vw`,
+            top: `${layer.y}vh`,
+            width: `${layer.w}vw`,
+            height: `${layer.h}vh`,
+            transform: `translateY(${layer.dirY * layer.speedY * progress}vh) translateX(${layer.dirX * layer.speedX * progress}vw) scale(${1 - layer.depth * 0.04 * progress})`,
           }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -125,11 +126,10 @@ function GhostPhotos({ photos, progress }: { photos: string[]; progress: number 
             decoding="async"
             className="voices-ghost size-full select-none"
             style={{
-              filter: `blur(${layer.blur}px) saturate(0.28)`,
+              filter: `blur(${layer.blur}px) saturate(0.62) brightness(0.78)`,
               animationDelay: `${layer.delay}ms`,
               ["--ghost-opacity" as string]: layer.opacity,
-              ["--ghost-from-x" as string]: `${layer.dirX * -8}px`,
-              ["--ghost-from-y" as string]: `${layer.dirY * -18}px`,
+              ["--ghost-from-y" as string]: `${layer.dirY * 20}px`,
             }}
           />
         </div>
@@ -141,12 +141,13 @@ function GhostPhotos({ photos, progress }: { photos: string[]; progress: number 
 export function VoicesHero({ count, photos = [] }: { count: number; photos?: string[] }) {
   const [heroRef, progress] = useExitProgress<HTMLElement>()
   const leakProgress = Math.max(0, Math.min(1, (progress - 0.35) / 0.4))
-  const leakOpacity = Math.sin(leakProgress * Math.PI) * 0.9
+  const leakOpacity = Math.sin(leakProgress * Math.PI) * 0.85
 
   return (
     <section ref={heroRef} className={`${SCENE_EDGE} z-[60] flex min-h-screen flex-col overflow-hidden bg-[#0a0806] px-6`}>
       <GhostPhotos photos={photos} progress={progress} />
       <div aria-hidden="true" className="voices-hero-vignette pointer-events-none absolute inset-0 z-[3]" />
+      <div aria-hidden="true" className="voices-hero-amber pointer-events-none absolute inset-0 z-[4]" />
       <div aria-hidden="true" className="voices-grain pointer-events-none absolute inset-0 z-[5]" />
       <div
         aria-hidden="true"
@@ -166,13 +167,13 @@ export function VoicesHero({ count, photos = [] }: { count: number; photos?: str
       </header>
 
       <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 items-center justify-center py-16">
-        <span aria-hidden="true" className="pointer-events-none absolute z-[6] select-none font-serif text-[clamp(96px,20vw,180px)] font-normal leading-none tracking-[0.04em] text-[rgba(181,82,10,0.03)]" style={{ transform: `translateY(${-progress * 18}px)` }}>VOICES</span>
-        <div className="relative" style={{ transform: `translateY(${-progress * 30}px)` }}>
+        <span aria-hidden="true" className="pointer-events-none absolute z-[6] select-none font-serif text-[clamp(96px,20vw,180px)] font-normal leading-none tracking-[0.04em] text-[rgba(181,82,10,0.03)]" style={{ transform: `translateY(${-progress * 2.2}vh)` }}>VOICES</span>
+        <div className="relative" style={{ transform: `translateY(${-progress * 3.6}vh)` }}>
           <HeroHeadline />
         </div>
       </div>
 
-      <div className="relative z-10 mx-auto flex w-full max-w-6xl items-end justify-between gap-6 pb-8" style={{ transform: `translateY(${progress * 22}px)` }}>
+      <div className="relative z-10 mx-auto flex w-full max-w-6xl items-end justify-between gap-6 pb-8" style={{ transform: `translateY(${progress * 2.6}vh)` }}>
         <p className="max-w-[10rem] text-[9px] font-semibold uppercase tracking-[5px] text-primary">The voices behind the work</p>
         <div className="text-right">
           <p className="font-serif text-[52px] font-normal leading-none text-[rgba(181,82,10,0.35)]">{count}</p>

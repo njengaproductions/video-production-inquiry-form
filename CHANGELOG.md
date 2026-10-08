@@ -6,6 +6,16 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.15.1 — 2026-10-08
+
+### Voices page
+- Hero parallax photos now read clearly: screen blend with muted color (saturate 0.62, brightness 0.78), opacity 0.18–0.38, and depth blur from 0.3px (front) to 1.5px (back).
+- Photo sizes, positions, and drift distances are now in viewport units (22–42vw × 22–38vh), so the layout scales on phone, tablet, and desktop.
+- Added a warm amber wash over the photos, refreshed the vignette and light leak, and changed the entrance stagger to 200ms + 130ms per photo with a 20px slide.
+- Headline, watermark, and bottom row parallax now move in vh units.
+
+---
+
 ## 0.15.0 — 2026-10-08
 
 ### Voices page
