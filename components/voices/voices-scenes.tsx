@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useLenis } from "lenis/react"
 import { useEffect, useRef, useState, type MouseEvent } from "react"
-import { useScrollProgress } from "./use-scroll-progress"
+import { useExitProgress, useScrollProgress } from "./use-scroll-progress"
 import type { ApprovedVoice } from "./voices-form"
 
 export const HEADLINE = "#f0ece6"
@@ -46,27 +46,113 @@ function HeroHeadline() {
   )
 }
 
-const GHOST_LAYOUT = [
-  { className: "-left-[60px] -top-[60px] h-[380px] w-[280px]", duration: "6s", delay: "0s" },
-  { className: "-bottom-[40px] -right-[40px] h-[200px] w-[260px]", duration: "7s", delay: "2s" },
-  { className: "right-[8%] top-1/2 h-[180px] w-[140px] -translate-y-1/2", duration: "8s", delay: "4s" },
+type PhotoLayer = {
+  src: string
+  x: number
+  y: number
+  w: number
+  h: number
+  opacity: number
+  depth: number
+  blur: number
+  dirY: 1 | -1
+  dirX: 1 | -1
+  speedY: number
+  speedX: number
+  delay: number
+}
+
+// [xMin, xMax, yMin, yMax] as % of the hero, allowed to bleed off-screen: TL, TR, ML, MR, center, BL, BR, BC.
+const GHOST_ZONES: [number, number, number, number][] = [
+  [-13, 18, -6, 16], [64, 92, -6, 16], [-13, 14, 32, 54], [70, 95, 30, 54],
+  [32, 58, 24, 58], [-10, 20, 70, 94], [66, 94, 68, 94], [36, 60, 80, 100],
 ]
+const GHOST_COUNT = GHOST_ZONES.length
+
+const rand = (min: number, max: number) => min + Math.random() * (max - min)
+
+function buildPhotoLayers(photos: string[]): PhotoLayer[] {
+  const zones = [...GHOST_ZONES].sort(() => Math.random() - 0.5)
+  return zones.map(([xMin, xMax, yMin, yMax], index) => {
+    const opacity = rand(0.07, 0.16)
+    const depth = (opacity - 0.07) / 0.09
+    const x = rand(xMin, xMax)
+    return {
+      src: photos[index % photos.length],
+      x,
+      y: rand(yMin, yMax),
+      w: rand(130, 225),
+      h: rand(180, 305),
+      opacity,
+      depth,
+      blur: 0.4 + depth * 1.6,
+      dirY: Math.random() < 0.5 ? 1 : -1,
+      dirX: x < 50 ? 1 : -1,
+      speedY: rand(45, 145),
+      speedX: rand(8, 28),
+      delay: 180 + index * 120,
+    }
+  })
+}
+
+function GhostPhotos({ photos, progress }: { photos: string[]; progress: number }) {
+  const [layers, setLayers] = useState<PhotoLayer[] | null>(null)
+
+  // Randomized after mount so server and client markup match.
+  useEffect(() => {
+    if (photos.length) setLayers(buildPhotoLayers(photos))
+  }, [photos])
+
+  if (!layers) return null
+  return (
+    <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-[1]">
+      {layers.map((layer, index) => (
+        <div
+          key={index}
+          className="absolute will-change-transform"
+          style={{
+            left: `${layer.x}%`,
+            top: `${layer.y}%`,
+            width: layer.w,
+            height: layer.h,
+            transform: `translateY(${layer.dirY * layer.speedY * progress}px) translateX(${layer.dirX * layer.speedX * progress}px) scale(${1 - layer.depth * 0.04 * progress})`,
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={layer.src}
+            alt=""
+            decoding="async"
+            className="voices-ghost size-full select-none"
+            style={{
+              filter: `blur(${layer.blur}px) saturate(0.28)`,
+              animationDelay: `${layer.delay}ms`,
+              ["--ghost-opacity" as string]: layer.opacity,
+              ["--ghost-from-x" as string]: `${layer.dirX * -8}px`,
+              ["--ghost-from-y" as string]: `${layer.dirY * -18}px`,
+            }}
+          />
+        </div>
+      ))}
+    </div>
+  )
+}
 
 export function VoicesHero({ count, photos = [] }: { count: number; photos?: string[] }) {
+  const [heroRef, progress] = useExitProgress<HTMLElement>()
+  const leakProgress = Math.max(0, Math.min(1, (progress - 0.35) / 0.4))
+  const leakOpacity = Math.sin(leakProgress * Math.PI) * 0.9
+
   return (
-    <section className={`${SCENE_EDGE} z-[60] flex min-h-screen flex-col overflow-hidden bg-[#0a0806] px-6`}>
-      {photos.slice(0, GHOST_LAYOUT.length).map((src, index) => (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          key={src}
-          src={src}
-          alt=""
-          aria-hidden="true"
-          className={`voices-ghost pointer-events-none absolute select-none object-cover ${GHOST_LAYOUT[index].className}`}
-          style={{ animationDuration: GHOST_LAYOUT[index].duration, animationDelay: GHOST_LAYOUT[index].delay }}
-        />
-      ))}
-      <div aria-hidden="true" className="voices-grain pointer-events-none absolute inset-0" />
+    <section ref={heroRef} className={`${SCENE_EDGE} z-[60] flex min-h-screen flex-col overflow-hidden bg-[#0a0806] px-6`}>
+      <GhostPhotos photos={photos} progress={progress} />
+      <div aria-hidden="true" className="voices-hero-vignette pointer-events-none absolute inset-0 z-[3]" />
+      <div aria-hidden="true" className="voices-grain pointer-events-none absolute inset-0 z-[5]" />
+      <div
+        aria-hidden="true"
+        className="voices-light-leak pointer-events-none absolute inset-0 z-[6]"
+        style={{ opacity: leakOpacity, transform: `rotate(-12deg) translateY(${20 + progress * 20}%)` }}
+      />
       <header className="relative z-10 mx-auto flex w-full max-w-6xl items-center justify-between py-6">
         <Link prefetch href="/" className="text-left">
           <span className="block font-serif text-xl font-bold tracking-[0.14em] text-brand">NJENGA</span>
@@ -79,12 +165,14 @@ export function VoicesHero({ count, photos = [] }: { count: number; photos?: str
         </nav>
       </header>
 
-      <div className="relative mx-auto flex w-full max-w-6xl flex-1 items-center justify-center py-16">
-        <span aria-hidden="true" className="pointer-events-none absolute select-none font-serif text-[clamp(96px,20vw,180px)] font-normal leading-none tracking-[0.04em] text-[rgba(181,82,10,0.03)]">VOICES</span>
-        <HeroHeadline />
+      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 items-center justify-center py-16">
+        <span aria-hidden="true" className="pointer-events-none absolute z-[6] select-none font-serif text-[clamp(96px,20vw,180px)] font-normal leading-none tracking-[0.04em] text-[rgba(181,82,10,0.03)]" style={{ transform: `translateY(${-progress * 18}px)` }}>VOICES</span>
+        <div className="relative" style={{ transform: `translateY(${-progress * 30}px)` }}>
+          <HeroHeadline />
+        </div>
       </div>
 
-      <div className="relative mx-auto flex w-full max-w-6xl items-end justify-between gap-6 pb-8">
+      <div className="relative z-10 mx-auto flex w-full max-w-6xl items-end justify-between gap-6 pb-8" style={{ transform: `translateY(${progress * 22}px)` }}>
         <p className="max-w-[10rem] text-[9px] font-semibold uppercase tracking-[5px] text-primary">The voices behind the work</p>
         <div className="text-right">
           <p className="font-serif text-[52px] font-normal leading-none text-[rgba(181,82,10,0.35)]">{count}</p>
