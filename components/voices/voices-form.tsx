@@ -38,7 +38,7 @@ function Reveal({ children, className = "" }: { children: ReactNode; className?:
   return <div ref={ref} className={`reveal ${className}`}>{children}</div>
 }
 
-export function VoicesForm({ testimonials }: { testimonials: ApprovedVoice[] }) {
+export function VoicesForm({ testimonials, photos = [] }: { testimonials: ApprovedVoice[]; photos?: string[] }) {
   const [selected, setSelected] = useState<string[]>([])
   const [quote, setQuote] = useState("")
   const [name, setName] = useState("")
@@ -74,7 +74,7 @@ export function VoicesForm({ testimonials }: { testimonials: ApprovedVoice[] }) 
         </div>
       ) : (
         <>
-          <VoicesHero count={testimonials.length} />
+          <VoicesHero count={testimonials.length} photos={photos} />
           <PinnedQuote voice={testimonials[0]} />
           <ChipBurst />
           <HorizontalVoices voices={testimonials} />

@@ -6,6 +6,16 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.14.0 — 2026-10-08
+
+### Voices page
+- Hero now shows three ghosted background photos (reused from the splash marquee) that slowly breathe in opacity, staggered 2s apart, plus a subtle animated film-grain overlay. Both pause for reduced-motion users.
+
+### Shared
+- Marquee photo list moved to `lib/marquee-images.ts` so the splash and Voices hero use the same source.
+
+---
+
 ## 0.13.7 — 2026-10-07
 
 ### Voices page

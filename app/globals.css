@@ -271,13 +271,36 @@
   50% { opacity: 0.55; }
 }
 .voices-scroll-label { animation: voices-scroll-label 2.4s ease-in-out infinite; }
+@keyframes voices-ghost-breathe {
+  0%, 100% { opacity: 0.07; }
+  50% { opacity: 0.13; }
+}
+.voices-ghost {
+  mix-blend-mode: luminosity;
+  opacity: 0.09;
+  filter: blur(2px) saturate(0.3);
+  animation: voices-ghost-breathe 6s ease-in-out infinite;
+}
+@keyframes voices-grain-shift {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-2px, 2px); }
+  50% { transform: translate(2px, -2px); }
+  75% { transform: translate(-2px, -2px); }
+  100% { transform: translate(2px, 2px); }
+}
+.voices-grain {
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+  animation: voices-grain-shift 0.5s steps(5) infinite;
+}
 .voices-counter-number { color: rgba(181,82,10,0.08); transform: scale(0.7); transition: color 1.2s ease, transform 1.2s cubic-bezier(0.22,1,0.36,1); }
 .voices-counter-label, .voices-counter-phrase { opacity: 0; transform: translateY(8px); transition: opacity 0.8s ease, transform 0.8s ease; }
 .voices-counter[data-visible="true"] .voices-counter-number { color: rgba(181,82,10,0.45); transform: scale(1); }
 .voices-counter[data-visible="true"] .voices-counter-label { opacity: 1; transform: none; transition-delay: 0.5s; }
 .voices-counter[data-visible="true"] .voices-counter-phrase { opacity: 1; transform: none; transition-delay: 0.8s; }
 @media (prefers-reduced-motion: reduce) {
-  .voices-chip-marquee, .voices-scroll-cue, .voices-scroll-label { animation: none; }
+  .voices-chip-marquee, .voices-scroll-cue, .voices-scroll-label, .voices-ghost, .voices-grain { animation: none; }
   .voices-counter-number { color: rgba(181,82,10,0.45); transform: none; transition: none; }
   .voices-counter-label, .voices-counter-phrase { opacity: 1; transform: none; transition: none; }
   .reveal { opacity: 1; transform: none; transition: none; }

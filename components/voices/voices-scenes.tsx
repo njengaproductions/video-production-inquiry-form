@@ -46,9 +46,27 @@ function HeroHeadline() {
   )
 }
 
-export function VoicesHero({ count }: { count: number }) {
+const GHOST_LAYOUT = [
+  { className: "-left-[60px] -top-[60px] h-[380px] w-[280px]", duration: "6s", delay: "0s" },
+  { className: "-bottom-[40px] -right-[40px] h-[200px] w-[260px]", duration: "7s", delay: "2s" },
+  { className: "right-[8%] top-1/2 h-[180px] w-[140px] -translate-y-1/2", duration: "8s", delay: "4s" },
+]
+
+export function VoicesHero({ count, photos = [] }: { count: number; photos?: string[] }) {
   return (
     <section className={`${SCENE_EDGE} z-[60] flex min-h-screen flex-col overflow-hidden bg-[#0a0806] px-6`}>
+      {photos.slice(0, GHOST_LAYOUT.length).map((src, index) => (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          key={src}
+          src={src}
+          alt=""
+          aria-hidden="true"
+          className={`voices-ghost pointer-events-none absolute select-none object-cover ${GHOST_LAYOUT[index].className}`}
+          style={{ animationDuration: GHOST_LAYOUT[index].duration, animationDelay: GHOST_LAYOUT[index].delay }}
+        />
+      ))}
+      <div aria-hidden="true" className="voices-grain pointer-events-none absolute inset-0" />
       <header className="relative z-10 mx-auto flex w-full max-w-6xl items-center justify-between py-6">
         <Link prefetch href="/" className="text-left">
           <span className="block font-serif text-xl font-bold tracking-[0.14em] text-brand">NJENGA</span>
