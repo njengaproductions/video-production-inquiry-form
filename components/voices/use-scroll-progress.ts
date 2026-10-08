@@ -37,6 +37,35 @@ export function useScrollProgress<T extends HTMLElement>(leadScreens = 0) {
   return [ref, progress] as const
 }
 
+/** Progress (0–1) of a normal-height section scrolling up out of the viewport: 0 at its resting top, 1 once fully above. */
+export function useExitProgress<T extends HTMLElement>() {
+  const ref = useRef<T>(null)
+  const [progress, setProgress] = useState(0)
+
+  useEffect(() => {
+    let frame = 0
+    const update = () => {
+      frame = 0
+      const node = ref.current
+      if (!node) return
+      const rect = node.getBoundingClientRect()
+      const value = rect.height > 0 ? Math.min(1, Math.max(0, -rect.top / rect.height)) : 0
+      setProgress(Math.round(value * 1000) / 1000)
+    }
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(update) }
+    update()
+    window.addEventListener("scroll", schedule, { passive: true })
+    window.addEventListener("resize", schedule)
+    return () => {
+      window.removeEventListener("scroll", schedule)
+      window.removeEventListener("resize", schedule)
+      if (frame) cancelAnimationFrame(frame)
+    }
+  }, [])
+
+  return [ref, progress] as const
+}
+
 export function useInView<T extends HTMLElement>(threshold = 0.35) {
   const ref = useRef<T>(null)
   const [visible, setVisible] = useState(false)

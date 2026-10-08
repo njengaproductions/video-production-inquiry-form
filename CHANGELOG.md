@@ -6,6 +6,15 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.15.0 — 2026-10-08
+
+### Voices page
+- Hero ghost photos replaced with a randomized parallax layer: 8 marquee photos scattered across shuffled zones on every load, each with its own size, opacity, depth blur, and scroll drift direction/speed, entering with a staggered fade.
+- Headline, VOICES watermark, and bottom strip now drift at different rates as the hero scrolls away.
+- New warm light-leak flare that peaks mid-scroll, and an upgraded radial + linear vignette. Film grain kept.
+
+---
+
 ## 0.14.0 — 2026-10-08
 
 ### Voices page
