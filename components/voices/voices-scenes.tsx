@@ -24,6 +24,15 @@ export function reveal(delay = 0) {
   }
 }
 
+/** Above-the-fold variant: animates on mount so hydration never hides content waiting on an in-view check. */
+function mountReveal(delay = 0) {
+  return {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.55, ease: EASE_OUT_EXPO, delay },
+  }
+}
+
 // Transformed wrappers form their own stacking context, so they must keep the layer of the element they wrap.
 const ABOVE_OVERLAYS = { position: "relative", zIndex: 10 } as const
 
@@ -170,13 +179,13 @@ export function VoicesHero({ count, photos = [] }: { count: number; photos?: str
       <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 items-center justify-center py-16">
         <span aria-hidden="true" className="pointer-events-none absolute z-[6] select-none font-serif text-[clamp(96px,20vw,180px)] font-normal leading-none tracking-[0.04em] text-[rgba(181,82,10,0.03)]" style={{ transform: `translateY(${-progress * 1.8}vh)` }}>VOICES</span>
         <div className="relative" style={{ transform: `translateY(${-progress * 3.2}vh)` }}>
-          <motion.div {...reveal()}>
+          <motion.div {...mountReveal()}>
             <HeroHeadline />
           </motion.div>
         </div>
       </div>
 
-      <motion.div {...reveal(0.1)} style={ABOVE_OVERLAYS}>
+      <motion.div {...mountReveal(0.1)} style={ABOVE_OVERLAYS}>
       <div className="relative z-10 mx-auto flex w-full max-w-6xl items-end justify-between gap-6 pb-8" style={{ transform: `translateY(${progress * 2.4}vh)` }}>
         <p className="max-w-[10rem] text-[9px] font-semibold uppercase tracking-[5px] text-primary">The voices behind the work</p>
         <div className="text-right">
