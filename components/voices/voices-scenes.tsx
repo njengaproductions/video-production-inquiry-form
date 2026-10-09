@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { motion } from "framer-motion"
 import { useLenis } from "lenis/react"
 import { useEffect, useRef, useState, type MouseEvent } from "react"
 import { useExitProgress, useScrollProgress } from "./use-scroll-progress"
@@ -11,6 +12,20 @@ export const HEADLINE = "#f0ece6"
 export const WORDS = ["Cinematic", "Showed up", "Exceeded expectations", "Changed the game", "Professional", "Creative", "Fast turnaround", "On brand", "Storytelling", "Legendary", "Detail-oriented", "Easy to work with", "Prepared", "Communicative", "High quality", "Would refer", "Already referred", "Understood the vision"]
 
 const FORM_ID = "add-your-voice"
+
+const EASE_OUT_EXPO = [0.16, 1, 0.3, 1] as const
+
+export function reveal(delay = 0) {
+  return {
+    initial: { opacity: 0, y: 24 },
+    whileInView: { opacity: 1, y: 0 },
+    transition: { duration: 0.6, ease: EASE_OUT_EXPO, delay },
+    viewport: { once: true, margin: "-60px" },
+  }
+}
+
+// Transformed wrappers form their own stacking context, so they must keep the layer of the element they wrap.
+const ABOVE_OVERLAYS = { position: "relative", zIndex: 10 } as const
 
 /** Opaque, stacked scene that casts a soft shadow upward as it slides over the previous one. */
 export const SCENE_EDGE = "relative bg-[#0a0806]"
@@ -155,10 +170,13 @@ export function VoicesHero({ count, photos = [] }: { count: number; photos?: str
       <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 items-center justify-center py-16">
         <span aria-hidden="true" className="pointer-events-none absolute z-[6] select-none font-serif text-[clamp(96px,20vw,180px)] font-normal leading-none tracking-[0.04em] text-[rgba(181,82,10,0.03)]" style={{ transform: `translateY(${-progress * 1.8}vh)` }}>VOICES</span>
         <div className="relative" style={{ transform: `translateY(${-progress * 3.2}vh)` }}>
-          <HeroHeadline />
+          <motion.div {...reveal()}>
+            <HeroHeadline />
+          </motion.div>
         </div>
       </div>
 
+      <motion.div {...reveal(0.1)} style={ABOVE_OVERLAYS}>
       <div className="relative z-10 mx-auto flex w-full max-w-6xl items-end justify-between gap-6 pb-8" style={{ transform: `translateY(${progress * 2.4}vh)` }}>
         <p className="max-w-[10rem] text-[9px] font-semibold uppercase tracking-[5px] text-primary">The voices behind the work</p>
         <div className="text-right">
@@ -170,6 +188,7 @@ export function VoicesHero({ count, photos = [] }: { count: number; photos?: str
           <span className="voices-scroll-cue block h-8 w-px bg-primary/40" />
         </div>
       </div>
+      </motion.div>
     </section>
   )
 }
@@ -221,9 +240,11 @@ export function ChipBurst() {
   return (
     <section ref={ref} aria-label="Words clients use to describe us" className={`${SCENE_EDGE} z-40 -mt-[calc(100vh+4px)] h-[calc(300vh+4px)] bg-[#0a0806]`}>
       <div className="sticky bg-[#0a0806] top-0 flex h-screen items-center justify-center overflow-hidden">
-        <p className="relative z-10 text-center font-serif text-[22px] font-normal md:text-[28px]" style={{ color: HEADLINE, opacity: 0.25 + burst * 0.75 }}>
-          In their <span className="text-primary">words.</span>
-        </p>
+        <motion.div {...reveal()} style={ABOVE_OVERLAYS}>
+          <p className="relative z-10 text-center font-serif text-[22px] font-normal md:text-[28px]" style={{ color: HEADLINE, opacity: 0.25 + burst * 0.75 }}>
+            In their <span className="text-primary">words.</span>
+          </p>
+        </motion.div>
         <ul className="absolute inset-0">
           {BURST_CHIPS.map(({ word, angle, reach, delay }) => {
             const local = Math.min(1, Math.max(0, (burst - delay) / (1 - delay)))
@@ -247,11 +268,15 @@ export function ChipBurst() {
   )
 }
 
-function VoiceCard({ voice, mauve }: { voice: ApprovedVoice; mauve: boolean }) {
+function VoiceCard({ voice, mauve, index }: { voice: ApprovedVoice; mauve: boolean; index: number }) {
+  const stagger = index * 0.08
   return (
     <article className={`flex h-full w-[min(80vw,400px)] flex-shrink-0 flex-col rounded-r-[10px] border-l-2 bg-[rgba(181,82,10,0.03)] p-7 ${mauve ? "border-mauve" : "border-primary"}`}>
-      <blockquote className="font-serif text-[17px] font-normal leading-[1.65] text-[#f0ece6]">{voice.quote}</blockquote>
+      <motion.div {...reveal(stagger)}>
+        <blockquote className="font-serif text-[17px] font-normal leading-[1.65] text-[#f0ece6]">{voice.quote}</blockquote>
+      </motion.div>
       <div className="mt-auto pt-8">
+        <motion.div {...reveal(stagger + 0.08)}>
         <div className="flex items-center gap-3">
           {voice.logo_url ? (
             <img src={voice.logo_url} alt={`${voice.company || voice.name} logo`} className="h-10 w-10 flex-shrink-0 rounded-full border border-white/15 bg-white object-contain p-1" />
@@ -263,10 +288,13 @@ function VoiceCard({ voice, mauve }: { voice: ApprovedVoice; mauve: boolean }) {
             {(voice.company || voice.role) && <p className="text-xs text-[rgba(240,236,230,0.62)]">{voice.company}{voice.company && voice.role ? " · " : ""}{voice.role}</p>}
           </div>
         </div>
+        </motion.div>
         {voice.words.length > 0 && (
-          <ul className="mt-5 flex flex-wrap gap-2" aria-label="Words used">
-            {voice.words.map((word) => <li key={word} className={`rounded-full border px-2.5 py-1 text-[10px] tracking-[0.5px] ${mauve ? "border-mauve/40 text-mauve" : "border-primary/30 text-primary"}`}>{word}</li>)}
-          </ul>
+          <motion.div {...reveal(stagger + 0.12)}>
+            <ul className="mt-5 flex flex-wrap gap-2" aria-label="Words used">
+              {voice.words.map((word) => <li key={word} className={`rounded-full border px-2.5 py-1 text-[10px] tracking-[0.5px] ${mauve ? "border-mauve/40 text-mauve" : "border-primary/30 text-primary"}`}>{word}</li>)}
+            </ul>
+          </motion.div>
         )}
       </div>
     </article>
@@ -306,7 +334,7 @@ export function HorizontalVoices({ voices }: { voices: ApprovedVoice[] }) {
         </div>
         <div ref={viewportRef} className="mx-auto w-full max-w-6xl px-6">
           <div ref={trackRef} className="flex w-max gap-6 will-change-transform" style={{ transform: `translate3d(${-progress * maxShift}px,0,0)` }}>
-            {voices.map((voice, index) => <VoiceCard key={voice.id} voice={voice} mauve={index % 2 === 1} />)}
+            {voices.map((voice, index) => <VoiceCard key={voice.id} voice={voice} index={index} mauve={index % 2 === 1} />)}
           </div>
         </div>
         <div className="mx-auto w-full max-w-6xl px-6">
@@ -325,9 +353,13 @@ export function GiantCounter({ count, overlap }: { count: number; overlap: boole
   return (
     <section ref={ref} data-visible={visible} className={`voices-counter ${SCENE_EDGE} z-20 bg-[#0a0806] ${overlap ? "-mt-[calc(100vh+4px)] h-[calc(200vh+4px)]" : "h-[200vh]"}`}>
       <div className="sticky top-0 flex h-screen flex-col items-center justify-center bg-[#0a0806] px-6 text-center">
-        <p className="voices-counter-number font-serif text-[120px] font-normal leading-none">{count}</p>
-        <p className="voices-counter-label mt-4 text-[8px] uppercase tracking-[3px] text-[rgba(240,236,230,0.62)]">Voices &amp; counting</p>
-        <p className="voices-counter-phrase mt-6 font-serif text-lg italic text-[rgba(240,236,230,0.62)]">People we&apos;ve had the privilege of creating with.</p>
+        <motion.div {...reveal()}>
+          <p className="voices-counter-number font-serif text-[120px] font-normal leading-none">{count}</p>
+        </motion.div>
+        <motion.div {...reveal(0.08)}>
+          <p className="voices-counter-label mt-4 text-[8px] uppercase tracking-[3px] text-[rgba(240,236,230,0.62)]">Voices &amp; counting</p>
+          <p className="voices-counter-phrase mt-6 font-serif text-lg italic text-[rgba(240,236,230,0.62)]">People we&apos;ve had the privilege of creating with.</p>
+        </motion.div>
       </div>
     </section>
   )
