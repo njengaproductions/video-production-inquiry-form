@@ -6,7 +6,13 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
-## 0.15.1 — 2026-10-08
+## 0.16.0 — 2026-10-08
+
+### Voices page
+- Hero background is now an editorial photo collage: 6 framed, full-opacity photos (5px radius, rust border, drop shadow) placed in shuffled viewport zones with random jitter and a ±2.5° tilt.
+- Each photo drifts independently on scroll while keeping its tilt; heading, bottom strip and VOICES watermark parallax rates retuned (3.2 / 2.4 / 1.8vh).
+- Staggered fade-in (200ms + 150ms per photo), new dark vignette and lighter warm grade; grain now sits above the light-leak pulse.
+
 
 ### Voices page
 - Hero parallax photos now read clearly: screen blend with muted color (saturate 0.62, brightness 0.78), opacity 0.18–0.38, and depth blur from 0.3px (front) to 1.5px (back).
