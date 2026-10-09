@@ -6,6 +6,11 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.17.2 — 2026-10-09
+
+### Admin
+- Voice review card now always shows the logo upload zone (`showUploadZone = true`), including for approved voices that already have a logo.
+
 ## 0.17.1 — 2026-10-09
 
 ### Voices motion
