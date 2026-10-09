@@ -1,5 +1,6 @@
 import { isAdmin } from "@/auth"
 import { ensureSchema, sql } from "@/lib/db"
+import { normalizeLogoDisplay, type LogoDisplay } from "@/lib/logo-display"
 
 export type VoiceStatus = "pending" | "approved" | "rejected"
 
@@ -13,11 +14,13 @@ export type Voice = {
   role: string
   internal_note: string
   logo_url: string | null
+  logo_display: LogoDisplay
   status: VoiceStatus
 }
 
 function mapVoice(row: Record<string, unknown>): Voice {
   return {
+    logo_display: normalizeLogoDisplay({ fit: row.logo_fit, scale: row.logo_scale, position: row.logo_position }),
     id: String(row.id),
     submitted_at: String(row.submitted_at),
     quote: String(row.quote),
@@ -33,7 +36,7 @@ function mapVoice(row: Record<string, unknown>): Voice {
 
 export async function listApprovedVoices() {
   await ensureSchema()
-  const rows = (await sql()`SELECT id, submitted_at, quote, words, name, company, role, internal_note, logo_url, status FROM voices WHERE status = 'approved' ORDER BY submitted_at DESC`) as Record<string, unknown>[]
+  const rows = (await sql()`SELECT id, submitted_at, quote, words, name, company, role, internal_note, logo_url, logo_fit, logo_scale, logo_position, status FROM voices WHERE status = 'approved' ORDER BY submitted_at DESC`) as Record<string, unknown>[]
   return rows.map(mapVoice)
 }
 
@@ -47,14 +50,14 @@ export async function countPendingVoices() {
 export async function listVoicesByStatus(status: "pending" | "approved") {
   if (!(await isAdmin())) throw new Error("Unauthorized")
   await ensureSchema()
-  const rows = (await sql()`SELECT id, submitted_at, quote, words, name, company, role, internal_note, logo_url, status FROM voices WHERE status = ${status} ORDER BY submitted_at DESC`) as Record<string, unknown>[]
+  const rows = (await sql()`SELECT id, submitted_at, quote, words, name, company, role, internal_note, logo_url, logo_fit, logo_scale, logo_position, status FROM voices WHERE status = ${status} ORDER BY submitted_at DESC`) as Record<string, unknown>[]
   return rows.map(mapVoice)
 }
 
 export async function listPendingVoices() {
   if (!(await isAdmin())) throw new Error("Unauthorized")
   await ensureSchema()
-  const rows = (await sql()`SELECT id, submitted_at, quote, words, name, company, role, internal_note, logo_url, status FROM voices WHERE status = 'pending' ORDER BY submitted_at DESC`) as Record<string, unknown>[]
+  const rows = (await sql()`SELECT id, submitted_at, quote, words, name, company, role, internal_note, logo_url, logo_fit, logo_scale, logo_position, status FROM voices WHERE status = 'pending' ORDER BY submitted_at DESC`) as Record<string, unknown>[]
   return rows.map(mapVoice)
 }
 
@@ -67,7 +70,13 @@ export async function updateVoiceStatus(id: string, status: Exclude<VoiceStatus,
 export async function updateVoiceLogo(id: string, logoUrl: string | null) {
   if (!(await isAdmin())) throw new Error("Unauthorized")
   await ensureSchema()
-  await sql()`UPDATE voices SET logo_url = ${logoUrl} WHERE id = ${id}::uuid`
+  await sql()`UPDATE voices SET logo_url = ${logoUrl}, logo_fit = NULL, logo_scale = NULL, logo_position = NULL WHERE id = ${id}::uuid`
+}
+
+export async function updateVoiceLogoDisplayRecord(id: string, display: LogoDisplay) {
+  if (!(await isAdmin())) throw new Error("Unauthorized")
+  await ensureSchema()
+  await sql()`UPDATE voices SET logo_fit = ${display.fit}, logo_scale = ${display.scale}, logo_position = ${JSON.stringify(display.position)} WHERE id = ${id}::uuid`
 }
 
 export async function updateVoiceQuote(id: string, quote: string) {
@@ -85,6 +94,6 @@ export async function updateVoiceNote(id: string, note: string) {
 export async function getVoice(id: string) {
   if (!(await isAdmin())) throw new Error("Unauthorized")
   await ensureSchema()
-  const rows = (await sql()`SELECT id, submitted_at, quote, words, name, company, role, internal_note, logo_url, status FROM voices WHERE id = ${id}::uuid LIMIT 1`) as Record<string, unknown>[]
+  const rows = (await sql()`SELECT id, submitted_at, quote, words, name, company, role, internal_note, logo_url, logo_fit, logo_scale, logo_position, status FROM voices WHERE id = ${id}::uuid LIMIT 1`) as Record<string, unknown>[]
   return rows[0] ? mapVoice(rows[0]) : null
 }

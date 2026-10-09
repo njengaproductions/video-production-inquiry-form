@@ -2,7 +2,9 @@
 
 import { useRef, useState } from "react"
 import { deleteVoiceLogo, saveVoiceNote, saveVoiceQuote, setVoiceStatus, uploadVoiceLogo } from "@/app/admin/voices/actions"
+import { logoImageStyle } from "@/lib/logo-display"
 import type { Voice } from "@/lib/voices"
+import { LogoDisplayControls } from "./logo-display-controls"
 
 const primaryButton = "rounded bg-brand px-3 py-2 text-xs font-semibold text-primary-foreground hover:bg-brand/90 disabled:opacity-60"
 const secondaryButton = "rounded border border-brand-border px-3 py-2 text-xs font-medium text-foreground hover:bg-background"
@@ -72,7 +74,9 @@ export function VoiceReviewCard({ voice, approved = false }: { voice: Voice; app
 
       <div className="mt-5 flex items-center gap-3">
         {voice.logo_url ? (
-          <img src={voice.logo_url} alt={`${company || voice.name} logo`} className="h-10 w-10 shrink-0 rounded bg-background object-contain" />
+          <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-[#0a0806]">
+            <img src={voice.logo_url} alt={`${company || voice.name} logo`} className="size-full" style={logoImageStyle(voice.logo_display)} />
+          </div>
         ) : (
           <div aria-hidden="true" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand text-xs font-semibold text-primary-foreground">{initials}</div>
         )}
@@ -87,6 +91,10 @@ export function VoiceReviewCard({ voice, approved = false }: { voice: Voice; app
           {affiliation && <p className="truncate text-xs text-muted-foreground">{affiliation}</p>}
         </div>
       </div>
+
+      {voice.logo_url && (
+        <LogoDisplayControls key={voice.logo_url} voiceId={voice.id} logoUrl={voice.logo_url} alt={`${company || voice.name} logo`} initial={voice.logo_display} />
+      )}
 
       {voice.words.length > 0 && (
         <ul className="mt-4 flex flex-wrap gap-2" aria-label="Words">

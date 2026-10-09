@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { MotionConfig, motion } from "framer-motion"
 import { submitVoice } from "@/app/actions/submit-voice"
+import type { LogoDisplay } from "@/lib/logo-display"
 import { SmoothScroll } from "./smooth-scroll"
 import { ChipBurst, GiantCounter, HEADLINE, HorizontalVoices, PinnedQuote, SCENE_EDGE, VoicesHero, WORDS, reveal } from "./voices-scenes"
 
@@ -14,6 +15,7 @@ export type ApprovedVoice = {
   quote: string
   words: string[]
   logo_url: string | null
+  logo_display?: LogoDisplay | null
 }
 
 const CHIP_GRID = { hidden: {}, show: { transition: { staggerChildren: 0.04 } } }

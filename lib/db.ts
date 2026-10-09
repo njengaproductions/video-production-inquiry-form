@@ -50,6 +50,9 @@ export function ensureSchema(): Promise<void> {
     )`
     await db`ALTER TABLE voices ADD COLUMN IF NOT EXISTS role text NOT NULL DEFAULT ''`
     await db`ALTER TABLE voices ADD COLUMN IF NOT EXISTS internal_note text NOT NULL DEFAULT ''`
+    await db`ALTER TABLE voices ADD COLUMN IF NOT EXISTS logo_fit text`
+    await db`ALTER TABLE voices ADD COLUMN IF NOT EXISTS logo_scale numeric`
+    await db`ALTER TABLE voices ADD COLUMN IF NOT EXISTS logo_position text`
     await db`CREATE INDEX IF NOT EXISTS voices_status_submitted ON voices (status, submitted_at DESC)`
     await db`CREATE INDEX IF NOT EXISTS briefs_status_submitted ON briefs (status, submitted_at DESC)`
     // Trash support: a brief with deleted_at set is hidden everywhere except the Trash tab.
