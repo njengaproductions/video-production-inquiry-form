@@ -6,6 +6,11 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.18.2 — 2026-10-09
+
+### Voices
+- Testimonial card typography switched to Fraunces (300, optical sizing, line-height 1.72, -0.01em) for quotes and DM Sans for attribution name (300, 0.18em, uppercase, 10.5px), role/company (200, 0.05em, 9.5px), and tag chips (200, 0.16em, uppercase). Replaces DM Serif Display / Source Sans 3; fonts loaded via `next/font/google`.
+
 ## 0.18.1 — 2026-10-09
 
 ### Voices

@@ -1,22 +1,21 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
-import { DM_Serif_Display, Source_Sans_3 } from 'next/font/google'
+import { DM_Sans, Fraunces } from 'next/font/google'
 import { Suspense } from 'react'
 import { RouteProgress } from '@/components/route-progress'
 import './globals.css'
 
-const dmSerifDisplay = DM_Serif_Display({
+const fraunces = Fraunces({
   subsets: ['latin'],
-  weight: '400',
-  style: ['normal', 'italic'],
-  variable: '--font-dm-serif',
+  axes: ['opsz'],
+  variable: '--font-fraunces',
   display: 'swap',
 })
 
-const sourceSans3 = Source_Sans_3({
+const dmSans = DM_Sans({
   subsets: ['latin'],
   weight: ['200', '300', '400'],
-  variable: '--font-source-sans',
+  variable: '--font-dm-sans',
   display: 'swap',
 })
 
@@ -61,7 +60,7 @@ export default function RootLayout({
   ]
 
   return (
-    <html lang="en" data-scroll-behavior="smooth" className={`${dmSerifDisplay.variable} ${sourceSans3.variable} bg-background font-sans antialiased`}>
+    <html lang="en" data-scroll-behavior="smooth" className={`${fraunces.variable} ${dmSans.variable} bg-background font-sans antialiased`}>
       <head>
         {marqueeImages.map((name) => (
           <link key={name} rel="preload" as="image" href={`/images/${name}.png`} />
