@@ -6,6 +6,13 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.19.0 — 2026-10-09
+
+### Voices
+- "In their words" chip burst now shows each approved voice's logo (or initials) positioned at the centroid of the words they picked, fading in at the peak of the burst.
+- Chips chosen by more than one voice get a dashed border to mark shared words.
+- Testimonial card logos switched to `object-contain` (still no border, white background, or padding).
+
 ## 0.18.5 — 2026-10-09
 
 ### Voices

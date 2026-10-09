@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { useLenis } from "lenis/react"
-import { useEffect, useRef, useState, type MouseEvent } from "react"
+import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react"
 import { useExitProgress, useScrollProgress } from "./use-scroll-progress"
 import type { ApprovedVoice } from "./voices-form"
 
@@ -246,9 +246,28 @@ const BURST_CHIPS = WORDS.map((word, index) => ({
   delay: (index % 4) * 0.08,
 }))
 
-export function ChipBurst() {
+export function ChipBurst({ voices = [] }: { voices?: ApprovedVoice[] }) {
   const [ref, progress] = useScrollProgress<HTMLElement>(1)
   const burst = Math.sin(Math.PI * progress)
+
+  const { sharedWords, avatarPositions } = useMemo(() => {
+    const wordCount: Record<string, number> = {}
+    voices.forEach((v) => v.words.forEach((w) => { wordCount[w] = (wordCount[w] ?? 0) + 1 }))
+    const sharedWords = new Set(Object.keys(wordCount).filter((w) => wordCount[w] > 1))
+    const avatarPositions = voices.flatMap((voice) => {
+      const myWords = voice.words.filter((w) => WORDS.includes(w))
+      if (!myWords.length) return []
+      let sinSum = 0, cosSum = 0
+      myWords.forEach((w) => {
+        const idx = WORDS.indexOf(w)
+        const angle = (idx / WORDS.length) * Math.PI * 2 - Math.PI / 2 + (idx % 2 ? 0.18 : -0.08)
+        sinSum += Math.sin(angle); cosSum += Math.cos(angle)
+      })
+      const centroidAngle = Math.atan2(sinSum / myWords.length, cosSum / myWords.length)
+      return [{ voice, centroidAngle }]
+    })
+    return { sharedWords, avatarPositions }
+  }, [voices])
 
   return (
     <section ref={ref} aria-label="Words clients use to describe us" className={`${SCENE_EDGE} z-40 -mt-[calc(100vh+4px)] h-[calc(300vh+4px)] bg-[#0a0806]`}>
@@ -265,7 +284,7 @@ export function ChipBurst() {
             return (
               <li
                 key={word}
-                className="absolute left-1/2 top-1/2 whitespace-nowrap rounded-full border border-primary/30 bg-[#0a0806] px-4 py-1.5 text-[10px] tracking-[0.5px] text-primary will-change-transform md:text-xs"
+                className={`absolute left-1/2 top-1/2 whitespace-nowrap rounded-full bg-[#0a0806] px-4 py-1.5 text-[10px] tracking-[0.5px] text-primary will-change-transform md:text-xs ${sharedWords.has(word) ? "border border-dashed border-primary/40" : "border border-primary/30"}`}
                 style={{
                   opacity: local,
                   transform: `translate(-50%,-50%) translate(calc(${Math.cos(angle) * distance} * min(42vw, 420px)), calc(${Math.sin(angle) * distance} * min(34vh, 320px))) scale(${0.6 + local * 0.4})`,
@@ -276,6 +295,39 @@ export function ChipBurst() {
             )
           })}
         </ul>
+        {avatarPositions.map(({ voice, centroidAngle }) => {
+          const avatarBurst = Math.max(0, burst * 2 - 1)
+          const cos = Math.cos(centroidAngle)
+          const sin = Math.sin(centroidAngle)
+          return (
+            <div
+              key={voice.id}
+              aria-hidden="true"
+              className="absolute left-1/2 top-1/2 will-change-transform"
+              style={{
+                opacity: avatarBurst,
+                transform: `translate(-50%,-50%) translate(calc(${cos} * min(26vw, 260px)), calc(${sin} * min(21vh, 200px)))`,
+                zIndex: 6,
+              }}
+            >
+              {voice.logo_url ? (
+                <img
+                  src={voice.logo_url}
+                  alt={voice.name}
+                  className="h-11 w-11 rounded-full object-contain"
+                  style={{ border: "1.5px solid rgba(240,236,230,0.18)", boxShadow: "0 0 0 3px rgba(177,89,39,0.1)" }}
+                />
+              ) : (
+                <div
+                  className="flex h-9 w-9 items-center justify-center rounded-full text-[10px] font-light tracking-[0.12em]"
+                  style={{ border: "1px solid rgba(177,89,39,0.35)", background: "rgba(177,89,39,0.06)", color: "rgba(177,89,39,0.7)" }}
+                >
+                  {initials(voice.name)}
+                </div>
+              )}
+            </div>
+          )
+        })}
       </div>
     </section>
   )
@@ -292,7 +344,7 @@ function VoiceCard({ voice, mauve, index }: { voice: ApprovedVoice; mauve: boole
         <motion.div {...reveal(stagger + 0.08)}>
         <div className="flex items-center gap-3">
           {voice.logo_url ? (
-            <img src={voice.logo_url} alt={`${voice.company || voice.name} logo`} className="h-10 w-10 flex-shrink-0 rounded-full object-cover" />
+            <img src={voice.logo_url} alt={`${voice.company || voice.name} logo`} className="h-10 w-10 flex-shrink-0 rounded-full object-contain" />
           ) : (
             <div aria-hidden="true" className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border text-xs font-semibold ${mauve ? "border-mauve/40 bg-mauve/10 text-mauve" : "border-primary/30 bg-primary/10 text-primary"}`}>{initials(voice.name)}</div>
           )}
