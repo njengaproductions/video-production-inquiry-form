@@ -6,6 +6,12 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.18.0 — 2026-10-09
+
+### Voices
+- Testimonial carousel now shows 5 randomly selected voices per visit (Fisher-Yates shuffle after mount to avoid hydration mismatches). Hero count and pinned quote are unchanged.
+- Added a fixed "↑ Top" button (bottom-right) that appears after scrolling past 65% of the page height and smooth-scrolls back to the top.
+
 ## 0.17.3 — 2026-10-09
 
 ### Voices
