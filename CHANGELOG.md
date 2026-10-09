@@ -6,6 +6,11 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.17.3 — 2026-10-09
+
+### Voices
+- "In your own words" textarea now caps at 500 characters (`maxLength={500}`) and shows a live "characters remaining" counter below it, turning brand orange at 20 or fewer remaining.
+
 ## 0.17.2 — 2026-10-09
 
 ### Admin
