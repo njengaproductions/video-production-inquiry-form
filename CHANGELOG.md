@@ -6,6 +6,13 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.20.2 — 2026-10-09
+
+### Voices — chip burst
+- Replaced `ChipBurst` with the angle-based avatar layout: avatars sit at 0.6× their chips' average reach, collisions push avatar angles apart (instead of radii), and avatars share the chips' exact transform system.
+- Chips use a uniform solid border; the `<ul>` is now `overflow-visible`.
+- Burst logos render as 36px `object-cover` circles with a soft orange ring.
+
 ## 0.20.1 — 2026-10-09
 
 ### Voices
