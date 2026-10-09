@@ -6,6 +6,21 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.20.0 — 2026-10-09
+
+### Voices
+- Chip-burst avatars now sit at the angular mean of each voice's chosen chips, scaled by their average reach, so they spread around the ring instead of clustering in one corner.
+- Overlapping avatars get pushed apart (4 passes, 56px minimum distance).
+- The chip-burst sticky stage now uses `overflow-visible` so avatars near the edge no longer get clipped.
+- Logos in the burst and on testimonial cards now use each voice's saved fit, scale, and offset.
+
+### Admin
+- New "Logo display" panel on review cards for voices with a logo: fit (contain / cover / fill), scale (50–200%), X/Y offset nudges, a live circular preview, Reset, and Save.
+- Replacing a logo clears its saved adjustments.
+
+### Database
+- Added `logo_fit`, `logo_scale`, and `logo_position` columns to `voices` (created automatically by `ensureSchema`).
+
 ## 0.19.0 — 2026-10-09
 
 ### Voices

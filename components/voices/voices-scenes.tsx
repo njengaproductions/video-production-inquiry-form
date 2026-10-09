@@ -5,6 +5,7 @@ import { motion } from "framer-motion"
 import { useLenis } from "lenis/react"
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react"
 import { useExitProgress, useScrollProgress } from "./use-scroll-progress"
+import { logoImageStyle } from "@/lib/logo-display"
 import type { ApprovedVoice } from "./voices-form"
 
 export const HEADLINE = "#f0ece6"
@@ -246,6 +247,12 @@ const BURST_CHIPS = WORDS.map((word, index) => ({
   delay: (index % 4) * 0.08,
 }))
 
+// Must match the chip spread in the render: min(42vw, 420px) × min(34vh, 320px).
+const AVATAR_HW = 420
+const AVATAR_HH = 320
+const AVATAR_RING = 0.62
+const AVATAR_MIN_DIST = 56
+
 export function ChipBurst({ voices = [] }: { voices?: ApprovedVoice[] }) {
   const [ref, progress] = useScrollProgress<HTMLElement>(1)
   const burst = Math.sin(Math.PI * progress)
@@ -255,23 +262,38 @@ export function ChipBurst({ voices = [] }: { voices?: ApprovedVoice[] }) {
     voices.forEach((v) => v.words.forEach((w) => { wordCount[w] = (wordCount[w] ?? 0) + 1 }))
     const sharedWords = new Set(Object.keys(wordCount).filter((w) => wordCount[w] > 1))
     const avatarPositions = voices.flatMap((voice) => {
-      const myWords = voice.words.filter((w) => WORDS.includes(w))
-      if (!myWords.length) return []
-      let sinSum = 0, cosSum = 0
-      myWords.forEach((w) => {
-        const idx = WORDS.indexOf(w)
-        const angle = (idx / WORDS.length) * Math.PI * 2 - Math.PI / 2 + (idx % 2 ? 0.18 : -0.08)
-        sinSum += Math.sin(angle); cosSum += Math.cos(angle)
-      })
-      const centroidAngle = Math.atan2(sinSum / myWords.length, cosSum / myWords.length)
-      return [{ voice, centroidAngle }]
+      const chips = BURST_CHIPS.filter((chip) => voice.words.includes(chip.word))
+      if (!chips.length) return []
+      const sinMean = chips.reduce((sum, chip) => sum + Math.sin(chip.angle), 0) / chips.length
+      const cosMean = chips.reduce((sum, chip) => sum + Math.cos(chip.angle), 0) / chips.length
+      const avgReach = chips.reduce((sum, chip) => sum + chip.reach, 0) / chips.length
+      return [{ voice, centroidAngle: Math.atan2(sinMean, cosMean), avgReach }]
     })
+
+    const toPx = (item: (typeof avatarPositions)[number]) => ({
+      x: Math.cos(item.centroidAngle) * item.avgReach * AVATAR_HW * AVATAR_RING,
+      y: Math.sin(item.centroidAngle) * item.avgReach * AVATAR_HH * AVATAR_RING,
+    })
+    for (let iteration = 0; iteration < 4; iteration++) {
+      for (let a = 0; a < avatarPositions.length; a++) {
+        for (let b = a + 1; b < avatarPositions.length; b++) {
+          const first = avatarPositions[a], second = avatarPositions[b]
+          const p1 = toPx(first), p2 = toPx(second)
+          const dist = Math.hypot(p2.x - p1.x, p2.y - p1.y)
+          if (dist >= AVATAR_MIN_DIST) continue
+          if (dist === 0) { second.centroidAngle += 0.35; continue }
+          const push = (AVATAR_MIN_DIST - dist) / 2 / (AVATAR_HW * AVATAR_RING)
+          first.avgReach = Math.max(0.3, first.avgReach - push * 0.5)
+          second.avgReach = Math.min(1.1, second.avgReach + push * 0.5)
+        }
+      }
+    }
     return { sharedWords, avatarPositions }
   }, [voices])
 
   return (
     <section ref={ref} aria-label="Words clients use to describe us" className={`${SCENE_EDGE} z-40 -mt-[calc(100vh+4px)] h-[calc(300vh+4px)] bg-[#0a0806]`}>
-      <div className="sticky bg-[#0a0806] top-0 flex h-screen items-center justify-center overflow-hidden">
+      <div className="sticky bg-[#0a0806] top-0 flex h-screen items-center justify-center overflow-visible">
         <motion.div {...reveal()} style={ABOVE_OVERLAYS}>
           <p className="relative z-10 text-center font-serif text-[22px] font-normal md:text-[28px]" style={{ color: HEADLINE, opacity: 0.25 + burst * 0.75 }}>
             In their <span className="text-primary">words.</span>
@@ -295,10 +317,10 @@ export function ChipBurst({ voices = [] }: { voices?: ApprovedVoice[] }) {
             )
           })}
         </ul>
-        {avatarPositions.map(({ voice, centroidAngle }) => {
+        {avatarPositions.map(({ voice, centroidAngle, avgReach }) => {
           const avatarBurst = Math.max(0, burst * 2 - 1)
-          const cos = Math.cos(centroidAngle)
-          const sin = Math.sin(centroidAngle)
+          const x = Math.cos(centroidAngle) * avgReach * AVATAR_RING
+          const y = Math.sin(centroidAngle) * avgReach * AVATAR_RING
           return (
             <div
               key={voice.id}
@@ -306,17 +328,17 @@ export function ChipBurst({ voices = [] }: { voices?: ApprovedVoice[] }) {
               className="absolute left-1/2 top-1/2 will-change-transform"
               style={{
                 opacity: avatarBurst,
-                transform: `translate(-50%,-50%) translate(calc(${cos} * min(26vw, 260px)), calc(${sin} * min(21vh, 200px)))`,
+                transform: `translate(-50%,-50%) translate(calc(${x} * min(42vw, ${AVATAR_HW}px)), calc(${y} * min(34vh, ${AVATAR_HH}px)))`,
                 zIndex: 6,
               }}
             >
               {voice.logo_url ? (
-                <img
-                  src={voice.logo_url}
-                  alt={voice.name}
-                  className="h-11 w-11 rounded-full object-contain"
+                <div
+                  className="h-11 w-11 overflow-hidden rounded-full"
                   style={{ border: "1.5px solid rgba(240,236,230,0.18)", boxShadow: "0 0 0 3px rgba(177,89,39,0.1)" }}
-                />
+                >
+                  <img src={voice.logo_url} alt={voice.name} className="size-full" style={logoImageStyle(voice.logo_display)} />
+                </div>
               ) : (
                 <div
                   className="flex h-9 w-9 items-center justify-center rounded-full text-[10px] font-light tracking-[0.12em]"
@@ -344,7 +366,9 @@ function VoiceCard({ voice, mauve, index }: { voice: ApprovedVoice; mauve: boole
         <motion.div {...reveal(stagger + 0.08)}>
         <div className="flex items-center gap-3">
           {voice.logo_url ? (
-            <img src={voice.logo_url} alt={`${voice.company || voice.name} logo`} className="h-10 w-10 flex-shrink-0 rounded-full object-contain" />
+            <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-full">
+              <img src={voice.logo_url} alt={`${voice.company || voice.name} logo`} className="size-full" style={logoImageStyle(voice.logo_display)} />
+            </div>
           ) : (
             <div aria-hidden="true" className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border text-xs font-semibold ${mauve ? "border-mauve/40 bg-mauve/10 text-mauve" : "border-primary/30 bg-primary/10 text-primary"}`}>{initials(voice.name)}</div>
           )}
