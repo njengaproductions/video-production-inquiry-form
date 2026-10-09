@@ -40,7 +40,11 @@ const ABOVE_OVERLAYS = { position: "relative", zIndex: 10 } as const
 export const SCENE_EDGE = "relative bg-[#0a0806]"
 
 function initials(name: string) {
-  return name.split(/\s+/).filter(Boolean).map((word) => word[0]).join("").slice(0, 2).toUpperCase()
+  const skip = new Set(["and", "or", "&", "the", "a"])
+  const words = name.split(/\s+/).filter((w) => w && !skip.has(w.toLowerCase()))
+  if (words.length === 0) return ""
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase()
+  return (words[0][0] + words[words.length - 1][0]).toUpperCase()
 }
 
 function AddVoicePill() {
