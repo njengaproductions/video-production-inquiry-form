@@ -292,7 +292,7 @@ function VoiceCard({ voice, mauve, index }: { voice: ApprovedVoice; mauve: boole
         <motion.div {...reveal(stagger + 0.08)}>
         <div className="flex items-center gap-3">
           {voice.logo_url ? (
-            <img src={voice.logo_url} alt={`${voice.company || voice.name} logo`} className="h-10 w-10 flex-shrink-0 rounded-full border border-white/15 bg-white object-contain p-1" />
+            <img src={voice.logo_url} alt={`${voice.company || voice.name} logo`} className="h-10 w-10 flex-shrink-0 rounded-full object-cover" />
           ) : (
             <div aria-hidden="true" className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border text-xs font-semibold ${mauve ? "border-mauve/40 bg-mauve/10 text-mauve" : "border-primary/30 bg-primary/10 text-primary"}`}>{initials(voice.name)}</div>
           )}
