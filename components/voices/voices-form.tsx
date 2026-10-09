@@ -76,7 +76,7 @@ export function VoicesForm({ testimonials, photos = [] }: { testimonials: Approv
         <>
           <VoicesHero count={testimonials.length} photos={photos} />
           <PinnedQuote voice={testimonials[0]} />
-          <ChipBurst />
+          <ChipBurst voices={testimonials} />
           <HorizontalVoices voices={shuffled} />
           <GiantCounter count={testimonials.length} overlap={testimonials.length > 0} />
 
