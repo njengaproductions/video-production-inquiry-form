@@ -6,6 +6,11 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.18.1 — 2026-10-09
+
+### Voices
+- Testimonial cards now use DM Serif Display for quotes (line-height 1.8) and Source Sans 3 for attribution name (uppercase, 11px), role/company (300, 10px), and tag chips (300, 0.14em tracking). Fonts loaded via `next/font/google`.
+
 ## 0.18.0 — 2026-10-09
 
 ### Voices

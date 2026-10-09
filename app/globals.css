@@ -481,3 +481,29 @@ html:has(.voices-page),
 html:has(.voices-page) body {
   overscroll-behavior: none;
 }
+
+/* Voices testimonial card typography */
+.voice-card-quote {
+  font-family: var(--font-dm-serif), serif;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 1.8;
+}
+.voice-card-name {
+  font-family: var(--font-source-sans), sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+.voice-card-role {
+  font-family: var(--font-source-sans), sans-serif;
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  font-size: 10px;
+}
+.voice-card-tag {
+  font-family: var(--font-source-sans), sans-serif;
+  font-weight: 300;
+  letter-spacing: 0.14em;
+}
