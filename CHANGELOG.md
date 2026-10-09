@@ -6,6 +6,11 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.17.1 — 2026-10-09
+
+### Voices motion
+- Hero headline and hero stat row now animate on mount (`animate`, 20px rise, 0.55s, existing delays kept) instead of `whileInView`, removing the hydration flash on first load. Below-the-fold reveals are unchanged.
+
 ## 0.17.0 — 2026-10-09
 
 ### Voices motion
