@@ -247,51 +247,46 @@ const BURST_CHIPS = WORDS.map((word, index) => ({
   delay: (index % 4) * 0.08,
 }))
 
-// Must match the chip spread in the render: min(42vw, 420px) × min(34vh, 320px).
-const AVATAR_HW = 420
-const AVATAR_HH = 320
-const AVATAR_RING = 0.62
-const AVATAR_MIN_DIST = 58
-
 export function ChipBurst({ voices = [] }: { voices?: ApprovedVoice[] }) {
   const [ref, progress] = useScrollProgress<HTMLElement>(1)
   const burst = Math.sin(Math.PI * progress)
 
-  const sharedWords = useMemo(() => {
-    const wordCount: Record<string, number> = {}
-    voices.forEach((v) => v.words.forEach((w) => { wordCount[w] = (wordCount[w] ?? 0) + 1 }))
-    return new Set(Object.keys(wordCount).filter((w) => wordCount[w] > 1))
-  }, [voices])
-
-  const avatarData = useMemo(() => {
+  const avatars = useMemo(() => {
     if (!voices.length) return []
-    const data = voices.flatMap((voice) => {
-      const chips = BURST_CHIPS.filter((chip) => (voice.words ?? []).includes(chip.word))
-      if (!chips.length) return []
-      const sinMean = chips.reduce((sum, chip) => sum + Math.sin(chip.angle), 0) / chips.length
-      const cosMean = chips.reduce((sum, chip) => sum + Math.cos(chip.angle), 0) / chips.length
-      const avgReach = chips.reduce((sum, chip) => sum + chip.reach, 0) / chips.length
-      return [{ voice, centroidAngle: Math.atan2(sinMean, cosMean), avatarReach: avgReach * AVATAR_RING }]
-    })
+    const chipByWord = new Map(BURST_CHIPS.map(c => [c.word, c]))
+    const raw = voices
+      .map(voice => {
+        const myChips = voice.words.filter(w => chipByWord.has(w)).map(w => chipByWord.get(w)!)
+        if (!myChips.length) return null
+        let sinSum = 0, cosSum = 0, reachSum = 0
+        for (const c of myChips) {
+          sinSum += Math.sin(c.angle)
+          cosSum += Math.cos(c.angle)
+          reachSum += c.reach
+        }
+        return {
+          voice,
+          centroidAngle: Math.atan2(sinSum / myChips.length, cosSum / myChips.length),
+          avatarReach: (reachSum / myChips.length) * 0.6,
+        }
+      })
+      .filter((x): x is NonNullable<typeof x> => x !== null)
 
-    for (let iteration = 0; iteration < 6; iteration++) {
-      for (let a = 0; a < data.length; a++) {
-        for (let b = a + 1; b < data.length; b++) {
-          const first = data[a], second = data[b]
-          const ax = Math.cos(first.centroidAngle) * AVATAR_HW * first.avatarReach
-          const ay = Math.sin(first.centroidAngle) * AVATAR_HH * first.avatarReach
-          const bx = Math.cos(second.centroidAngle) * AVATAR_HW * second.avatarReach
-          const by = Math.sin(second.centroidAngle) * AVATAR_HH * second.avatarReach
-          const dist = Math.hypot(bx - ax, by - ay)
-          if (dist < AVATAR_MIN_DIST && dist > 0) {
-            const step = (AVATAR_MIN_DIST - dist) * 0.008
-            first.avatarReach = Math.max(0.22, first.avatarReach - step)
-            second.avatarReach = Math.min(0.7, second.avatarReach + step)
+    for (let iter = 0; iter < 8; iter++) {
+      for (let a = 0; a < raw.length; a++) {
+        for (let b = a + 1; b < raw.length; b++) {
+          let diff = raw[b].centroidAngle - raw[a].centroidAngle
+          while (diff > Math.PI) diff -= 2 * Math.PI
+          while (diff < -Math.PI) diff += 2 * Math.PI
+          if (Math.abs(diff) < 0.32 && Math.abs(diff) > 0.001) {
+            const push = (0.32 - Math.abs(diff)) / 2
+            if (diff > 0) { raw[a].centroidAngle -= push; raw[b].centroidAngle += push }
+            else { raw[a].centroidAngle += push; raw[b].centroidAngle -= push }
           }
         }
       }
     }
-    return data
+    return raw
   }, [voices])
 
   return (
@@ -302,14 +297,14 @@ export function ChipBurst({ voices = [] }: { voices?: ApprovedVoice[] }) {
             In their <span className="text-primary">words.</span>
           </p>
         </motion.div>
-        <ul className="absolute inset-0">
+        <ul className="absolute inset-0 overflow-visible">
           {BURST_CHIPS.map(({ word, angle, reach, delay }) => {
             const local = Math.min(1, Math.max(0, (burst - delay) / (1 - delay)))
             const distance = local * reach
             return (
               <li
                 key={word}
-                className={`absolute left-1/2 top-1/2 whitespace-nowrap rounded-full bg-[#0a0806] px-4 py-1.5 text-[10px] tracking-[0.5px] text-primary will-change-transform md:text-xs ${sharedWords.has(word) ? "border border-dashed border-primary/40" : "border border-primary/30"}`}
+                className="absolute left-1/2 top-1/2 whitespace-nowrap rounded-full border border-primary/30 bg-[#0a0806] px-4 py-1.5 text-[10px] tracking-[0.5px] text-primary will-change-transform md:text-xs"
                 style={{
                   opacity: local,
                   transform: `translate(-50%,-50%) translate(calc(${Math.cos(angle) * distance} * min(42vw, 420px)), calc(${Math.sin(angle) * distance} * min(34vh, 320px))) scale(${0.6 + local * 0.4})`,
@@ -320,31 +315,25 @@ export function ChipBurst({ voices = [] }: { voices?: ApprovedVoice[] }) {
             )
           })}
         </ul>
-        {avatarData.map(({ voice, centroidAngle, avatarReach }) => {
-          const d = avatarReach * burst
-          return (
-            <div
-              key={voice.id}
-              aria-hidden="true"
-              className="pointer-events-none absolute left-1/2 top-1/2 will-change-transform"
-              style={{
-                transform: `translate(-50%,-50%) translate(calc(${Math.cos(centroidAngle)} * ${d} * min(42vw, 420px)), calc(${Math.sin(centroidAngle)} * ${d} * min(34vh, 320px)))`,
-                opacity: burst,
-                zIndex: 15,
-              }}
-            >
-              {voice.logo_url ? (
-                <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border border-white/20 bg-[#0a0806] shadow-[0_0_0_3px_rgba(177,89,39,0.12)]">
-                  <img src={voice.logo_url} alt={voice.company || voice.name} className="size-full rounded-full" style={logoImageStyle(voice.logo_display)} />
-                </div>
-              ) : (
-                <div className="flex h-9 w-9 items-center justify-center rounded-full border border-primary/40 bg-primary/7 text-[10px] font-light tracking-[0.1em] text-primary/80">
-                  {initials(voice.name)}
-                </div>
-              )}
-            </div>
-          )
-        })}
+        {avatars.map(({ voice, centroidAngle, avatarReach }) => (
+          <div
+            key={voice.id}
+            className="pointer-events-none absolute left-1/2 top-1/2 will-change-transform"
+            style={{
+              zIndex: 15,
+              opacity: burst,
+              transform: `translate(-50%,-50%) translate(calc(${Math.cos(centroidAngle) * avatarReach * burst} * min(42vw, 420px)), calc(${Math.sin(centroidAngle) * avatarReach * burst} * min(34vh, 320px)))`,
+            }}
+          >
+            {voice.logo_url ? (
+              <img src={voice.logo_url} alt={voice.company || voice.name} className="h-9 w-9 rounded-full border border-white/20 object-cover" style={{ boxShadow: '0 0 0 3px rgba(177,89,39,0.2)' }} />
+            ) : (
+              <div className="flex h-9 w-9 items-center justify-center rounded-full border border-primary/40 bg-primary/10 text-[10px] font-medium tracking-wide text-primary" style={{ boxShadow: '0 0 0 3px rgba(177,89,39,0.1)' }}>
+                {initials(voice.name)}
+              </div>
+            )}
+          </div>
+        ))}
       </div>
     </section>
   )
