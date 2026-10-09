@@ -6,6 +6,11 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.18.4 — 2026-10-09
+
+### Voices
+- Avatar initials now skip connector words ("and", "or", "&", "the", "a") and use first + last name word, so "Chris and Jenna Kelley" shows `CK` instead of `CA`. Single-word names use their first two letters.
+
 ## 0.18.3 — 2026-10-09
 
 ### Voices
