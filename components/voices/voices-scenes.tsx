@@ -31,12 +31,14 @@ function AddVoicePill() {
 
 const HERO_LINES = [
   { words: ["Words", "from"], color: HEADLINE },
-  { words: ["the", "people"], color: "rgba(240,236,230,0.18)" },
+  { words: ["the", "people"], color: "#B15927" },
   { words: ["we", "create", "with."], color: HEADLINE },
 ]
 function HeroHeadline() {
   return (
-    <h1 className="relative text-center font-serif text-[38px] font-normal leading-[1.1] md:text-[52px]" style={{ color: HEADLINE }}>
+    <h1 className="relative text-center font-serif text-[38px] font-normal leading-[1.1] md:text-[52px]"
+      style={{ color: HEADLINE, textShadow: "0 2px 24px rgba(10,8,6,0.85), 0 1px 6px rgba(10,8,6,0.65)" }}
+    >
       {HERO_LINES.map((line) => (
         <span key={line.words.join(" ")} className="block" style={{ color: line.color }}>
           {line.words.join(" ")}

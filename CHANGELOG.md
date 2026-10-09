@@ -6,6 +6,13 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.16.1 — 2026-10-09
+
+### Voices hero
+- Stronger center vignette over the photo collage so the headline reads clearly.
+- Added a soft dark text shadow to the hero headline.
+- "the people" line now uses brand orange `#B15927` instead of a faint ghost white.
+
 ## 0.16.0 — 2026-10-08
 
 ### Voices page
