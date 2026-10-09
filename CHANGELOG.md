@@ -6,6 +6,11 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.18.3 — 2026-10-09
+
+### Voices
+- Form photo strip now picks 6 random photos from the marquee set on each load (`shuffle(MARQUEE_IMAGES).slice(0, 6)`) instead of always the first 6.
+
 ## 0.18.2 — 2026-10-09
 
 ### Voices

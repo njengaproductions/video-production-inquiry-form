@@ -15,7 +15,7 @@ function shuffle<T>(items: T[]) {
 
 export default async function VoicesPage() {
   const voices = await listApprovedVoices()
-  return <VoicesForm photos={MARQUEE_IMAGES.slice(0, 6)} testimonials={shuffle(voices.map(({ id, name, company, role, quote, words, logo_url }) => ({ id, name, company, role, quote, words, logo_url })))} />
+  return <VoicesForm photos={shuffle(MARQUEE_IMAGES).slice(0, 6)} testimonials={shuffle(voices.map(({ id, name, company, role, quote, words, logo_url }) => ({ id, name, company, role, quote, words, logo_url })))} />
 }
 
 export const metadata = {
