@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { MotionConfig, motion } from "framer-motion"
 import { submitVoice } from "@/app/actions/submit-voice"
 import { SmoothScroll } from "./smooth-scroll"
@@ -28,6 +28,24 @@ export function VoicesForm({ testimonials, photos = [] }: { testimonials: Approv
   const [companyMode, setCompanyMode] = useState(false)
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle")
   const [error, setError] = useState("")
+  const [shuffled, setShuffled] = useState(() => testimonials.slice(0, 5))
+  const [show, setShow] = useState(false)
+
+  // Shuffled after mount so the server and first client render match (no hydration mismatch).
+  useEffect(() => {
+    const pool = [...testimonials]
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[pool[i], pool[j]] = [pool[j], pool[i]]
+    }
+    setShuffled(pool.slice(0, 5))
+  }, [testimonials])
+
+  useEffect(() => {
+    const onScroll = () => setShow(window.scrollY / document.body.scrollHeight > 0.65)
+    window.addEventListener('scroll', onScroll)
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   const toggle = (word: string) => setSelected((current) => current.includes(word) ? current.filter((item) => item !== word) : [...current, word])
 
@@ -59,7 +77,7 @@ export function VoicesForm({ testimonials, photos = [] }: { testimonials: Approv
           <VoicesHero count={testimonials.length} photos={photos} />
           <PinnedQuote voice={testimonials[0]} />
           <ChipBurst />
-          <HorizontalVoices voices={testimonials} />
+          <HorizontalVoices voices={shuffled} />
           <GiantCounter count={testimonials.length} overlap={testimonials.length > 0} />
 
           <section id="add-your-voice" className={`${SCENE_EDGE} z-10 scroll-mt-6 bg-[#0a0806] px-6 py-24 md:py-32`}>
@@ -91,6 +109,14 @@ export function VoicesForm({ testimonials, photos = [] }: { testimonials: Approv
         </>
       )}
       </MotionConfig>
+      {show && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="fixed bottom-8 right-8 z-50 flex items-center gap-2 rounded-full border border-[#f0ece6]/20 bg-[#0a0806] px-4 py-2 font-sans text-xs uppercase tracking-widest text-[#f0ece6] transition-opacity hover:border-[#B15927]"
+        >
+          ↑ Top
+        </button>
+      )}
     </main>
   )
 }
