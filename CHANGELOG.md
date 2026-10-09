@@ -6,6 +6,13 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.17.0 — 2026-10-09
+
+### Voices motion
+- Added Framer Motion scroll reveals (fade + 24px rise, once, -60px viewport margin) to the hero headline, hero stat row, "In their words." heading, testimonial cards (quote / attribution / chips staggered by card index), counter number and text, and the form heading and body.
+- Form word chips now stagger in (0.04s apart). The form's old CSS reveal was replaced by these.
+- Motion respects the reduced-motion system setting.
+
 ## 0.16.1 — 2026-10-09
 
 ### Voices hero
