@@ -6,6 +6,13 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.20.1 — 2026-10-09
+
+### Voices
+- Chip-burst avatars now travel outward with the burst (distance = reach × burst, same `calc(... * min(42vw, 420px))` coordinate system as the chips) and fade in with it instead of popping in late.
+- Avatar placement uses a 62% ring with 6-pass collision separation (58px minimum, reach clamped 0.22–0.70); avatars sit above chips (z-index 15) and ignore pointer events.
+- Logo avatars get a dark fill, `white/20` border and a soft primary halo; initials avatars use the primary tint. Admin logo display settings still apply.
+
 ## 0.20.0 — 2026-10-09
 
 ### Voices

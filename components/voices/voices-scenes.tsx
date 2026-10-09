@@ -251,44 +251,47 @@ const BURST_CHIPS = WORDS.map((word, index) => ({
 const AVATAR_HW = 420
 const AVATAR_HH = 320
 const AVATAR_RING = 0.62
-const AVATAR_MIN_DIST = 56
+const AVATAR_MIN_DIST = 58
 
 export function ChipBurst({ voices = [] }: { voices?: ApprovedVoice[] }) {
   const [ref, progress] = useScrollProgress<HTMLElement>(1)
   const burst = Math.sin(Math.PI * progress)
 
-  const { sharedWords, avatarPositions } = useMemo(() => {
+  const sharedWords = useMemo(() => {
     const wordCount: Record<string, number> = {}
     voices.forEach((v) => v.words.forEach((w) => { wordCount[w] = (wordCount[w] ?? 0) + 1 }))
-    const sharedWords = new Set(Object.keys(wordCount).filter((w) => wordCount[w] > 1))
-    const avatarPositions = voices.flatMap((voice) => {
-      const chips = BURST_CHIPS.filter((chip) => voice.words.includes(chip.word))
+    return new Set(Object.keys(wordCount).filter((w) => wordCount[w] > 1))
+  }, [voices])
+
+  const avatarData = useMemo(() => {
+    if (!voices.length) return []
+    const data = voices.flatMap((voice) => {
+      const chips = BURST_CHIPS.filter((chip) => (voice.words ?? []).includes(chip.word))
       if (!chips.length) return []
       const sinMean = chips.reduce((sum, chip) => sum + Math.sin(chip.angle), 0) / chips.length
       const cosMean = chips.reduce((sum, chip) => sum + Math.cos(chip.angle), 0) / chips.length
       const avgReach = chips.reduce((sum, chip) => sum + chip.reach, 0) / chips.length
-      return [{ voice, centroidAngle: Math.atan2(sinMean, cosMean), avgReach }]
+      return [{ voice, centroidAngle: Math.atan2(sinMean, cosMean), avatarReach: avgReach * AVATAR_RING }]
     })
 
-    const toPx = (item: (typeof avatarPositions)[number]) => ({
-      x: Math.cos(item.centroidAngle) * item.avgReach * AVATAR_HW * AVATAR_RING,
-      y: Math.sin(item.centroidAngle) * item.avgReach * AVATAR_HH * AVATAR_RING,
-    })
-    for (let iteration = 0; iteration < 4; iteration++) {
-      for (let a = 0; a < avatarPositions.length; a++) {
-        for (let b = a + 1; b < avatarPositions.length; b++) {
-          const first = avatarPositions[a], second = avatarPositions[b]
-          const p1 = toPx(first), p2 = toPx(second)
-          const dist = Math.hypot(p2.x - p1.x, p2.y - p1.y)
-          if (dist >= AVATAR_MIN_DIST) continue
-          if (dist === 0) { second.centroidAngle += 0.35; continue }
-          const push = (AVATAR_MIN_DIST - dist) / 2 / (AVATAR_HW * AVATAR_RING)
-          first.avgReach = Math.max(0.3, first.avgReach - push * 0.5)
-          second.avgReach = Math.min(1.1, second.avgReach + push * 0.5)
+    for (let iteration = 0; iteration < 6; iteration++) {
+      for (let a = 0; a < data.length; a++) {
+        for (let b = a + 1; b < data.length; b++) {
+          const first = data[a], second = data[b]
+          const ax = Math.cos(first.centroidAngle) * AVATAR_HW * first.avatarReach
+          const ay = Math.sin(first.centroidAngle) * AVATAR_HH * first.avatarReach
+          const bx = Math.cos(second.centroidAngle) * AVATAR_HW * second.avatarReach
+          const by = Math.sin(second.centroidAngle) * AVATAR_HH * second.avatarReach
+          const dist = Math.hypot(bx - ax, by - ay)
+          if (dist < AVATAR_MIN_DIST && dist > 0) {
+            const step = (AVATAR_MIN_DIST - dist) * 0.008
+            first.avatarReach = Math.max(0.22, first.avatarReach - step)
+            second.avatarReach = Math.min(0.7, second.avatarReach + step)
+          }
         }
       }
     }
-    return { sharedWords, avatarPositions }
+    return data
   }, [voices])
 
   return (
@@ -317,33 +320,25 @@ export function ChipBurst({ voices = [] }: { voices?: ApprovedVoice[] }) {
             )
           })}
         </ul>
-        {avatarPositions.map(({ voice, centroidAngle, avgReach }) => {
-          const avatarBurst = Math.max(0, burst * 2 - 1)
-          const x = Math.cos(centroidAngle) * avgReach * AVATAR_RING
-          const y = Math.sin(centroidAngle) * avgReach * AVATAR_RING
+        {avatarData.map(({ voice, centroidAngle, avatarReach }) => {
+          const d = avatarReach * burst
           return (
             <div
               key={voice.id}
               aria-hidden="true"
-              className="absolute left-1/2 top-1/2 will-change-transform"
+              className="pointer-events-none absolute left-1/2 top-1/2 will-change-transform"
               style={{
-                opacity: avatarBurst,
-                transform: `translate(-50%,-50%) translate(calc(${x} * min(42vw, ${AVATAR_HW}px)), calc(${y} * min(34vh, ${AVATAR_HH}px)))`,
-                zIndex: 6,
+                transform: `translate(-50%,-50%) translate(calc(${Math.cos(centroidAngle)} * ${d} * min(42vw, 420px)), calc(${Math.sin(centroidAngle)} * ${d} * min(34vh, 320px)))`,
+                opacity: burst,
+                zIndex: 15,
               }}
             >
               {voice.logo_url ? (
-                <div
-                  className="h-11 w-11 overflow-hidden rounded-full"
-                  style={{ border: "1.5px solid rgba(240,236,230,0.18)", boxShadow: "0 0 0 3px rgba(177,89,39,0.1)" }}
-                >
-                  <img src={voice.logo_url} alt={voice.name} className="size-full" style={logoImageStyle(voice.logo_display)} />
+                <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border border-white/20 bg-[#0a0806] shadow-[0_0_0_3px_rgba(177,89,39,0.12)]">
+                  <img src={voice.logo_url} alt={voice.company || voice.name} className="size-full rounded-full" style={logoImageStyle(voice.logo_display)} />
                 </div>
               ) : (
-                <div
-                  className="flex h-9 w-9 items-center justify-center rounded-full text-[10px] font-light tracking-[0.12em]"
-                  style={{ border: "1px solid rgba(177,89,39,0.35)", background: "rgba(177,89,39,0.06)", color: "rgba(177,89,39,0.7)" }}
-                >
+                <div className="flex h-9 w-9 items-center justify-center rounded-full border border-primary/40 bg-primary/7 text-[10px] font-light tracking-[0.1em] text-primary/80">
                   {initials(voice.name)}
                 </div>
               )}
