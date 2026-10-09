@@ -6,6 +6,11 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.18.5 — 2026-10-09
+
+### Voices
+- Testimonial card logos now fill their circle (`object-cover`) with no white background, padding, or border, so they sit cleanly on the dark card.
+
 ## 0.18.4 — 2026-10-09
 
 ### Voices
