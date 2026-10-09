@@ -36,7 +36,7 @@ export function VoiceReviewCard({ voice, approved = false }: { voice: Voice; app
   const role = voice.role?.trim()
   const affiliation = [company, role].filter(Boolean).join(" · ")
   const initials = voice.name.split(" ").map((word) => word[0]).join("").slice(0, 2)
-  const showUploadZone = !approved || !voice.logo_url
+  const showUploadZone = true
 
   async function run(action: () => Promise<{ ok: boolean; error?: string }>, success: string) {
     setBusy(true); setMessage(""); const result = await action(); setMessage(result.ok ? success : result.error ?? "Something went wrong."); setBusy(false)
