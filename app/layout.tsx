@@ -1,8 +1,24 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
+import { DM_Serif_Display, Source_Sans_3 } from 'next/font/google'
 import { Suspense } from 'react'
 import { RouteProgress } from '@/components/route-progress'
 import './globals.css'
+
+const dmSerifDisplay = DM_Serif_Display({
+  subsets: ['latin'],
+  weight: '400',
+  style: ['normal', 'italic'],
+  variable: '--font-dm-serif',
+  display: 'swap',
+})
+
+const sourceSans3 = Source_Sans_3({
+  subsets: ['latin'],
+  weight: ['200', '300', '400'],
+  variable: '--font-source-sans',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: 'Client Project Brief — NJENGA Productions Co.',
@@ -45,7 +61,7 @@ export default function RootLayout({
   ]
 
   return (
-    <html lang="en" data-scroll-behavior="smooth" className="bg-background font-sans antialiased">
+    <html lang="en" data-scroll-behavior="smooth" className={`${dmSerifDisplay.variable} ${sourceSans3.variable} bg-background font-sans antialiased`}>
       <head>
         {marqueeImages.map((name) => (
           <link key={name} rel="preload" as="image" href={`/images/${name}.png`} />

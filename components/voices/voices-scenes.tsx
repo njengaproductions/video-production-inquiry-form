@@ -282,7 +282,7 @@ function VoiceCard({ voice, mauve, index }: { voice: ApprovedVoice; mauve: boole
   return (
     <article className={`flex h-full w-[min(80vw,400px)] flex-shrink-0 flex-col rounded-r-[10px] border-l-2 bg-[rgba(181,82,10,0.03)] p-7 ${mauve ? "border-mauve" : "border-primary"}`}>
       <motion.div {...reveal(stagger)}>
-        <blockquote className="font-serif text-[17px] font-normal leading-[1.65] text-[#f0ece6]">{voice.quote}</blockquote>
+        <blockquote className="voice-card-quote text-[17px] text-[#f0ece6]">{voice.quote}</blockquote>
       </motion.div>
       <div className="mt-auto pt-8">
         <motion.div {...reveal(stagger + 0.08)}>
@@ -293,15 +293,15 @@ function VoiceCard({ voice, mauve, index }: { voice: ApprovedVoice; mauve: boole
             <div aria-hidden="true" className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border text-xs font-semibold ${mauve ? "border-mauve/40 bg-mauve/10 text-mauve" : "border-primary/30 bg-primary/10 text-primary"}`}>{initials(voice.name)}</div>
           )}
           <div>
-            <p className="text-sm font-medium text-[#f0ece6]">{voice.name}</p>
-            {(voice.company || voice.role) && <p className="text-xs text-[rgba(240,236,230,0.62)]">{voice.company}{voice.company && voice.role ? " · " : ""}{voice.role}</p>}
+            <p className="voice-card-name text-[#f0ece6]">{voice.name}</p>
+            {(voice.company || voice.role) && <p className="voice-card-role text-[rgba(240,236,230,0.62)]">{voice.company}{voice.company && voice.role ? " · " : ""}{voice.role}</p>}
           </div>
         </div>
         </motion.div>
         {voice.words.length > 0 && (
           <motion.div {...reveal(stagger + 0.12)}>
             <ul className="mt-5 flex flex-wrap gap-2" aria-label="Words used">
-              {voice.words.map((word) => <li key={word} className={`rounded-full border px-2.5 py-1 text-[10px] tracking-[0.5px] ${mauve ? "border-mauve/40 text-mauve" : "border-primary/30 text-primary"}`}>{word}</li>)}
+              {voice.words.map((word) => <li key={word} className={`voice-card-tag rounded-full border px-2.5 py-1 text-[10px] ${mauve ? "border-mauve/40 text-mauve" : "border-primary/30 text-primary"}`}>{word}</li>)}
             </ul>
           </motion.div>
         )}
