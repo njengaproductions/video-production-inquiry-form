@@ -6,6 +6,14 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.21.1 — 2026-10-10
+
+### Voices
+- Chip burst avatars: removed the always-on name/company labels. Hovering (or keyboard-focusing) an avatar now shows the name and company in a single centered strip at the bottom of the stage, fading in and out.
+- Avatars scale up slightly on hover; tapping still opens the quote card.
+
+---
+
 ## 0.21.0 — 2026-10-10
 
 ### Voices
