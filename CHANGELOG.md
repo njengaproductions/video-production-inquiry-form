@@ -6,6 +6,12 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.21.3 — 2026-10-10
+
+### Voices
+- Chip burst on phones (stage width under 520px): narrower horizontal and taller vertical spread so word chips no longer clip, and the avatar ring is pulled in to 58% so it clears the word chips. Thread lines and the quote card follow the new avatar positions.
+- Avatar buttons now have a 44px tap target. On phones the visible circle shrinks to 36px through a nested `avatar-btn-inner` element, so the hit area stays at 44px.
+
 ## 0.21.2 — 2026-10-10
 
 ### Voices
@@ -257,7 +263,7 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
-## 0.11.0 — 2026-10-06
+## 0.11.0 ��� 2026-10-06
 
 **Voices page redesign (`/voices`)**
 - Two-column hero: eyebrow + 52px Georgia headline (#f0ece6) on the left; live approved-voice count (64px, faded primary), "Voices & counting" label, and a "+ Add your voice" outline pill on the right that smooth-scrolls to the form.

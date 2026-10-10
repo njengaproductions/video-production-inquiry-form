@@ -454,8 +454,10 @@ export function ChipBurst({ voices = [] }: { voices?: ApprovedVoice[] }) {
     ro.observe(stickyRef.current)
     return () => ro.disconnect()
   }, [])
-  const HW = Math.min(dims.w * 0.44, 420)
-  const HH = Math.min(dims.h * 0.37, 305)
+  const isMobile = dims.w < 520
+  const HW = Math.min(dims.w * (isMobile ? 0.36 : 0.44), 420)
+  const HH = Math.min(dims.h * (isMobile ? 0.44 : 0.37), 305)
+  const avatarInnerScale = isMobile ? 0.58 : 1.0
 
   const rotated = useRotatedWords()
   const { wordNodes, avatarData } = useMemo(() => {
@@ -484,8 +486,8 @@ export function ChipBurst({ voices = [] }: { voices?: ApprovedVoice[] }) {
   const activeAvatar = activeVoice ? avatarData.find(a => a.voice.id === activeVoice.id) : undefined
   const activeAnchor = activeAvatar
     ? {
-        x: dims.w / 2 + Math.cos(activeAvatar.centroidAngle) * activeAvatar.avatarReach * burst * HW,
-        y: dims.h / 2 + Math.sin(activeAvatar.centroidAngle) * activeAvatar.avatarReach * burst * HH,
+        x: dims.w / 2 + Math.cos(activeAvatar.centroidAngle) * activeAvatar.avatarReach * avatarInnerScale * burst * HW,
+        y: dims.h / 2 + Math.sin(activeAvatar.centroidAngle) * activeAvatar.avatarReach * avatarInnerScale * burst * HH,
       }
     : null
 
@@ -499,8 +501,8 @@ export function ChipBurst({ voices = [] }: { voices?: ApprovedVoice[] }) {
         {ready && (
           <svg className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true">
             {avatarData.map(({ voice, centroidAngle, avatarReach, myNodes }) => {
-              const ax = dims.w / 2 + Math.cos(centroidAngle) * avatarReach * burst * HW
-              const ay = dims.h / 2 + Math.sin(centroidAngle) * avatarReach * burst * HH
+              const ax = dims.w / 2 + Math.cos(centroidAngle) * avatarReach * avatarInnerScale * burst * HW
+              const ay = dims.h / 2 + Math.sin(centroidAngle) * avatarReach * avatarInnerScale * burst * HH
               return myNodes.map(node => {
                 const local = localProgress(burst, node.delay)
                 const threadOpacity = 0.22 * burst * local
@@ -558,7 +560,7 @@ export function ChipBurst({ voices = [] }: { voices?: ApprovedVoice[] }) {
                   className="absolute left-1/2 top-1/2 z-[15] flex select-none items-center will-change-transform"
                   style={{
                     opacity: avatarOpacity,
-                    transform: `translate(-50%,-50%) translate(${Math.cos(centroidAngle) * avatarReach * burst * HW}px, ${Math.sin(centroidAngle) * avatarReach * burst * HH}px)`,
+                    transform: `translate(-50%,-50%) translate(${Math.cos(centroidAngle) * avatarReach * avatarInnerScale * burst * HW}px, ${Math.sin(centroidAngle) * avatarReach * avatarInnerScale * burst * HH}px)`,
                   }}
                 >
                   <button
@@ -578,21 +580,27 @@ export function ChipBurst({ voices = [] }: { voices?: ApprovedVoice[] }) {
                       if (burst > 0.22) setHoveredVoice(voice)
                     }}
                     onBlur={() => setHoveredVoice(prev => (prev?.id === voice.id ? null : prev))}
-                    className="flex h-[38px] w-[38px] items-center justify-center overflow-hidden rounded-full text-[9.5px] tracking-[0.05em] transition-[filter,transform] duration-200 hover:scale-[1.08] hover:brightness-125 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                    className="flex h-[44px] w-[44px] items-center justify-center rounded-full transition-[filter,transform] duration-200 hover:scale-[1.08] hover:brightness-125 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 sm:h-[44px] sm:w-[44px]"
                     style={{
                       pointerEvents: avatarOpacity > 0.5 ? "auto" : "none",
-                      border: `1.5px solid ${voice.color}`,
-                      background: `rgba(${r},${g},${b},0.1)`,
-                      boxShadow: `0 0 0 3px rgba(${r},${g},${b},${isActive ? 0.35 : 0.14})`,
-                      color: voice.color,
                       outlineColor: voice.color,
                     }}
                   >
-                    {voice.logo_url ? (
-                      <img src={voice.logo_url} alt="" className="h-full w-full rounded-full" style={logoImageStyle(voice.logo_display)} />
-                    ) : (
-                      initials(voice.name)
-                    )}
+                    <div
+                      className="avatar-btn-inner flex h-[44px] w-[44px] items-center justify-center overflow-hidden rounded-full text-[9.5px] tracking-[0.05em] max-[520px]:h-[36px] max-[520px]:w-[36px]"
+                      style={{
+                        border: `1.5px solid ${voice.color}`,
+                        background: `rgba(${r},${g},${b},0.1)`,
+                        boxShadow: `0 0 0 3px rgba(${r},${g},${b},${isActive ? 0.35 : 0.14})`,
+                        color: voice.color,
+                      }}
+                    >
+                      {voice.logo_url ? (
+                        <img src={voice.logo_url} alt="" className="h-full w-full rounded-full" style={logoImageStyle(voice.logo_display)} />
+                      ) : (
+                        initials(voice.name)
+                      )}
+                    </div>
                   </button>
                 </li>
               )
