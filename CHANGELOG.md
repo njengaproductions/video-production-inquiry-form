@@ -6,6 +6,12 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.20.4 — 2026-10-09
+
+### Voices
+- Chip-burst avatars are capped at 0.8× their nearest chip's reach so they stay inside their chip cluster.
+- Faint thread lines now connect each avatar to its chips, measured from the sticky frame via ResizeObserver.
+
 ## 0.20.3 — 2026-10-09
 
 ### Voices
