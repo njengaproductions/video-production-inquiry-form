@@ -230,7 +230,12 @@ export function PinnedQuote({ voice }: { voice?: ApprovedVoice }) {
           </blockquote>
           {voice && (
             <figcaption className={`mt-10 transition-all duration-700 ${showAttribution ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"}`}>
+              <div className="flex items-center justify-center gap-3">
+              {voice.logo_url && (
+                <img src={voice.logo_url} alt={voice.company || voice.name} className="h-8 w-8 rounded-full border border-white/20" style={logoImageStyle(voice.logo_display)} />
+              )}
               <p className="text-sm font-medium text-[#f0ece6]">{voice.name}</p>
+            </div>
               {(voice.company || voice.role) && <p className="mt-1 text-xs text-[rgba(240,236,230,0.62)]">{voice.company}{voice.company && voice.role ? " · " : ""}{voice.role}</p>}
             </figcaption>
           )}
@@ -267,7 +272,7 @@ export function ChipBurst({ voices = [] }: { voices?: ApprovedVoice[] }) {
         return {
           voice,
           centroidAngle: Math.atan2(sinSum / myChips.length, cosSum / myChips.length),
-          avatarReach: (reachSum / myChips.length) * 0.6,
+          avatarReach: (reachSum / myChips.length) * 0.85,
         }
       })
       .filter((x): x is NonNullable<typeof x> => x !== null)
@@ -326,7 +331,7 @@ export function ChipBurst({ voices = [] }: { voices?: ApprovedVoice[] }) {
             }}
           >
             {voice.logo_url ? (
-              <img src={voice.logo_url} alt={voice.company || voice.name} className="h-9 w-9 rounded-full border border-white/20 object-cover" style={{ boxShadow: '0 0 0 3px rgba(177,89,39,0.2)' }} />
+              <img src={voice.logo_url} alt={voice.company || voice.name} className="h-9 w-9 rounded-full border border-white/20" style={{ ...logoImageStyle(voice.logo_display), boxShadow: '0 0 0 3px rgba(177,89,39,0.2)' }} />
             ) : (
               <div className="flex h-9 w-9 items-center justify-center rounded-full border border-primary/40 bg-primary/10 text-[10px] font-medium tracking-wide text-primary" style={{ boxShadow: '0 0 0 3px rgba(177,89,39,0.1)' }}>
                 {initials(voice.name)}
