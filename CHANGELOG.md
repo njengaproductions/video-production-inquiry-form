@@ -6,6 +6,13 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.20.3 — 2026-10-09
+
+### Voices
+- Chip-burst avatars now sit farther out (0.85× their chips' average reach, up from 0.6×).
+- Burst logos respect each voice's admin logo display settings (fit, scale, offset) again.
+- Pinned quote attribution shows the voice's logo (32px circle, using its display settings) beside the name.
+
 ## 0.20.2 — 2026-10-09
 
 ### Voices — chip burst
