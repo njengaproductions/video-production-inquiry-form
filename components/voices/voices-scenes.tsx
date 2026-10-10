@@ -245,12 +245,182 @@ export function PinnedQuote({ voice }: { voice?: ApprovedVoice }) {
   )
 }
 
-const BURST_CHIPS = WORDS.map((word, index) => ({
-  word,
-  angle: (index / WORDS.length) * Math.PI * 2 - Math.PI / 2 + (index % 2 ? 0.18 : -0.08),
-  reach: index % 3 === 0 ? 1 : index % 3 === 1 ? 0.72 : 0.86,
-  delay: (index % 4) * 0.08,
-}))
+const VOICE_COLORS = ["#e07b3a", "#c9a96e", "#8ab4a0", "#a07cb0", "#6fa8c9", "#d08a8a", "#b8b06a", "#7c9fd0"]
+
+// Spread-fix order: the most-chosen words sit at every 3rd index (~60° apart)
+// so high-count chips don't cluster on one side of the ring.
+const WORDS_BASE = [
+  "Storytelling", "Cinematic", "Legendary",
+  "Professional", "Easy to work with", "Showed up",
+  "Exceeded expectations", "Fast turnaround", "Detail-oriented",
+  "On brand", "Would refer", "Communicative",
+  "Creative", "High quality", "Prepared",
+  "Changed the game", "Understood the vision", "Already referred",
+]
+
+type BurstVoice = ApprovedVoice & { color: string }
+
+type WordNode = {
+  word: string
+  count: number
+  angle: number
+  reach: number
+  delay: number
+  color: string
+  borderColor: string
+  fontSize: number
+  padV: number
+  padH: number
+  glow: string
+}
+
+type AvatarDatum = {
+  voice: BurstVoice
+  centroidAngle: number
+  avatarReach: number
+  myNodes: WordNode[]
+}
+
+function hexToRgb(hex: string) {
+  return {
+    r: parseInt(hex.slice(1, 3), 16),
+    g: parseInt(hex.slice(3, 5), 16),
+    b: parseInt(hex.slice(5, 7), 16),
+  }
+}
+
+function useRotatedWords() {
+  const [rotated, setRotated] = useState<string[]>([])
+  useEffect(() => {
+    const offset = Math.floor(Math.random() * WORDS_BASE.length)
+    setRotated([...WORDS_BASE.slice(offset), ...WORDS_BASE.slice(0, offset)])
+  }, [])
+  return rotated
+}
+
+// One chip per unique word, sized by how many voices chose it. Single-owner
+// chips take that voice's color; shared chips go warm neutral and let the
+// thread lines carry the color story.
+function buildWordNodes(rotated: string[], voices: BurstVoice[]): WordNode[] {
+  const countMap = new Map<string, number>()
+  const ownerMap = new Map<string, BurstVoice>()
+  for (const v of voices) {
+    for (const w of v.words) {
+      countMap.set(w, (countMap.get(w) ?? 0) + 1)
+      if (!ownerMap.has(w)) ownerMap.set(w, v)
+    }
+  }
+  return rotated.flatMap((word, index) => {
+    const count = countMap.get(word) ?? 0
+    if (count === 0) return []
+    const isSingle = count === 1
+    const owner = ownerMap.get(word)!
+    let glow = "none"
+    if (count >= 5) glow = "0 0 12px rgba(240,236,230,0.14), 0 0 28px rgba(240,236,230,0.06)"
+    else if (count >= 4) glow = "0 0 7px rgba(240,236,230,0.09)"
+    return [{
+      word,
+      count,
+      angle: (index / rotated.length) * Math.PI * 2 - Math.PI / 2 + (index % 2 ? 0.18 : -0.08),
+      reach: index % 3 === 0 ? 1 : index % 3 === 1 ? 0.72 : 0.86,
+      delay: (index % 4) * 0.08,
+      color: isSingle ? owner.color : "rgba(240,236,230,0.82)",
+      borderColor: isSingle ? owner.color + "45" : "rgba(240,236,230,0.16)",
+      fontSize: 8.5 + (count - 1) * 1.1,
+      padV: 3 + (count - 1) * 0.5,
+      padH: 8 + (count - 1) * 1.7,
+      glow,
+    }]
+  })
+}
+
+// Avatar sits at the circular mean of its words' angles, pulled inside the
+// word ring, then nudged apart so no two avatars overlap angularly.
+function buildAvatarData(
+  wordNodes: WordNode[],
+  voices: BurstVoice[],
+  jitter: Array<{ angle: number; reach: number }>,
+): AvatarDatum[] {
+  const nodeByWord = new Map(wordNodes.map(n => [n.word, n]))
+  const raw: AvatarDatum[] = voices.flatMap((voice, i) => {
+    const myNodes = voice.words.filter(w => nodeByWord.has(w)).map(w => nodeByWord.get(w)!)
+    if (!myNodes.length) return []
+    let sinSum = 0, cosSum = 0, reachSum = 0, minReach = Infinity
+    for (const n of myNodes) {
+      sinSum += Math.sin(n.angle)
+      cosSum += Math.cos(n.angle)
+      reachSum += n.reach
+      if (n.reach < minReach) minReach = n.reach
+    }
+    const nn = myNodes.length
+    const j = jitter[i] ?? { angle: 0, reach: 0 }
+    return [{
+      voice,
+      centroidAngle: Math.atan2(sinSum / nn, cosSum / nn) + j.angle,
+      avatarReach: Math.min((reachSum / nn) * 0.85, minReach * 0.8) + j.reach,
+      myNodes,
+    }]
+  })
+  for (let iter = 0; iter < 8; iter++) {
+    for (let a = 0; a < raw.length; a++) {
+      for (let b = a + 1; b < raw.length; b++) {
+        let diff = raw[b].centroidAngle - raw[a].centroidAngle
+        while (diff > Math.PI) diff -= 2 * Math.PI
+        while (diff < -Math.PI) diff += 2 * Math.PI
+        if (Math.abs(diff) < 0.32 && Math.abs(diff) > 0.001) {
+          const push = (0.32 - Math.abs(diff)) / 2
+          if (diff > 0) { raw[a].centroidAngle -= push; raw[b].centroidAngle += push }
+          else { raw[a].centroidAngle += push; raw[b].centroidAngle -= push }
+        }
+      }
+    }
+  }
+  return raw
+}
+
+const localProgress = (burst: number, delay: number) =>
+  Math.min(1, Math.max(0, (burst - delay) / (1 - delay)))
+
+const clamp01 = (n: number) => Math.min(1, Math.max(0, n))
+
+function BurstQuoteCard({ voice, onClose }: { voice: BurstVoice; onClose: () => void }) {
+  const { r, g, b } = hexToRgb(voice.color)
+  return (
+    <div
+      role="dialog"
+      aria-label={`${voice.name}'s testimonial`}
+      onClick={e => e.stopPropagation()}
+      className="absolute left-1/2 top-[42%] z-30 w-[260px] max-w-[calc(100vw-48px)] -translate-x-1/2 -translate-y-1/2 rounded-[10px] border border-white/10 bg-[#111009] px-4 py-3.5 shadow-[0_8px_32px_rgba(0,0,0,0.7)]"
+    >
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label="Close testimonial"
+        className="absolute right-2.5 top-2 px-1 py-0.5 text-sm leading-none text-white/30 transition-colors hover:text-white/70"
+      >
+        {"×"}
+      </button>
+      <p className="mb-0.5 pr-5 text-[11px] font-light" style={{ color: voice.color }}>{voice.name}</p>
+      {voice.company && (
+        <p className="mb-2.5 text-[9px] uppercase tracking-[0.06em] text-white/35">{voice.company}</p>
+      )}
+      <p className="font-serif text-[12.5px] font-light italic leading-relaxed" style={{ color: "rgba(240,236,230,0.82)" }}>
+        {`"${voice.quote}"`}
+      </p>
+      <ul className="mt-2.5 flex flex-wrap gap-1">
+        {voice.words.slice(0, 6).map(w => (
+          <li
+            key={w}
+            className="rounded-full px-2 py-0.5 text-[8.5px] font-extralight tracking-[0.04em]"
+            style={{ border: `1px solid rgba(${r},${g},${b},0.35)`, color: `rgba(${r},${g},${b},0.85)` }}
+          >
+            {w}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
 
 export function ChipBurst({ voices = [] }: { voices?: ApprovedVoice[] }) {
   const [ref, progress] = useScrollProgress<HTMLElement>(1)
@@ -263,124 +433,175 @@ export function ChipBurst({ voices = [] }: { voices?: ApprovedVoice[] }) {
     ro.observe(stickyRef.current)
     return () => ro.disconnect()
   }, [])
+  const HW = Math.min(dims.w * 0.44, 420)
+  const HH = Math.min(dims.h * 0.37, 305)
 
-  const avatars = useMemo(() => {
-    if (!voices.length) return []
-    const chipByWord = new Map(BURST_CHIPS.map(c => [c.word, c]))
-    const raw = voices
-      .map(voice => {
-        const myChips = voice.words.filter(w => chipByWord.has(w)).map(w => chipByWord.get(w)!)
-        if (!myChips.length) return null
-        let sinSum = 0, cosSum = 0, reachSum = 0
-        for (const c of myChips) {
-          sinSum += Math.sin(c.angle)
-          cosSum += Math.cos(c.angle)
-          reachSum += c.reach
-        }
-        return {
-          voice,
-          centroidAngle: Math.atan2(sinSum / myChips.length, cosSum / myChips.length),
-          avatarReach: Math.min(
-            (reachSum / myChips.length) * 0.85,
-            Math.min(...myChips.map(c => c.reach)) * 0.80
-          ),
-        }
-      })
-      .filter((x): x is NonNullable<typeof x> => x !== null)
+  const rotated = useRotatedWords()
+  const { wordNodes, avatarData } = useMemo(() => {
+    if (!rotated.length) return { wordNodes: [], avatarData: [] }
+    const colored = voices.map((v, i) => ({ ...v, color: VOICE_COLORS[i % VOICE_COLORS.length] }))
+    const wn = buildWordNodes(rotated, colored)
+    const jitter = colored.map(() => ({ angle: (Math.random() - 0.5) * 0.26, reach: Math.random() * 0.07 }))
+    return { wordNodes: wn, avatarData: buildAvatarData(wn, colored, jitter) }
+  }, [rotated, voices])
 
-    for (let iter = 0; iter < 8; iter++) {
-      for (let a = 0; a < raw.length; a++) {
-        for (let b = a + 1; b < raw.length; b++) {
-          let diff = raw[b].centroidAngle - raw[a].centroidAngle
-          while (diff > Math.PI) diff -= 2 * Math.PI
-          while (diff < -Math.PI) diff += 2 * Math.PI
-          if (Math.abs(diff) < 0.32 && Math.abs(diff) > 0.001) {
-            const push = (0.32 - Math.abs(diff)) / 2
-            if (diff > 0) { raw[a].centroidAngle -= push; raw[b].centroidAngle += push }
-            else { raw[a].centroidAngle += push; raw[b].centroidAngle -= push }
-          }
-        }
-      }
-    }
-    return raw
-  }, [voices])
+  const [activeVoice, setActiveVoice] = useState<BurstVoice | null>(null)
+  useEffect(() => {
+    if (burst < 0.2) setActiveVoice(null)
+  }, [burst])
+
+  const introOpacity = Math.max(0, 1 - burst / 0.22)
+  const headlineOpacity = clamp01((burst - 0.28) / 0.2) * clamp01(1 - (burst - 0.72) / 0.28)
+  const legendOpacity = clamp01((burst - 0.32) / 0.25) * 0.55
+  const avatarOpacity = clamp01((burst - 0.12) / 0.3)
+  const nameOpacity = clamp01((burst - 0.42) / 0.32)
+  const ready = dims.w > 0
 
   return (
     <section ref={ref} aria-label="Words clients use to describe us" className={`${SCENE_EDGE} z-40 -mt-[calc(100vh+4px)] h-[calc(300vh+4px)] bg-[#0a0806]`}>
-      <div ref={stickyRef} className="sticky bg-[#0a0806] top-0 flex h-screen items-center justify-center overflow-visible">
-        <motion.div {...reveal()} style={ABOVE_OVERLAYS}>
-          <p className="relative z-10 text-center font-serif text-[22px] font-normal md:text-[28px]" style={{ color: HEADLINE, opacity: 0.25 + burst * 0.75 }}>
-            In their <span className="text-primary">words.</span>
-          </p>
-        </motion.div>
-        <ul className="absolute inset-0 overflow-visible">
-          {BURST_CHIPS.map(({ word, angle, reach, delay }) => {
-            const local = Math.min(1, Math.max(0, (burst - delay) / (1 - delay)))
-            const distance = local * reach
-            return (
-              <li
-                key={word}
-                className="absolute left-1/2 top-1/2 whitespace-nowrap rounded-full border border-primary/30 bg-[#0a0806] px-4 py-1.5 text-[10px] tracking-[0.5px] text-primary will-change-transform md:text-xs"
-                style={{
-                  opacity: local,
-                  transform: `translate(-50%,-50%) translate(calc(${Math.cos(angle) * distance} * min(42vw, 420px)), calc(${Math.sin(angle) * distance} * min(34vh, 320px))) scale(${0.6 + local * 0.4})`,
-                }}
-              >
-                {word}
-              </li>
-            )
-          })}
-        </ul>
-        {dims.w > 0 && (
-          <svg
-            className="pointer-events-none absolute inset-0 h-full w-full overflow-visible"
-            style={{ zIndex: 6 }}
-          >
-            {avatars.map(({ voice, centroidAngle, avatarReach }) => {
-              const HW = Math.min(dims.w * 0.42, 420)
-              const HH = Math.min(dims.h * 0.34, 320)
+      <div
+        ref={stickyRef}
+        className="sticky top-0 h-screen overflow-hidden bg-[#0a0806]"
+        onClick={() => setActiveVoice(null)}
+      >
+        {ready && (
+          <svg className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true">
+            {avatarData.map(({ voice, centroidAngle, avatarReach, myNodes }) => {
               const ax = dims.w / 2 + Math.cos(centroidAngle) * avatarReach * burst * HW
               const ay = dims.h / 2 + Math.sin(centroidAngle) * avatarReach * burst * HH
-              return voice.words
-                .filter(w => BURST_CHIPS.some(c => c.word === w))
-                .map(w => {
-                  const chip = BURST_CHIPS.find(c => c.word === w)!
-                  const local = Math.min(1, Math.max(0, (burst - chip.delay) / (1 - chip.delay)))
-                  const cx = dims.w / 2 + Math.cos(chip.angle) * chip.reach * local * HW
-                  const cy = dims.h / 2 + Math.sin(chip.angle) * chip.reach * local * HH
-                  return (
-                    <line
-                      key={`${voice.id}-${w}`}
-                      x1={ax} y1={ay}
-                      x2={cx} y2={cy}
-                      stroke="rgba(177,89,39,0.18)"
-                      strokeWidth="0.8"
-                      opacity={burst * local}
-                    />
-                  )
-                })
+              return myNodes.map(node => {
+                const local = localProgress(burst, node.delay)
+                const threadOpacity = 0.22 * burst * local
+                if (threadOpacity < 0.01) return null
+                return (
+                  <line
+                    key={`${voice.id}-${node.word}`}
+                    x1={ax}
+                    y1={ay}
+                    x2={dims.w / 2 + Math.cos(node.angle) * node.reach * local * HW}
+                    y2={dims.h / 2 + Math.sin(node.angle) * node.reach * local * HH}
+                    stroke={voice.color}
+                    strokeOpacity={threadOpacity}
+                    strokeWidth={0.5}
+                  />
+                )
+              })
             })}
           </svg>
         )}
-        {avatars.map(({ voice, centroidAngle, avatarReach }) => (
-          <div
-            key={voice.id}
-            className="pointer-events-none absolute left-1/2 top-1/2 will-change-transform"
-            style={{
-              zIndex: 15,
-              opacity: burst,
-              transform: `translate(-50%,-50%) translate(calc(${Math.cos(centroidAngle) * avatarReach * burst} * min(42vw, 420px)), calc(${Math.sin(centroidAngle) * avatarReach * burst} * min(34vh, 320px)))`,
-            }}
-          >
-            {voice.logo_url ? (
-              <img src={voice.logo_url} alt={voice.company || voice.name} className="h-9 w-9 rounded-full border border-white/20" style={{ ...logoImageStyle(voice.logo_display), boxShadow: '0 0 0 3px rgba(177,89,39,0.2)' }} />
-            ) : (
-              <div className="flex h-9 w-9 items-center justify-center rounded-full border border-primary/40 bg-primary/10 text-[10px] font-medium tracking-wide text-primary" style={{ boxShadow: '0 0 0 3px rgba(177,89,39,0.1)' }}>
-                {initials(voice.name)}
-              </div>
-            )}
-          </div>
-        ))}
+
+        {ready && (
+          <ul className="pointer-events-none absolute inset-0">
+            {wordNodes.map(node => {
+              const local = localProgress(burst, node.delay)
+              return (
+                <li
+                  key={node.word}
+                  className="absolute left-1/2 top-1/2 whitespace-nowrap rounded-full bg-[#0a0806] font-extralight tracking-[0.045em] will-change-transform"
+                  style={{
+                    opacity: local * Math.min(1, 0.48 + node.count * 0.1),
+                    transform: `translate(-50%,-50%) translate(${Math.cos(node.angle) * node.reach * local * HW}px, ${Math.sin(node.angle) * node.reach * local * HH}px) scale(${0.62 + local * 0.38})`,
+                    border: `1px solid ${node.borderColor}`,
+                    boxShadow: node.glow,
+                    color: node.color,
+                    fontSize: node.fontSize,
+                    padding: `${node.padV}px ${node.padH}px`,
+                  }}
+                >
+                  {node.word}
+                </li>
+              )
+            })}
+          </ul>
+        )}
+
+        {ready && (
+          <ul className="absolute inset-0" style={{ pointerEvents: "none" }}>
+            {avatarData.map(({ voice, centroidAngle, avatarReach }) => {
+              const { r, g, b } = hexToRgb(voice.color)
+              const isActive = activeVoice?.id === voice.id
+              return (
+                <li
+                  key={voice.id}
+                  className="absolute left-1/2 top-1/2 z-[15] flex select-none flex-col items-center gap-1.5 will-change-transform"
+                  style={{
+                    opacity: avatarOpacity,
+                    transform: `translate(-50%,-50%) translate(${Math.cos(centroidAngle) * avatarReach * burst * HW}px, ${Math.sin(centroidAngle) * avatarReach * burst * HH}px)`,
+                  }}
+                >
+                  <button
+                    type="button"
+                    aria-label={`Read ${voice.name}'s testimonial`}
+                    aria-pressed={isActive}
+                    tabIndex={avatarOpacity > 0.5 ? 0 : -1}
+                    onClick={e => {
+                      e.stopPropagation()
+                      setActiveVoice(prev => (prev?.id === voice.id ? null : voice))
+                    }}
+                    className="flex h-[38px] w-[38px] items-center justify-center overflow-hidden rounded-full text-[9.5px] tracking-[0.05em] transition-[filter] hover:brightness-125 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                    style={{
+                      pointerEvents: avatarOpacity > 0.5 ? "auto" : "none",
+                      border: `1.5px solid ${voice.color}`,
+                      background: `rgba(${r},${g},${b},0.1)`,
+                      boxShadow: `0 0 0 3px rgba(${r},${g},${b},${isActive ? 0.35 : 0.14})`,
+                      color: voice.color,
+                      outlineColor: voice.color,
+                    }}
+                  >
+                    {voice.logo_url ? (
+                      <img src={voice.logo_url} alt="" className="h-full w-full rounded-full" style={logoImageStyle(voice.logo_display)} />
+                    ) : (
+                      initials(voice.name)
+                    )}
+                  </button>
+                  <p
+                    className="pointer-events-none whitespace-nowrap text-center text-[9px] font-extralight leading-tight tracking-[0.04em]"
+                    style={{ opacity: nameOpacity, color: `rgba(${r},${g},${b},0.88)` }}
+                  >
+                    {voice.name}
+                    {voice.company && (
+                      <span className="mt-px block text-[7.5px] uppercase tracking-[0.07em] opacity-50">{voice.company}</span>
+                    )}
+                  </p>
+                </li>
+              )
+            })}
+          </ul>
+        )}
+
+        <div
+          className="pointer-events-none absolute inset-0 z-[6] flex flex-col items-center justify-center gap-4 px-7 text-center"
+          style={{ opacity: introOpacity }}
+          aria-hidden={introOpacity === 0}
+        >
+          <h2 className="font-serif text-[clamp(22px,4vw,36px)] font-light leading-tight" style={{ color: "rgba(240,236,230,0.9)" }}>
+            What our clients <em className="not-italic text-primary">say.</em>
+          </h2>
+          <p className="max-w-[340px] text-[clamp(11px,1.5vw,13px)] font-extralight leading-relaxed" style={{ color: "rgba(240,236,230,0.42)" }}>
+            We asked each client to choose the words that best described their experience working with us.
+          </p>
+          <p className="mt-0.5 text-[9px] uppercase tracking-[0.1em]" style={{ color: "rgba(240,236,230,0.22)" }}>
+            {"↓ Scroll to reveal"}
+          </p>
+        </div>
+
+        <p
+          className="pointer-events-none absolute left-1/2 top-1/2 z-[5] -translate-x-1/2 -translate-y-1/2 select-none whitespace-nowrap text-center font-serif text-[clamp(17px,3vw,26px)] font-light"
+          style={{ color: "rgba(240,236,230,0.9)", opacity: headlineOpacity }}
+        >
+          In their <span className="text-primary">words.</span>
+        </p>
+
+        <p
+          className="pointer-events-none absolute bottom-3.5 right-3.5 z-[8] text-right text-[9px] font-extralight leading-[1.9] tracking-[0.04em]"
+          style={{ color: "rgba(240,236,230,0.28)", opacity: legendOpacity }}
+        >
+          {"● Color = client"}<br />
+          {"● Size = how many chose it"}<br />
+          {"● Tap a circle for their story"}
+        </p>
+
+        {activeVoice && <BurstQuoteCard voice={activeVoice} onClose={() => setActiveVoice(null)} />}
       </div>
     </section>
   )

@@ -6,6 +6,15 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.21.0 — 2026-10-10
+
+### Voices
+- Chip burst v2: one chip per unique word, sized (and glowing) by how many voices chose it; single-owner chips take that voice's color, shared chips go warm neutral.
+- Each voice gets its own color; threads run from each avatar to each of its words in that color.
+- Word ring is randomly rotated on load (spread-fix order keeps popular words ~60° apart); avatars get slight jitter plus angular collision separation.
+- Avatars are tappable buttons with name/company labels and open a quote card (quote + up to 6 words); tap outside or × to close.
+- Added a "What our clients say." intro that fades into the "In their words." headline, plus a color/size legend.
+
 ## 0.20.4 — 2026-10-09
 
 ### Voices
