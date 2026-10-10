@@ -383,14 +383,35 @@ const localProgress = (burst: number, delay: number) =>
 
 const clamp01 = (n: number) => Math.min(1, Math.max(0, n))
 
-function BurstQuoteCard({ voice, onClose }: { voice: BurstVoice; onClose: () => void }) {
+const QUOTE_CARD_W = 260
+const QUOTE_CARD_H = 180
+const QUOTE_CARD_PAD = 12
+
+function BurstQuoteCard({
+  voice,
+  anchor,
+  stage,
+  onClose,
+}: {
+  voice: BurstVoice
+  anchor: { x: number; y: number }
+  stage: { w: number; h: number }
+  onClose: () => void
+}) {
   const { r, g, b } = hexToRgb(voice.color)
+  const width = Math.min(QUOTE_CARD_W, stage.w - QUOTE_CARD_PAD * 2)
+  const left = Math.min(Math.max(anchor.x - width / 2, QUOTE_CARD_PAD), stage.w - width - QUOTE_CARD_PAD)
+  const top = Math.min(
+    Math.max(anchor.y - QUOTE_CARD_H - 24, QUOTE_CARD_PAD),
+    stage.h - QUOTE_CARD_H - QUOTE_CARD_PAD,
+  )
   return (
     <div
       role="dialog"
       aria-label={`${voice.name}'s testimonial`}
       onClick={e => e.stopPropagation()}
-      className="absolute left-1/2 top-[42%] z-30 w-[260px] max-w-[calc(100vw-48px)] -translate-x-1/2 -translate-y-1/2 rounded-[10px] border border-white/10 bg-[#111009] px-4 py-3.5 shadow-[0_8px_32px_rgba(0,0,0,0.7)]"
+      className="absolute z-30 rounded-[10px] border border-white/10 bg-[#111009] px-4 py-3.5 shadow-[0_8px_32px_rgba(0,0,0,0.7)]"
+      style={{ left, top, width }}
     >
       <button
         type="button"
@@ -459,6 +480,14 @@ export function ChipBurst({ voices = [] }: { voices?: ApprovedVoice[] }) {
   const legendOpacity = clamp01((burst - 0.32) / 0.25) * 0.55
   const avatarOpacity = clamp01((burst - 0.12) / 0.3)
   const ready = dims.w > 0
+
+  const activeAvatar = activeVoice ? avatarData.find(a => a.voice.id === activeVoice.id) : undefined
+  const activeAnchor = activeAvatar
+    ? {
+        x: dims.w / 2 + Math.cos(activeAvatar.centroidAngle) * activeAvatar.avatarReach * burst * HW,
+        y: dims.h / 2 + Math.sin(activeAvatar.centroidAngle) * activeAvatar.avatarReach * burst * HH,
+      }
+    : null
 
   return (
     <section ref={ref} aria-label="Words clients use to describe us" className={`${SCENE_EDGE} z-40 -mt-[calc(100vh+4px)] h-[calc(300vh+4px)] bg-[#0a0806]`}>
@@ -541,9 +570,13 @@ export function ChipBurst({ voices = [] }: { voices?: ApprovedVoice[] }) {
                       e.stopPropagation()
                       setActiveVoice(prev => (prev?.id === voice.id ? null : voice))
                     }}
-                    onMouseEnter={() => setHoveredVoice(voice)}
+                    onMouseEnter={() => {
+                      if (burst > 0.22) setHoveredVoice(voice)
+                    }}
                     onMouseLeave={() => setHoveredVoice(prev => (prev?.id === voice.id ? null : prev))}
-                    onFocus={() => setHoveredVoice(voice)}
+                    onFocus={() => {
+                      if (burst > 0.22) setHoveredVoice(voice)
+                    }}
                     onBlur={() => setHoveredVoice(prev => (prev?.id === voice.id ? null : prev))}
                     className="flex h-[38px] w-[38px] items-center justify-center overflow-hidden rounded-full text-[9.5px] tracking-[0.05em] transition-[filter,transform] duration-200 hover:scale-[1.08] hover:brightness-125 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
                     style={{
@@ -621,7 +654,9 @@ export function ChipBurst({ voices = [] }: { voices?: ApprovedVoice[] }) {
           {"● Tap a circle for their story"}
         </p>
 
-        {activeVoice && <BurstQuoteCard voice={activeVoice} onClose={() => setActiveVoice(null)} />}
+        {activeVoice && activeAnchor && (
+          <BurstQuoteCard voice={activeVoice} anchor={activeAnchor} stage={dims} onClose={() => setActiveVoice(null)} />
+        )}
       </div>
     </section>
   )
