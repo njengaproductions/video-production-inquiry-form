@@ -6,6 +6,12 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.21.2 — 2026-10-10
+
+### Voices
+- Chip burst quote card now opens just above the tapped avatar and follows it while you scroll, clamped so it never spills off the stage. It no longer sits fixed at stage center, where it covered the avatar on mobile.
+- The hover/focus name strip only shows once the burst is past 0.22, so it no longer competes with the fading "What our clients say" intro.
+
 ## 0.21.1 — 2026-10-10
 
 ### Voices
