@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { motion } from "framer-motion"
+import { AnimatePresence, motion } from "framer-motion"
 import { useLenis } from "lenis/react"
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react"
 import { useExitProgress, useScrollProgress } from "./use-scroll-progress"
@@ -446,15 +446,18 @@ export function ChipBurst({ voices = [] }: { voices?: ApprovedVoice[] }) {
   }, [rotated, voices])
 
   const [activeVoice, setActiveVoice] = useState<BurstVoice | null>(null)
+  const [hoveredVoice, setHoveredVoice] = useState<BurstVoice | null>(null)
   useEffect(() => {
-    if (burst < 0.2) setActiveVoice(null)
+    if (burst < 0.2) {
+      setActiveVoice(null)
+      setHoveredVoice(null)
+    }
   }, [burst])
 
   const introOpacity = Math.max(0, 1 - burst / 0.22)
   const headlineOpacity = clamp01((burst - 0.28) / 0.2) * clamp01(1 - (burst - 0.72) / 0.28)
   const legendOpacity = clamp01((burst - 0.32) / 0.25) * 0.55
   const avatarOpacity = clamp01((burst - 0.12) / 0.3)
-  const nameOpacity = clamp01((burst - 0.42) / 0.32)
   const ready = dims.w > 0
 
   return (
@@ -523,7 +526,7 @@ export function ChipBurst({ voices = [] }: { voices?: ApprovedVoice[] }) {
               return (
                 <li
                   key={voice.id}
-                  className="absolute left-1/2 top-1/2 z-[15] flex select-none flex-col items-center gap-1.5 will-change-transform"
+                  className="absolute left-1/2 top-1/2 z-[15] flex select-none items-center will-change-transform"
                   style={{
                     opacity: avatarOpacity,
                     transform: `translate(-50%,-50%) translate(${Math.cos(centroidAngle) * avatarReach * burst * HW}px, ${Math.sin(centroidAngle) * avatarReach * burst * HH}px)`,
@@ -538,7 +541,11 @@ export function ChipBurst({ voices = [] }: { voices?: ApprovedVoice[] }) {
                       e.stopPropagation()
                       setActiveVoice(prev => (prev?.id === voice.id ? null : voice))
                     }}
-                    className="flex h-[38px] w-[38px] items-center justify-center overflow-hidden rounded-full text-[9.5px] tracking-[0.05em] transition-[filter] hover:brightness-125 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                    onMouseEnter={() => setHoveredVoice(voice)}
+                    onMouseLeave={() => setHoveredVoice(prev => (prev?.id === voice.id ? null : prev))}
+                    onFocus={() => setHoveredVoice(voice)}
+                    onBlur={() => setHoveredVoice(prev => (prev?.id === voice.id ? null : prev))}
+                    className="flex h-[38px] w-[38px] items-center justify-center overflow-hidden rounded-full text-[9.5px] tracking-[0.05em] transition-[filter,transform] duration-200 hover:scale-[1.08] hover:brightness-125 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
                     style={{
                       pointerEvents: avatarOpacity > 0.5 ? "auto" : "none",
                       border: `1.5px solid ${voice.color}`,
@@ -554,20 +561,33 @@ export function ChipBurst({ voices = [] }: { voices?: ApprovedVoice[] }) {
                       initials(voice.name)
                     )}
                   </button>
-                  <p
-                    className="pointer-events-none whitespace-nowrap text-center text-[9px] font-extralight leading-tight tracking-[0.04em]"
-                    style={{ opacity: nameOpacity, color: `rgba(${r},${g},${b},0.88)` }}
-                  >
-                    {voice.name}
-                    {voice.company && (
-                      <span className="mt-px block text-[7.5px] uppercase tracking-[0.07em] opacity-50">{voice.company}</span>
-                    )}
-                  </p>
                 </li>
               )
             })}
           </ul>
         )}
+
+        <div className="pointer-events-none absolute inset-x-0 bottom-7 z-[16]" aria-live="polite">
+          <AnimatePresence>
+            {hoveredVoice && (
+              <motion.div
+                key={hoveredVoice.id}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 6 }}
+                transition={{ duration: 0.18 }}
+                className="absolute inset-x-0 bottom-0 flex flex-col items-center gap-0.5 text-center"
+              >
+                <span className="font-serif text-base font-light tracking-[0.01em] text-[#f0ece6]">{hoveredVoice.name}</span>
+                {hoveredVoice.company && (
+                  <span className="text-[0.72rem] font-extralight uppercase tracking-[0.06em] text-[#a89880]">
+                    {hoveredVoice.company}
+                  </span>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
         <div
           className="pointer-events-none absolute inset-0 z-[6] flex flex-col items-center justify-center gap-4 px-7 text-center"
