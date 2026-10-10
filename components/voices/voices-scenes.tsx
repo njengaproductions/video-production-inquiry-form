@@ -255,6 +255,14 @@ const BURST_CHIPS = WORDS.map((word, index) => ({
 export function ChipBurst({ voices = [] }: { voices?: ApprovedVoice[] }) {
   const [ref, progress] = useScrollProgress<HTMLElement>(1)
   const burst = Math.sin(Math.PI * progress)
+  const stickyRef = useRef<HTMLDivElement>(null)
+  const [dims, setDims] = useState({ w: 0, h: 0 })
+  useEffect(() => {
+    if (!stickyRef.current) return
+    const ro = new ResizeObserver(([e]) => setDims({ w: e.contentRect.width, h: e.contentRect.height }))
+    ro.observe(stickyRef.current)
+    return () => ro.disconnect()
+  }, [])
 
   const avatars = useMemo(() => {
     if (!voices.length) return []
@@ -272,7 +280,10 @@ export function ChipBurst({ voices = [] }: { voices?: ApprovedVoice[] }) {
         return {
           voice,
           centroidAngle: Math.atan2(sinSum / myChips.length, cosSum / myChips.length),
-          avatarReach: (reachSum / myChips.length) * 0.85,
+          avatarReach: Math.min(
+            (reachSum / myChips.length) * 0.85,
+            Math.min(...myChips.map(c => c.reach)) * 0.80
+          ),
         }
       })
       .filter((x): x is NonNullable<typeof x> => x !== null)
@@ -296,7 +307,7 @@ export function ChipBurst({ voices = [] }: { voices?: ApprovedVoice[] }) {
 
   return (
     <section ref={ref} aria-label="Words clients use to describe us" className={`${SCENE_EDGE} z-40 -mt-[calc(100vh+4px)] h-[calc(300vh+4px)] bg-[#0a0806]`}>
-      <div className="sticky bg-[#0a0806] top-0 flex h-screen items-center justify-center overflow-visible">
+      <div ref={stickyRef} className="sticky bg-[#0a0806] top-0 flex h-screen items-center justify-center overflow-visible">
         <motion.div {...reveal()} style={ABOVE_OVERLAYS}>
           <p className="relative z-10 text-center font-serif text-[22px] font-normal md:text-[28px]" style={{ color: HEADLINE, opacity: 0.25 + burst * 0.75 }}>
             In their <span className="text-primary">words.</span>
@@ -320,6 +331,37 @@ export function ChipBurst({ voices = [] }: { voices?: ApprovedVoice[] }) {
             )
           })}
         </ul>
+        {dims.w > 0 && (
+          <svg
+            className="pointer-events-none absolute inset-0 h-full w-full overflow-visible"
+            style={{ zIndex: 6 }}
+          >
+            {avatars.map(({ voice, centroidAngle, avatarReach }) => {
+              const HW = Math.min(dims.w * 0.42, 420)
+              const HH = Math.min(dims.h * 0.34, 320)
+              const ax = dims.w / 2 + Math.cos(centroidAngle) * avatarReach * burst * HW
+              const ay = dims.h / 2 + Math.sin(centroidAngle) * avatarReach * burst * HH
+              return voice.words
+                .filter(w => BURST_CHIPS.some(c => c.word === w))
+                .map(w => {
+                  const chip = BURST_CHIPS.find(c => c.word === w)!
+                  const local = Math.min(1, Math.max(0, (burst - chip.delay) / (1 - chip.delay)))
+                  const cx = dims.w / 2 + Math.cos(chip.angle) * chip.reach * local * HW
+                  const cy = dims.h / 2 + Math.sin(chip.angle) * chip.reach * local * HH
+                  return (
+                    <line
+                      key={`${voice.id}-${w}`}
+                      x1={ax} y1={ay}
+                      x2={cx} y2={cy}
+                      stroke="rgba(177,89,39,0.18)"
+                      strokeWidth="0.8"
+                      opacity={burst * local}
+                    />
+                  )
+                })
+            })}
+          </svg>
+        )}
         {avatars.map(({ voice, centroidAngle, avatarReach }) => (
           <div
             key={voice.id}
