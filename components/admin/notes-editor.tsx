@@ -32,7 +32,7 @@ export function NotesEditor({ id, initial }: { id: string; initial: string }) {
         }}
         rows={5}
         placeholder="Private notes — only you can see these."
-        className="w-full resize-y rounded-md border border-input bg-field px-3.5 py-2.5 font-sans text-sm text-foreground outline-none focus:border-brand focus:ring-2 focus:ring-brand/15"
+        className="w-full resize-y rounded-md border border-input bg-field px-3.5 py-2.5 font-sans text-[16px] text-foreground outline-none focus:border-brand focus:ring-2 focus:ring-brand/15"
       />
       <div className="mt-2 flex items-center justify-between gap-3">
         <span className="font-sans text-[12px] text-muted-foreground" aria-live="polite">

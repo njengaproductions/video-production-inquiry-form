@@ -13,6 +13,7 @@ import { Resend } from "resend"
 import { BUDGET_TIERS, type BriefForm } from "@/components/brief/data"
 import { normalizeForm, planMeeting, structuralGaps, type Gap, type MeetingPlan } from "@/components/brief/gaps"
 import { saveBrief } from "@/lib/briefs"
+import { sendTrackerEmail } from "@/app/actions/send-tracker-email"
 
 const TO_EMAIL = "njengaproductions@gmail.com"
 
@@ -234,7 +235,9 @@ function buildText(form: BriefForm, gaps: Gap[], plan: MeetingPlan, quote: strin
 export async function submitBrief(
   rawForm: BriefForm,
   rawDocGaps: unknown = [],
-): Promise<{ ok: true; meeting: MeetingPlan; trackerId: string } | { ok: false; error: string }> {
+): Promise<
+  { ok: true; meeting: MeetingPlan; trackerId: string; trackerEmailSent: boolean } | { ok: false; error: string }
+> {
   const apiKey = process.env.RESEND_API_KEY
   if (!apiKey) return { ok: false, error: "Email service is not configured yet." }
 
@@ -250,6 +253,18 @@ export async function submitBrief(
   // Save for the back office first. saveBrief never throws, so the email below always sends.
   const saved = await saveBrief({ form, gaps, meeting: plan, quote })
   const trackerId = saved.ok ? saved.trackerId : ""
+
+  // Send the tracker ID from the server so it arrives even if the client closes the tab. Best-effort.
+  let trackerEmailSent = false
+  if (trackerId) {
+    try {
+      const res = await sendTrackerEmail(form.email.trim(), form.fullName.trim(), trackerId)
+      trackerEmailSent = res.ok
+      if (!res.ok) console.error("[submitBrief] Tracker email failed", { email: form.email, trackerId })
+    } catch (err) {
+      console.error("[submitBrief] Tracker email failed", { email: form.email, trackerId, err })
+    }
+  }
 
   const resend = new Resend(apiKey)
   const from = "NJENGA Productions Co. <hello@njengapro.co>"
@@ -278,7 +293,7 @@ export async function submitBrief(
       return { ok: false, error: "We couldn't send your brief. Please try again." }
     }
 
-    return { ok: true, meeting: plan, trackerId }
+    return { ok: true, meeting: plan, trackerId, trackerEmailSent }
   } catch (err) {
     console.log("[v0] submitBrief exception:", err)
     return { ok: false, error: "Something went wrong. Please try again." }

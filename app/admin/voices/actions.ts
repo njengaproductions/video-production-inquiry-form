@@ -58,7 +58,10 @@ export async function saveVoiceNote(id: string, note: string): Promise<Result> {
 
 export async function uploadVoiceLogo(id: string, file: File): Promise<Result> {
   if (!(await isAdmin())) return { ok: false, error: "Not authorized." }
-  if (!file.type.startsWith("image/")) return { ok: false, error: "Please choose an image file." }
+  const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"]
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+    return { ok: false, error: "Please choose a JPEG, PNG, WebP or GIF image. SVG files are not supported." }
+  }
   if (file.size > 5 * 1024 * 1024) return { ok: false, error: "Logo must be smaller than 5MB." }
 
   try {

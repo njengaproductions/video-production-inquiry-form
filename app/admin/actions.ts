@@ -145,9 +145,15 @@ export async function importBrief(rawForm: unknown, date: string): Promise<Resul
   }
 }
 
+async function stageCount(briefId: string): Promise<number> {
+  const rows = (await sql()`SELECT jsonb_array_length(COALESCE(tracker_stages, '[]'::jsonb)) AS len FROM briefs WHERE id = ${briefId}`) as { len: number | string }[]
+  return Number(rows[0]?.len ?? 0)
+}
+
 export async function toggleTrackerStage(briefId: string, index: number, done: boolean) {
   if (!(await isAdmin())) return
   if (!Number.isInteger(index) || index < 0) return
+  if (index >= (await stageCount(briefId))) return
   await sql()`
     UPDATE briefs
     SET tracker_stages = jsonb_set(tracker_stages, ${`{${index},done}`}::text[], ${done ? "true" : "false"}::jsonb)
@@ -160,6 +166,7 @@ export async function setStageDate(briefId: string, index: number, date: string 
   if (!(await isAdmin())) return
   if (!Number.isInteger(index) || index < 0) return
   if (date !== null && !/^\d{4}-\d{2}-\d{2}$/.test(date)) return
+  if (index >= (await stageCount(briefId))) return
   await sql()`
     UPDATE briefs
     SET tracker_stages = jsonb_set(tracker_stages, ${`{${index},date}`}::text[], ${JSON.stringify(date)}::jsonb)
@@ -171,6 +178,7 @@ export async function setStageDate(briefId: string, index: number, date: string 
 export async function setStageNote(briefId: string, index: number, note: string, noteVisible: boolean) {
   if (!(await isAdmin())) return
   if (!Number.isInteger(index) || index < 0) return
+  if (index >= (await stageCount(briefId))) return
   const trimmed = note.trim().slice(0, 280)
   await sql()`
     UPDATE briefs
