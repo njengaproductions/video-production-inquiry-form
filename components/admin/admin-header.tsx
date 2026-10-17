@@ -16,6 +16,9 @@ export async function AdminHeader({ subtitle = "Client briefs" }: { subtitle?: s
         <Link prefetch href="/admin/voices" className="text-white/70 underline-offset-4 hover:underline">
           Voices{pendingVoices > 0 && <span className="ml-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-brand px-1 text-[10px] font-bold text-foreground">{pendingVoices}</span>}
         </Link>
+        <Link prefetch href="/track" className="text-white/70 underline-offset-4 hover:underline">
+          Tracker
+        </Link>
         <Link prefetch href="/admin/import" className="text-white/70 underline-offset-4 hover:underline">
           Import
         </Link>

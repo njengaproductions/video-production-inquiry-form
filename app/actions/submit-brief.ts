@@ -251,7 +251,7 @@ export async function submitBrief(
   await saveBrief({ form, gaps, meeting: plan, quote })
 
   const resend = new Resend(apiKey)
-  const from = "NJENGA Brief <onboarding@resend.dev>"
+  const from = "NJENGA Productions Co. <hello@njengapro.co>"
 
   const clientEmail = form.email.trim()
   const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clientEmail)

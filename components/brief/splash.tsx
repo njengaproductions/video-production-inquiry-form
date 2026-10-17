@@ -217,13 +217,22 @@ export function Splash({
         </p>
 
         {showButton && (
-          <button
-            type="button"
-            onClick={onStart}
-            className="splash-fade-up splash-button-pulse mt-10 rounded-[9999px] bg-brand px-9 py-3.5 font-sans text-sm font-bold tracking-wide text-white transition-transform duration-200 hover:scale-105 hover:bg-brand/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-foreground"
-          >
-            {hasProgress ? "Continue Your Brief" : "Start Your Project"}
-          </button>
+          <>
+            <button
+              type="button"
+              onClick={onStart}
+              className="splash-fade-up splash-button-pulse mt-10 rounded-[9999px] bg-brand px-9 py-3.5 font-sans text-sm font-bold tracking-wide text-white transition-transform duration-200 hover:scale-105 hover:bg-brand/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-foreground"
+            >
+              {hasProgress ? "Continue Your Brief" : "Start Your Project"}
+            </button>
+            <Link
+              prefetch
+              href="/track"
+              className="splash-fade-up mt-4 font-sans text-[12px] text-white/40 underline-offset-2 transition-colors hover:text-white/70 hover:underline"
+            >
+              Track your project →
+            </Link>
+          </>
         )}
       </div>
     </main>
