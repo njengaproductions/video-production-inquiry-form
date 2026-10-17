@@ -155,3 +155,30 @@ export async function toggleTrackerStage(briefId: string, index: number, done: b
   `
   revalidatePath(`/admin/briefs/${briefId}`)
 }
+
+export async function setStageDate(briefId: string, index: number, date: string | null) {
+  if (!(await isAdmin())) return
+  if (!Number.isInteger(index) || index < 0) return
+  if (date !== null && !/^\d{4}-\d{2}-\d{2}$/.test(date)) return
+  await sql()`
+    UPDATE briefs
+    SET tracker_stages = jsonb_set(tracker_stages, ${`{${index},date}`}::text[], ${JSON.stringify(date)}::jsonb)
+    WHERE id = ${briefId}
+  `
+  revalidatePath(`/admin/briefs/${briefId}`)
+}
+
+export async function setStageNote(briefId: string, index: number, note: string, noteVisible: boolean) {
+  if (!(await isAdmin())) return
+  if (!Number.isInteger(index) || index < 0) return
+  const trimmed = note.trim().slice(0, 280)
+  await sql()`
+    UPDATE briefs
+    SET tracker_stages = jsonb_set(
+      jsonb_set(tracker_stages, ${`{${index},note}`}::text[], ${JSON.stringify(trimmed)}::jsonb),
+      ${`{${index},noteVisible}`}::text[], ${noteVisible ? "true" : "false"}::jsonb
+    )
+    WHERE id = ${briefId}
+  `
+  revalidatePath(`/admin/briefs/${briefId}`)
+}

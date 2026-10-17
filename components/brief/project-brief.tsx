@@ -444,7 +444,7 @@ export function ProjectBrief({
                 <SectionLabel>Part 2 — Your Project</SectionLabel>
                 <RadioGroup label="What type of service do you need?" required id="field-serviceType" status={st("serviceType", true)} options={["Full Production (Shoot + Edit)", "Shoot Only — I need footage captured", "Edit Only — I have existing footage", "Not sure — let's talk"]} value={form.serviceType} onChange={set("serviceType")} />
                 <CheckGroup label="Type of Project" required id="field-projectType" status={st("projectType", true)} options={["Event Coverage", "Commercial", "Brand Film", "Wedding", "Social Media Content", "Other"]} values={form.projectType} onChange={set("projectType")} />
-                <DateField label="Project / Event Date" id="field-projectDate" status={st("projectDate")} value={form.projectDate} onChange={set("projectDate")} showFeeHint />
+                <DateField label="Project / Event Date" id="field-projectDate" status={st("projectDate")} value={form.projectDate} onChange={set("projectDate")} />
                 <TextField label="Project Location" id="field-location" status={st("location")} placeholder="City, venue, or address" value={form.location} onChange={set("location")} />
                 <RadioGroup label="Indoor or Outdoor?" options={["Indoor", "Outdoor", "Both", "N/A — Edit Only"]} value={form.indoorOutdoor} onChange={set("indoorOutdoor")} />
                 <TextField label="Estimated number of subjects / people" id="field-subjects" status={st("subjects")} placeholder="e.g. 2 people, 50 guests" value={form.subjects} onChange={set("subjects")} />
