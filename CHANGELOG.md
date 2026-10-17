@@ -6,6 +6,12 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.25.8 — 2026-10-17
+
+### Tracker
+- `/track` header now has a "Back to site" link next to the logo.
+- Tracker results end with a "Look up another ID" button to search again.
+
 ## 0.25.7 — 2026-10-17
 
 ### Security
