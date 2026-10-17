@@ -158,10 +158,10 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
               </div>
             </div>
             {Array.isArray(b.tracker_stages) && b.tracker_stages.length > 0 && (
-              <ul className="mt-4 divide-y divide-border overflow-hidden rounded-md border border-border">
+              <ul className="mt-4 space-y-1.5">
                 {b.tracker_stages.map((s, i) => (
-                  <li key={s.key}>
-                    <div className="flex flex-wrap items-center gap-3 px-4 py-3">
+                  <li key={s.key} className={`rounded-xl border transition-colors ${s.done ? "border-brand/25 bg-brand/[0.04]" : "border-border bg-surface"}`}>
+                    <div className="flex items-center gap-3 px-3 py-2.5">
                       <form action={async () => {
                         "use server"
                         await toggleTrackerStage(b.id, i, !s.done)
@@ -169,40 +169,51 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
                         <button
                           type="submit"
                           aria-label={`${s.done ? "Mark incomplete" : "Mark complete"}: ${s.label}`}
-                          className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors ${s.done ? "border-brand bg-brand text-white" : "border-border bg-transparent"}`}
+                          className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${s.done ? "border-brand bg-brand text-white" : "border-border bg-surface hover:border-brand/60"}`}
                         >
                           {s.done && (
-                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
                           )}
                         </button>
                       </form>
-                      <span className={`min-w-0 flex-1 font-sans text-[13px] ${s.done ? "text-muted-foreground line-through" : "text-foreground"}`}>{s.label}</span>
+
+                      <span className={`flex-1 font-sans text-[13px] font-medium ${s.done ? "text-muted-foreground line-through" : "text-foreground"}`}>
+                        {s.label}
+                      </span>
+
+                      {s.note && (
+                        <span className={`rounded px-1.5 py-0.5 font-sans text-[10px] font-semibold uppercase tracking-wide ${s.noteVisible ? "bg-accent text-brand" : "bg-muted text-muted-foreground"}`}>
+                          {s.noteVisible ? "Client note" : "Note"}
+                        </span>
+                      )}
+
                       <form
                         action={async (fd: FormData) => {
                           "use server"
                           const date = String(fd.get("date") ?? "").trim()
                           await setStageDate(b.id, i, /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : null)
                         }}
-                        className="flex items-center gap-1.5"
+                        className="flex items-center gap-1"
                       >
                         <input
                           type="date"
                           name="date"
                           defaultValue={s.date ?? ""}
                           aria-label={`Date for ${s.label}`}
-                          className="h-7 rounded border border-border bg-surface px-1.5 font-sans text-[11px] text-foreground [color-scheme:dark] outline-none focus:border-brand"
+                          className="h-6 rounded-md border border-border bg-muted px-1.5 font-sans text-[11px] text-foreground [color-scheme:light] outline-none focus:border-brand"
                         />
-                        <button type="submit" className="h-7 rounded border border-border bg-surface px-2 font-sans text-[11px] text-foreground transition-colors hover:border-brand hover:bg-accent">
+                        <button type="submit" className="h-6 rounded-md border border-border bg-muted px-2 font-sans text-[11px] text-muted-foreground transition-colors hover:border-brand hover:text-brand">
                           Set
                         </button>
                       </form>
                     </div>
+
                     <form
                       action={async (fd: FormData) => {
                         "use server"
                         await setStageNote(b.id, i, String(fd.get("note") ?? "").slice(0, 280), fd.get("visible") === "on")
                       }}
-                      className="border-t border-border bg-surface/50 px-4 pb-3 pl-12"
+                      className="border-t border-border/40 px-3 pb-3 pt-2.5"
                     >
                       <textarea
                         name="note"
@@ -211,14 +222,14 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
                         maxLength={280}
                         placeholder="Add a stage note…"
                         aria-label={`Note for ${s.label}`}
-                        className="mt-2 w-full resize-none rounded border border-border bg-surface px-2.5 py-1.5 font-sans text-[12px] text-foreground outline-none focus:border-brand"
+                        className="w-full resize-none rounded-md border border-border bg-muted/60 px-2.5 py-1.5 font-sans text-[12px] text-foreground placeholder:text-muted-foreground/40 outline-none focus:border-brand focus:bg-surface"
                       />
-                      <div className="mt-1.5 flex items-center justify-between">
-                        <label className="flex items-center gap-2 font-sans text-[11px] text-muted-foreground">
-                          <input type="checkbox" name="visible" defaultChecked={s.noteVisible ?? false} className="h-3 w-3" />
+                      <div className="mt-2 flex items-center justify-between">
+                        <label className="flex cursor-pointer items-center gap-2 font-sans text-[11px] text-muted-foreground">
+                          <input type="checkbox" name="visible" defaultChecked={s.noteVisible ?? false} className="h-3 w-3 accent-[var(--brand)]" />
                           Visible to client
                         </label>
-                        <button type="submit" className="rounded bg-brand px-3 py-1 font-sans text-[11px] font-semibold text-white">
+                        <button type="submit" className="rounded-md bg-brand px-3 py-1 font-sans text-[11px] font-semibold text-white transition-opacity hover:opacity-90">
                           Save
                         </button>
                       </div>
