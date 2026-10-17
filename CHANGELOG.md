@@ -6,6 +6,24 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.22.0 — 2026-10-17
+
+### Project Tracker
+- New public `/track` page: clients enter their 6-digit Project ID and see progress, stages (done, in progress, pending) and dates. No login.
+- New `GET /api/tracker/[code]` endpoint. Returns only name, tier and stages (no contact details), and counts views.
+- New briefs automatically get a unique 6-digit tracker ID and default stages based on their tier (Edit Only, Shoot Only, Wedding, Full Production).
+- Database: added `tracker_id`, `tracker_stages`, `tracker_access_count`, `tracker_last_viewed` to `briefs`.
+
+### Admin
+- Brief detail page: new "Project Tracker" card with the ID, stage pips, view count and last viewed date.
+- Header: added a "Tracker" link.
+
+### Brief
+- Splash: added a "Track your project →" link under the main button.
+
+### Email
+- Brief and Voices emails now send from `NJENGA Productions Co. <hello@njengapro.co>`.
+
 ## 0.21.3 — 2026-10-10
 
 ### Voices

@@ -138,6 +138,35 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
           <NotesEditor id={b.id} initial={b.notes ?? ""} />
         </Card>
 
+        {b.tracker_id && (
+          <section className="lux-card rounded-lg border border-hairline bg-surface p-4 shadow-lg shadow-black/30">
+            <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+              <h2 className="lux-eyebrow m-0">Project Tracker</h2>
+              <span className="font-sans text-[11px] text-muted-foreground">njengapro.co/track · Share this ID with the client</span>
+            </div>
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <p className="m-0 font-mono text-3xl font-bold tracking-[0.2em] text-foreground">{b.tracker_id}</p>
+                {Array.isArray(b.tracker_stages) && b.tracker_stages.length > 0 && (
+                  <div className="mt-2 flex gap-1" aria-label={`${b.tracker_stages.filter((s) => s.done).length} of ${b.tracker_stages.length} stages done`}>
+                    {b.tracker_stages.map((s) => (
+                      <span
+                        key={s.key}
+                        title={s.label}
+                        className={`h-2 w-5 rounded-full ${s.done ? "bg-brand" : "border border-brand-border"}`}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="text-right font-sans text-[12px] text-muted-foreground">
+                <p className="m-0">Views: {b.tracker_access_count ?? 0}</p>
+                <p className="m-0">Last viewed: {b.tracker_last_viewed ? fmtDate(b.tracker_last_viewed) : "Never"}</p>
+              </div>
+            </div>
+          </section>
+        )}
+
         {SECTIONS.map((s) => (
           <Card key={s.title} title={s.title}>
             <dl className="m-0 space-y-2.5">

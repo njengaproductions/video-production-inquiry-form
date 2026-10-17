@@ -34,7 +34,7 @@ export async function submitVoice(input: {
   const resend = new Resend(apiKey)
   const { error } = await resend.emails.send(
     {
-      from: "NJENGA Voices <onboarding@resend.dev>",
+      from: "NJENGA Productions Co. <hello@njengapro.co>",
       to: [TO_EMAIL],
       subject: "New Voice Submission — Pending Review",
       html: `<div style="font-family:Arial,sans-serif;max-width:640px"><p style="color:#b5520a;font-weight:bold;letter-spacing:.12em">NEW VOICE SUBMISSION</p><blockquote style="font-family:Georgia,serif;font-style:italic;border-left:3px solid #b5520a;padding-left:16px">${esc(quote)}</blockquote><p><strong>Name:</strong> ${esc(name || "Not provided")}<br/><strong>Company:</strong> ${esc(company || "Not provided")}<br/><strong>Role:</strong> ${esc(role || "Not provided")}<br/><strong>Words:</strong> ${esc(words.join(", ") || "None selected")}</p><p style="color:#666">Status: Pending Review</p></div>`,

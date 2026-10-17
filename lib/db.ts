@@ -57,6 +57,10 @@ export function ensureSchema(): Promise<void> {
     await db`CREATE INDEX IF NOT EXISTS briefs_status_submitted ON briefs (status, submitted_at DESC)`
     // Trash support: a brief with deleted_at set is hidden everywhere except the Trash tab.
     await db`ALTER TABLE briefs ADD COLUMN IF NOT EXISTS deleted_at timestamptz`
+    await db`ALTER TABLE briefs ADD COLUMN IF NOT EXISTS tracker_id char(6) UNIQUE`
+    await db`ALTER TABLE briefs ADD COLUMN IF NOT EXISTS tracker_stages jsonb`
+    await db`ALTER TABLE briefs ADD COLUMN IF NOT EXISTS tracker_access_count int DEFAULT 0`
+    await db`ALTER TABLE briefs ADD COLUMN IF NOT EXISTS tracker_last_viewed timestamptz`
   })().catch((err) => {
     schemaReady = null // retry on the next call
     throw err
