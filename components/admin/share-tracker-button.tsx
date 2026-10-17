@@ -24,21 +24,21 @@ export function ShareTrackerButton({ briefId, clientEmail }: { briefId: string; 
   }
 
   return (
-    <div className="mt-3 flex flex-col gap-2">
+    <div className="mt-2 flex flex-col gap-1">
       <button
         type="button"
         onClick={share}
         disabled={pending}
-        className="flex w-fit items-center gap-2 rounded-lg border border-brand/40 bg-brand/[0.07] px-3 py-2 font-sans text-xs font-medium text-brand transition-colors hover:border-brand hover:bg-brand/15 disabled:cursor-wait disabled:opacity-60"
+        className="inline-flex w-fit items-center gap-1.5 font-sans text-[11px] font-medium text-brand transition-opacity hover:opacity-70 disabled:cursor-wait disabled:opacity-40"
       >
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
           <rect width="20" height="16" x="2" y="4" rx="2" />
           <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
         </svg>
-        {pending ? "Sending…" : status.kind === "sent" ? "Send again" : "Share this ID with the client"}
+        {pending ? "Sending…" : status.kind === "sent" ? "Send again" : "Email tracker ID to client"}
       </button>
-      <p role="status" aria-live="polite" className="m-0 min-h-[1em] font-sans text-[12px]">
-        {status.kind === "sent" && <span className="text-emerald-400">Tracker ID sent to {status.email}</span>}
+      <p role="status" aria-live="polite" className="m-0 min-h-[1em] font-sans text-[11px]">
+        {status.kind === "sent" && <span className="text-emerald-500">Sent to {status.email}</span>}
         {status.kind === "error" && <span className="text-red-400">{status.message}</span>}
       </p>
     </div>

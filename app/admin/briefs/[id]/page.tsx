@@ -147,15 +147,15 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
               <h2 className="lux-eyebrow m-0">Project Tracker</h2>
               <span className="font-sans text-[11px] text-muted-foreground">njengapro.co/track · Share this ID with the client</span>
             </div>
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <div>
+            <div>
+              <div className="flex items-baseline justify-between gap-2">
                 <p className="m-0 font-mono text-3xl font-bold tracking-[0.2em] text-foreground">{b.tracker_id}</p>
-                <ShareTrackerButton briefId={b.id} clientEmail={clientEmail} />
+                <div className="shrink-0 text-right font-sans text-[12px] text-muted-foreground">
+                  <p className="m-0">Views: {b.tracker_access_count ?? 0}</p>
+                  <p className="m-0">Last viewed: {b.tracker_last_viewed ? fmtDate(b.tracker_last_viewed) : "Never"}</p>
+                </div>
               </div>
-              <div className="text-right font-sans text-[12px] text-muted-foreground">
-                <p className="m-0">Views: {b.tracker_access_count ?? 0}</p>
-                <p className="m-0">Last viewed: {b.tracker_last_viewed ? fmtDate(b.tracker_last_viewed) : "Never"}</p>
-              </div>
+              <ShareTrackerButton briefId={b.id} clientEmail={clientEmail} />
             </div>
             {Array.isArray(b.tracker_stages) && b.tracker_stages.length > 0 && (
               <ul className="mt-4 space-y-1.5">
