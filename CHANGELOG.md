@@ -6,6 +6,16 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.24.1 — 2026-10-17
+
+### Brief form
+- The late-delivery fee hint now shows only on the delivery deadline field, not on the project/event date.
+
+### Admin
+- Each tracker stage on the brief page can now have a date and a note (up to 280 characters), with a "Visible to client" switch for the note.
+
+---
+
 ## 0.24.0 — 2026-10-17
 
 ### Brief form

@@ -5,7 +5,7 @@ import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 import { isAdmin } from "@/auth"
 import { getBrief } from "@/lib/briefs"
-import { toggleTrackerStage } from "@/app/admin/actions"
+import { toggleTrackerStage, setStageDate, setStageNote } from "@/app/admin/actions"
 import { SECTIONS, display } from "@/lib/brief-rows"
 import { AdminHeader } from "@/components/admin/admin-header"
 import { AdminBackdrop } from "@/components/admin/admin-backdrop"
@@ -146,37 +146,82 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
               <span className="font-sans text-[11px] text-muted-foreground">njengapro.co/track · Share this ID with the client</span>
             </div>
             <div className="flex flex-wrap items-end justify-between gap-4">
-              <div>
-                <p className="m-0 font-mono text-3xl font-bold tracking-[0.2em] text-foreground">{b.tracker_id}</p>
-                {Array.isArray(b.tracker_stages) && b.tracker_stages.length > 0 && (
-                  <ul className="mt-3 space-y-2">
-                    {b.tracker_stages.map((s, i) => (
-                      <li key={s.key} className="flex items-center gap-3">
-                        <form action={async () => {
-                          "use server"
-                          await toggleTrackerStage(b.id, i, !s.done)
-                        }}>
-                          <button
-                            type="submit"
-                            aria-label={`${s.done ? "Mark incomplete" : "Mark complete"}: ${s.label}`}
-                            className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors ${s.done ? "border-brand bg-brand text-white" : "border-border bg-transparent"}`}
-                          >
-                            {s.done && (
-                              <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
-                            )}
-                          </button>
-                        </form>
-                        <span className={`font-sans text-[13px] ${s.done ? "text-muted-foreground line-through" : "text-foreground"}`}>{s.label}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
+              <p className="m-0 font-mono text-3xl font-bold tracking-[0.2em] text-foreground">{b.tracker_id}</p>
               <div className="text-right font-sans text-[12px] text-muted-foreground">
                 <p className="m-0">Views: {b.tracker_access_count ?? 0}</p>
                 <p className="m-0">Last viewed: {b.tracker_last_viewed ? fmtDate(b.tracker_last_viewed) : "Never"}</p>
               </div>
             </div>
+            {Array.isArray(b.tracker_stages) && b.tracker_stages.length > 0 && (
+              <ul className="mt-4 divide-y divide-border overflow-hidden rounded-md border border-border">
+                {b.tracker_stages.map((s, i) => (
+                  <li key={s.key}>
+                    <div className="flex flex-wrap items-center gap-3 px-4 py-3">
+                      <form action={async () => {
+                        "use server"
+                        await toggleTrackerStage(b.id, i, !s.done)
+                      }}>
+                        <button
+                          type="submit"
+                          aria-label={`${s.done ? "Mark incomplete" : "Mark complete"}: ${s.label}`}
+                          className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors ${s.done ? "border-brand bg-brand text-white" : "border-border bg-transparent"}`}
+                        >
+                          {s.done && (
+                            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+                          )}
+                        </button>
+                      </form>
+                      <span className={`min-w-0 flex-1 font-sans text-[13px] ${s.done ? "text-muted-foreground line-through" : "text-foreground"}`}>{s.label}</span>
+                      <form
+                        action={async (fd: FormData) => {
+                          "use server"
+                          const date = String(fd.get("date") ?? "").trim()
+                          await setStageDate(b.id, i, /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : null)
+                        }}
+                        className="flex items-center gap-1.5"
+                      >
+                        <input
+                          type="date"
+                          name="date"
+                          defaultValue={s.date ?? ""}
+                          aria-label={`Date for ${s.label}`}
+                          className="h-7 rounded border border-border bg-surface px-1.5 font-sans text-[11px] text-foreground [color-scheme:dark] outline-none focus:border-brand"
+                        />
+                        <button type="submit" className="h-7 rounded border border-border bg-surface px-2 font-sans text-[11px] text-foreground transition-colors hover:border-brand hover:bg-accent">
+                          Set
+                        </button>
+                      </form>
+                    </div>
+                    <form
+                      action={async (fd: FormData) => {
+                        "use server"
+                        await setStageNote(b.id, i, String(fd.get("note") ?? "").slice(0, 280), fd.get("visible") === "on")
+                      }}
+                      className="border-t border-border bg-surface/50 px-4 pb-3 pl-12"
+                    >
+                      <textarea
+                        name="note"
+                        defaultValue={s.note ?? ""}
+                        rows={2}
+                        maxLength={280}
+                        placeholder="Add a stage note…"
+                        aria-label={`Note for ${s.label}`}
+                        className="mt-2 w-full resize-none rounded border border-border bg-surface px-2.5 py-1.5 font-sans text-[12px] text-foreground outline-none focus:border-brand"
+                      />
+                      <div className="mt-1.5 flex items-center justify-between">
+                        <label className="flex items-center gap-2 font-sans text-[11px] text-muted-foreground">
+                          <input type="checkbox" name="visible" defaultChecked={s.noteVisible ?? false} className="h-3 w-3" />
+                          Visible to client
+                        </label>
+                        <button type="submit" className="rounded bg-brand px-3 py-1 font-sans text-[11px] font-semibold text-white">
+                          Save
+                        </button>
+                      </div>
+                    </form>
+                  </li>
+                ))}
+              </ul>
+            )}
           </section>
         )}
 

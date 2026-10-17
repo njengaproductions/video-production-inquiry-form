@@ -11,7 +11,9 @@ export type TrackerStage = {
   key: string
   label: string
   done: boolean
-  date?: string
+  date?: string | null
+  note?: string
+  noteVisible?: boolean
 }
 
 export type BriefRow = {
