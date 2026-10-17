@@ -3,6 +3,7 @@
 // app/admin/actions.ts — every action re-checks admin access on the server.
 import { revalidatePath } from "next/cache"
 import { isAdmin } from "@/auth"
+import { sql } from "@/lib/db"
 import { findByEmail, getBrief, insertImported, purgeBrief, restoreBrief, setNotes, setStatus, trashBrief } from "@/lib/briefs"
 import { isStatus } from "@/lib/brief-status"
 import { parseBriefEmail, pickForm } from "@/lib/brief-rows"
@@ -142,4 +143,15 @@ export async function importBrief(rawForm: unknown, date: string): Promise<Resul
   } catch {
     return { ok: false, error: "Couldn't import that brief. Try again." }
   }
+}
+
+export async function toggleTrackerStage(briefId: string, index: number, done: boolean) {
+  if (!(await isAdmin())) return
+  if (!Number.isInteger(index) || index < 0) return
+  await sql()`
+    UPDATE briefs
+    SET tracker_stages = jsonb_set(tracker_stages, ${`{${index},done}`}::text[], ${done ? "true" : "false"}::jsonb)
+    WHERE id = ${briefId}
+  `
+  revalidatePath(`/admin/briefs/${briefId}`)
 }

@@ -6,6 +6,15 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.24.0 — 2026-10-17
+
+### Brief form
+- `DateField` upgraded: past dates are disabled, today is ringed, arrow keys move between days (Enter/Space selects, Escape closes), and the trigger shows the date written out (e.g. "October 17, 2026") with a calendar icon.
+- New `showFeeHint` option, now on both Project / Event Date and delivery deadline: under 7 days away shows a rush-fee notice, under 14 days shows a tight-timeline notice.
+
+### Admin
+- The Project Tracker card now lists each stage with a checkbox. Clicking it marks the stage done or not done and saves straight away (`toggleTrackerStage` in `app/admin/actions.ts`, admin-only).
+
 ## 0.23.0 — 2026-10-17
 
 ### Brief form
