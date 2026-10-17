@@ -182,3 +182,17 @@ export async function setStageNote(briefId: string, index: number, note: string,
   `
   revalidatePath(`/admin/briefs/${briefId}`)
 }
+
+export async function shareTrackerWithClient(briefId: string): Promise<Result> {
+  const denied = await guard()
+  if (denied) return denied
+  const b = await getBrief(briefId)
+  if (!b) return { ok: false, error: "Brief not found." }
+  if (!b.tracker_id) return { ok: false, error: "No tracker ID assigned yet." }
+  if (!b.client_email) return { ok: false, error: "No client email on file." }
+  const { sendTrackerEmail } = await import("@/app/actions/send-tracker-email")
+  const result = await sendTrackerEmail(b.client_email, b.client_name, b.tracker_id)
+  if (!result.ok) return { ok: false, error: "Email failed. Check Resend logs." }
+  revalidatePath(`/admin/briefs/${briefId}`)
+  return { ok: true }
+}

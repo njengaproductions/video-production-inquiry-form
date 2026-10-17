@@ -169,7 +169,7 @@ export async function saveBrief(input: {
   gaps: Gap[]
   meeting: MeetingPlan
   quote: string
-}): Promise<boolean> {
+}): Promise<{ ok: true; trackerId: string } | { ok: false }> {
   try {
     await ensureSchema()
     const f = input.form
@@ -190,10 +190,10 @@ export async function saveBrief(input: {
         ${trackerId},
         ${JSON.stringify(stages)}::jsonb
       )`
-    return true
+    return { ok: true, trackerId }
   } catch (err) {
     console.log("[v0] saveBrief error:", err instanceof Error ? err.message : String(err))
-    return false
+    return { ok: false }
   }
 }
 

@@ -6,6 +6,19 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.25.0 — 2026-10-17
+
+### Brief form
+- The thank-you screen now shows the client's 6-digit Project Tracker ID, with "Copy ID to Clipboard" and "Send to My Email" buttons.
+
+### Email
+- New tracker email that sends the client their Project ID and a link to njengapro.co/track.
+
+### Admin
+- The Project Tracker card on each brief has a "Share this ID with the client" button that emails the ID to the client.
+
+---
+
 ## 0.24.1 — 2026-10-17
 
 ### Brief form

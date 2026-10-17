@@ -234,7 +234,7 @@ function buildText(form: BriefForm, gaps: Gap[], plan: MeetingPlan, quote: strin
 export async function submitBrief(
   rawForm: BriefForm,
   rawDocGaps: unknown = [],
-): Promise<{ ok: true; meeting: MeetingPlan } | { ok: false; error: string }> {
+): Promise<{ ok: true; meeting: MeetingPlan; trackerId: string } | { ok: false; error: string }> {
   const apiKey = process.env.RESEND_API_KEY
   if (!apiKey) return { ok: false, error: "Email service is not configured yet." }
 
@@ -248,7 +248,8 @@ export async function submitBrief(
   const quote = quoteRange(form)
 
   // Save for the back office first. saveBrief never throws, so the email below always sends.
-  await saveBrief({ form, gaps, meeting: plan, quote })
+  const saved = await saveBrief({ form, gaps, meeting: plan, quote })
+  const trackerId = saved.ok ? saved.trackerId : ""
 
   const resend = new Resend(apiKey)
   const from = "NJENGA Productions Co. <hello@njengapro.co>"
@@ -277,7 +278,7 @@ export async function submitBrief(
       return { ok: false, error: "We couldn't send your brief. Please try again." }
     }
 
-    return { ok: true, meeting: plan }
+    return { ok: true, meeting: plan, trackerId }
   } catch (err) {
     console.log("[v0] submitBrief exception:", err)
     return { ok: false, error: "Something went wrong. Please try again." }
