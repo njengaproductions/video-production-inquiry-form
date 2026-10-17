@@ -6,6 +6,14 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.23.0 — 2026-10-17
+
+### Brief form
+- New calendar date picker (`DateField`) replaces the typed "MM / DD / YYYY" inputs for Project / Event Date and delivery deadline. Dates are still stored as `MM/DD/YYYY`.
+
+### Project Tracker
+- New admin-only `POST /api/admin/backfill-trackers` gives existing briefs without a Project ID an ID and their tier's default stages. Returns `{ backfilled: n }`.
+
 ## 0.22.0 — 2026-10-17
 
 ### Project Tracker
