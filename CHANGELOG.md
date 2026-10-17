@@ -6,6 +6,12 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.25.9 — 2026-10-17
+
+### Admin
+- Tracker stage date inputs now show their text (explicit foreground color, `bg-field` background).
+- Stage note forms collapse behind an "Add note" toggle when empty, and open with a preview when a note exists. Removed the "Note"/"Client note" badge.
+
 ## 0.25.8 — 2026-10-17
 
 ### Tracker
