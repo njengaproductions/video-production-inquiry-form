@@ -5,6 +5,7 @@ import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 import { isAdmin } from "@/auth"
 import { getBrief } from "@/lib/briefs"
+import { toggleTrackerStage } from "@/app/admin/actions"
 import { SECTIONS, display } from "@/lib/brief-rows"
 import { AdminHeader } from "@/components/admin/admin-header"
 import { AdminBackdrop } from "@/components/admin/admin-backdrop"
@@ -148,15 +149,27 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
               <div>
                 <p className="m-0 font-mono text-3xl font-bold tracking-[0.2em] text-foreground">{b.tracker_id}</p>
                 {Array.isArray(b.tracker_stages) && b.tracker_stages.length > 0 && (
-                  <div className="mt-2 flex gap-1" aria-label={`${b.tracker_stages.filter((s) => s.done).length} of ${b.tracker_stages.length} stages done`}>
-                    {b.tracker_stages.map((s) => (
-                      <span
-                        key={s.key}
-                        title={s.label}
-                        className={`h-2 w-5 rounded-full ${s.done ? "bg-brand" : "border border-brand-border"}`}
-                      />
+                  <ul className="mt-3 space-y-2">
+                    {b.tracker_stages.map((s, i) => (
+                      <li key={s.key} className="flex items-center gap-3">
+                        <form action={async () => {
+                          "use server"
+                          await toggleTrackerStage(b.id, i, !s.done)
+                        }}>
+                          <button
+                            type="submit"
+                            aria-label={`${s.done ? "Mark incomplete" : "Mark complete"}: ${s.label}`}
+                            className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors ${s.done ? "border-brand bg-brand text-white" : "border-border bg-transparent"}`}
+                          >
+                            {s.done && (
+                              <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+                            )}
+                          </button>
+                        </form>
+                        <span className={`font-sans text-[13px] ${s.done ? "text-muted-foreground line-through" : "text-foreground"}`}>{s.label}</span>
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 )}
               </div>
               <div className="text-right font-sans text-[12px] text-muted-foreground">
