@@ -6,6 +6,13 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.25.4 — 2026-10-17
+
+### Admin
+- The tracker stage date picker opens in dark colours again, matching the admin theme.
+
+---
+
 ## 0.25.3 — 2026-10-17
 
 ### Admin
