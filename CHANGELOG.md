@@ -6,6 +6,12 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.25.5 — 2026-10-17
+
+### Admin
+- "Share Tracker" button now always shows brand styling (brand border, tint, and text), not only on hover.
+- Tracker stage date inputs force `colorScheme: "light"` inline so the native calendar icon renders black.
+
 ## 0.25.4 — 2026-10-17
 
 ### Admin
