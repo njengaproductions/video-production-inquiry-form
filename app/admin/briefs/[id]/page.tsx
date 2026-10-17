@@ -5,7 +5,8 @@ import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 import { isAdmin } from "@/auth"
 import { getBrief } from "@/lib/briefs"
-import { toggleTrackerStage, setStageDate, setStageNote, shareTrackerWithClient } from "@/app/admin/actions"
+import { toggleTrackerStage, setStageDate, setStageNote } from "@/app/admin/actions"
+import { ShareTrackerButton } from "@/components/admin/share-tracker-button"
 import { SECTIONS, display } from "@/lib/brief-rows"
 import { AdminHeader } from "@/components/admin/admin-header"
 import { AdminBackdrop } from "@/components/admin/admin-backdrop"
@@ -149,23 +150,7 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
               <div>
                 <p className="m-0 font-mono text-3xl font-bold tracking-[0.2em] text-foreground">{b.tracker_id}</p>
                 {b.client_email ? (
-                  <form
-                    action={async () => {
-                      "use server"
-                      await shareTrackerWithClient(b.id)
-                    }}
-                  >
-                    <button
-                      type="submit"
-                      className="mt-3 flex items-center gap-2 rounded-lg border border-white/15 bg-white/[0.04] px-3 py-2 font-sans text-xs font-medium text-white/70 transition-colors hover:border-brand/40 hover:bg-brand/10 hover:text-brand"
-                    >
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                        <rect width="20" height="16" x="2" y="4" rx="2" />
-                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                      </svg>
-                      Share this ID with the client
-                    </button>
-                  </form>
+                  <ShareTrackerButton briefId={b.id} clientEmail={b.client_email} />
                 ) : (
                   <p className="mt-2 font-sans text-xs text-white/30">No client email on file</p>
                 )}

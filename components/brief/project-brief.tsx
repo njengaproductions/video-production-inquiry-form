@@ -44,6 +44,8 @@ export function ProjectBrief({
   const [trackerId, setTrackerId] = useState("")
   const [emailSent, setEmailSent] = useState(false)
   const [emailSending, setEmailSending] = useState(false)
+  const [sendError, setSendError] = useState("")
+  const [copied, setCopied] = useState(false)
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
@@ -331,9 +333,13 @@ export function ProjectBrief({
     const handleSendEmail = async () => {
       if (emailSent || emailSending || !trackerId) return
       setEmailSending(true)
+      setSendError("")
       try {
         const res = await sendTrackerEmail(form.email, form.fullName, trackerId)
         if (res.ok) setEmailSent(true)
+        else setSendError("We couldn't send the email. Please copy your ID instead, or try again.")
+      } catch {
+        setSendError("We couldn't send the email. Please copy your ID instead, or try again.")
       } finally {
         setEmailSending(false)
       }
@@ -343,6 +349,8 @@ export function ProjectBrief({
       if (!trackerId) return
       try {
         await navigator.clipboard.writeText(trackerId)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
       } catch {
         /* clipboard unavailable */
       }
@@ -390,7 +398,7 @@ export function ProjectBrief({
                     <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
                     <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
                   </svg>
-                  Copy ID to Clipboard
+                  {copied ? "Copied!" : "Copy ID to Clipboard"}
                 </button>
                 <button
                   type="button"
@@ -413,10 +421,13 @@ export function ProjectBrief({
                         <rect width="20" height="16" x="2" y="4" rx="2" />
                         <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
                       </svg>
-                      Send to My Email
+                      {sendError ? "Try Again" : "Send to My Email"}
                     </>
                   )}
                 </button>
+                <p role="status" aria-live="polite" className="m-0 font-sans text-[12px] text-red-400">
+                  {sendError}
+                </p>
               </div>
               <p className="mt-4 font-sans text-[11px] leading-relaxed text-white/30">
                 Visit <span className="text-white/50">njengapro.co/track</span> anytime to check your project status.
