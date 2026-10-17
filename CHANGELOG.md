@@ -6,6 +6,18 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.25.10 — 2026-10-17
+
+### Splash
+- Nav chips (Voices, Admin) are more compact: `py-1.5`, no 44px minimum height.
+
+### Tracker page
+- `/track` now uses the admin photo background with a gradient overlay. Signed-in admins see the admin header instead of the public header.
+
+### Admin
+- "Email tracker ID to client" is now a compact inline text action instead of a bordered button.
+- The tracker ID and its view stats now stay on one row on mobile, with the share action underneath.
+
 ## 0.25.9 — 2026-10-17
 
 ### Admin

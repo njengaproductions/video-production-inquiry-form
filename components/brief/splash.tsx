@@ -146,7 +146,7 @@ export function Splash({
       >
         <Link prefetch
           href="/voices"
-          className="rounded-full border border-brand bg-brand-light px-4 py-2.5 min-h-[44px] text-xs font-medium text-brand transition-opacity hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+          className="rounded-full border border-brand bg-brand-light px-4 py-1.5 text-xs font-medium text-brand transition-opacity hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
         >
           Voices
         </Link>
@@ -154,7 +154,7 @@ export function Splash({
         <Link prefetch
           href="/admin"
           rel="nofollow"
-          className="rounded-full border border-white/[0.15] bg-transparent px-4 py-2.5 min-h-[44px] text-xs font-medium text-white/[0.4] transition-colors hover:border-white/30 hover:text-white/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+          className="rounded-full border border-white/[0.15] bg-transparent px-4 py-1.5 text-xs font-medium text-white/[0.4] transition-colors hover:border-white/30 hover:text-white/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
         >
           Admin
         </Link>
