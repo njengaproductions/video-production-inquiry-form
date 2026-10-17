@@ -189,9 +189,10 @@ export async function shareTrackerWithClient(briefId: string): Promise<Result> {
   const b = await getBrief(briefId)
   if (!b) return { ok: false, error: "Brief not found." }
   if (!b.tracker_id) return { ok: false, error: "No tracker ID assigned yet." }
-  if (!b.client_email) return { ok: false, error: "No client email on file." }
+  const email = b.client_email ?? (b.form as { email?: string } | null)?.email ?? null
+  if (!email) return { ok: false, error: "No client email on file." }
   const { sendTrackerEmail } = await import("@/app/actions/send-tracker-email")
-  const result = await sendTrackerEmail(b.client_email, b.client_name, b.tracker_id)
+  const result = await sendTrackerEmail(email, b.client_name, b.tracker_id)
   if (!result.ok) return { ok: false, error: "Email failed. Check Resend logs." }
   revalidatePath(`/admin/briefs/${briefId}`)
   return { ok: true }
