@@ -12,10 +12,18 @@ export const metadata: Metadata = {
 export default function TrackPage() {
   return (
     <main className="flex min-h-screen flex-col bg-[#0f0f0f] text-white">
-      <header className="px-6 py-6">
+      <header className="flex items-center justify-between px-6 py-5">
         <Link prefetch href="/" className="inline-block rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B15927]">
           <span className="block font-serif text-lg font-bold tracking-[0.14em] text-[#B15927]">NJENGA</span>
           <span className="block font-serif text-[9px] font-light tracking-[6px] text-white/50">PRODUCTIONS CO.</span>
+        </Link>
+        <Link
+          prefetch
+          href="/"
+          className="flex items-center gap-1.5 rounded-md px-3 py-2 font-sans text-[12px] text-white/50 transition-colors hover:text-white/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B15927]"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
+          Back to site
         </Link>
       </header>
 
