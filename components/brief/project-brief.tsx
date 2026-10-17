@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react"
 
 import { submitBrief } from "@/app/actions/submit-brief"
 import { suggestTier } from "@/app/actions/suggest-tier"
+import { sendTrackerEmail } from "@/app/actions/send-tracker-email"
 import type { ExtractedBrief } from "@/app/actions/extract-brief"
 import { BUDGET_TIERS, INITIAL_FORM, SECTIONS, type BriefForm } from "./data"
 import { CheckGroup, DateField, RadioGroup, SectionLabel, TextArea, TextField, type FieldStatus } from "./fields"
@@ -40,6 +41,11 @@ export function ProjectBrief({
   const [dir, setDir] = useState<"forward" | "back">("forward")
   const [celebrate, setCelebrate] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [trackerId, setTrackerId] = useState("")
+  const [emailSent, setEmailSent] = useState(false)
+  const [emailSending, setEmailSending] = useState(false)
+  const [sendError, setSendError] = useState("")
+  const [copied, setCopied] = useState(false)
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
@@ -276,6 +282,7 @@ export function ProjectBrief({
     setSending(false)
     if (result.ok) {
       setMeeting(result.meeting)
+      if (result.trackerId) setTrackerId(result.trackerId)
       setSubmitted(true)
     } else {
       setError(result.error)
@@ -321,25 +328,114 @@ export function ProjectBrief({
   }
 
   if (submitted) {
+    const digits = trackerId ? trackerId.split("") : []
+
+    const handleSendEmail = async () => {
+      if (emailSent || emailSending || !trackerId) return
+      setEmailSending(true)
+      setSendError("")
+      try {
+        const res = await sendTrackerEmail(form.email, form.fullName, trackerId)
+        if (res.ok) setEmailSent(true)
+        else setSendError("We couldn't send the email. Please copy your ID instead, or try again.")
+      } catch {
+        setSendError("We couldn't send the email. Please copy your ID instead, or try again.")
+      } finally {
+        setEmailSending(false)
+      }
+    }
+
+    const handleCopy = async () => {
+      if (!trackerId) return
+      try {
+        await navigator.clipboard.writeText(trackerId)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+      } catch {
+        /* clipboard unavailable */
+      }
+    }
+
     return (
       <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-foreground px-6">
-        <div
-          aria-hidden="true"
-          className="splash-grain pointer-events-none absolute inset-[-50%] z-0 opacity-[0.06] mix-blend-screen"
-        />
-        <div className="relative z-10 max-w-md text-center">
+        <div aria-hidden="true" className="splash-grain pointer-events-none absolute inset-[-50%] z-0 opacity-[0.06] mix-blend-screen" />
+        <div className="relative z-10 w-full max-w-sm text-center">
           <div className="brief-cinematic mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-brand text-primary-foreground">
             <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
               <path d="M20 6 9 17l-5-5" />
             </svg>
           </div>
-          <h1 className="brief-cinematic-delay lux-headline mb-3 text-balance text-white">
-            {"We're excited to create something legendary with you."}
+          <h1 className="brief-cinematic-delay lux-headline mb-2 text-balance text-white">
+            {"We're excited to work with you."}
           </h1>
-          <p className="brief-cinematic-delay mb-6 font-sans text-sm leading-relaxed text-white/60">
-            Thanks for reaching out. Expect to hear from us within 24–48 hours.
+          <p className="brief-cinematic-delay mb-8 font-sans text-sm leading-relaxed text-white/55">
+            Your brief is in. Expect to hear from us within 24–48 hours.
           </p>
-          <p className="brief-cinematic-delay-2 font-serif text-[15px] italic text-brand">Content that builds brands.</p>
+
+          {trackerId && (
+            <div className="brief-cinematic-delay rounded-xl border border-white/10 bg-white/[0.04] px-6 py-6">
+              <p className="mb-4 font-sans text-[11px] font-semibold uppercase tracking-[0.12em] text-white/40">
+                Your Project Tracker ID
+              </p>
+              <div className="mb-5 flex items-center justify-center gap-2" aria-label={`Tracker ID ${trackerId}`}>
+                {digits.map((d, i) => (
+                  <div
+                    key={i}
+                    aria-hidden="true"
+                    className="flex h-14 w-10 items-center justify-center rounded-lg border border-brand/50 bg-foreground font-serif text-2xl font-bold text-brand"
+                  >
+                    {d}
+                  </div>
+                ))}
+              </div>
+              <div className="flex flex-col gap-2.5">
+                <button
+                  type="button"
+                  onClick={handleCopy}
+                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-white/15 bg-white/[0.06] px-4 py-2.5 font-sans text-sm font-medium text-white transition-colors hover:bg-white/10"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+                    <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+                  </svg>
+                  {copied ? "Copied!" : "Copy ID to Clipboard"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSendEmail}
+                  disabled={emailSent || emailSending || !form.email}
+                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-brand/40 bg-brand/10 px-4 py-2.5 font-sans text-sm font-medium text-brand transition-colors hover:bg-brand/20 disabled:cursor-default disabled:opacity-50"
+                >
+                  {emailSent ? (
+                    <>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                        <path d="M20 6 9 17l-5-5" />
+                      </svg>
+                      Sent to {form.email}
+                    </>
+                  ) : emailSending ? (
+                    "Sending…"
+                  ) : (
+                    <>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                        <rect width="20" height="16" x="2" y="4" rx="2" />
+                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                      </svg>
+                      {sendError ? "Try Again" : "Send to My Email"}
+                    </>
+                  )}
+                </button>
+                <p role="status" aria-live="polite" className="m-0 font-sans text-[12px] text-red-400">
+                  {sendError}
+                </p>
+              </div>
+              <p className="mt-4 font-sans text-[11px] leading-relaxed text-white/30">
+                Visit <span className="text-white/50">njengapro.co/track</span> anytime to check your project status.
+              </p>
+            </div>
+          )}
+
+          <p className="brief-cinematic-delay-2 mt-8 font-serif text-[15px] italic text-brand">Content that builds brands.</p>
         </div>
       </main>
     )

@@ -6,6 +6,7 @@ import { notFound, redirect } from "next/navigation"
 import { isAdmin } from "@/auth"
 import { getBrief } from "@/lib/briefs"
 import { toggleTrackerStage, setStageDate, setStageNote } from "@/app/admin/actions"
+import { ShareTrackerButton } from "@/components/admin/share-tracker-button"
 import { SECTIONS, display } from "@/lib/brief-rows"
 import { AdminHeader } from "@/components/admin/admin-header"
 import { AdminBackdrop } from "@/components/admin/admin-backdrop"
@@ -146,7 +147,14 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
               <span className="font-sans text-[11px] text-muted-foreground">njengapro.co/track · Share this ID with the client</span>
             </div>
             <div className="flex flex-wrap items-end justify-between gap-4">
-              <p className="m-0 font-mono text-3xl font-bold tracking-[0.2em] text-foreground">{b.tracker_id}</p>
+              <div>
+                <p className="m-0 font-mono text-3xl font-bold tracking-[0.2em] text-foreground">{b.tracker_id}</p>
+                {b.client_email ? (
+                  <ShareTrackerButton briefId={b.id} clientEmail={b.client_email} />
+                ) : (
+                  <p className="mt-2 font-sans text-xs text-white/30">No client email on file</p>
+                )}
+              </div>
               <div className="text-right font-sans text-[12px] text-muted-foreground">
                 <p className="m-0">Views: {b.tracker_access_count ?? 0}</p>
                 <p className="m-0">Last viewed: {b.tracker_last_viewed ? fmtDate(b.tracker_last_viewed) : "Never"}</p>

@@ -6,6 +6,30 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.25.1 — 2026-10-17
+
+### Admin
+- "Share this ID with the client" now shows "Sending…", then a green "Tracker ID sent to …" confirmation or a red error message (e.g. email failed, no tracker ID).
+
+### Brief form
+- "Send to My Email" on the thank-you screen now shows an error message with a "Try Again" option if the email fails.
+- "Copy ID to Clipboard" briefly changes to "Copied!" after copying.
+
+---
+
+## 0.25.0 — 2026-10-17
+
+### Brief form
+- The thank-you screen now shows the client's 6-digit Project Tracker ID, with "Copy ID to Clipboard" and "Send to My Email" buttons.
+
+### Email
+- New tracker email that sends the client their Project ID and a link to njengapro.co/track.
+
+### Admin
+- The Project Tracker card on each brief has a "Share this ID with the client" button that emails the ID to the client.
+
+---
+
 ## 0.24.1 — 2026-10-17
 
 ### Brief form
