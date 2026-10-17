@@ -29,7 +29,7 @@ export function ShareTrackerButton({ briefId, clientEmail }: { briefId: string; 
         type="button"
         onClick={share}
         disabled={pending}
-        className="flex w-fit items-center gap-2 rounded-lg border border-white/15 bg-white/[0.04] px-3 py-2 font-sans text-xs font-medium text-white/70 transition-colors hover:border-brand/40 hover:bg-brand/10 hover:text-brand disabled:cursor-wait disabled:opacity-60"
+        className="flex w-fit items-center gap-2 rounded-lg border border-brand/40 bg-brand/[0.07] px-3 py-2 font-sans text-xs font-medium text-brand transition-colors hover:border-brand hover:bg-brand/15 disabled:cursor-wait disabled:opacity-60"
       >
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
           <rect width="20" height="16" x="2" y="4" rx="2" />
