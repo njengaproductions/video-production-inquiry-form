@@ -6,6 +6,13 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.25.2 — 2026-10-17
+
+### Admin
+- Brief detail page falls back to the email in the submitted form when `client_email` is empty — fixes "No client email on file" showing for briefs that do have an email. Applies to the Reply button, contact link, and "Share this ID with the client".
+
+---
+
 ## 0.25.1 — 2026-10-17
 
 ### Admin

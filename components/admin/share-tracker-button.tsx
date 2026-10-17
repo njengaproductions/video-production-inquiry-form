@@ -5,9 +5,11 @@ import { shareTrackerWithClient } from "@/app/admin/actions"
 
 type Status = { kind: "idle" } | { kind: "sent"; email: string } | { kind: "error"; message: string }
 
-export function ShareTrackerButton({ briefId, clientEmail }: { briefId: string; clientEmail: string }) {
+export function ShareTrackerButton({ briefId, clientEmail }: { briefId: string; clientEmail: string | null }) {
   const [status, setStatus] = useState<Status>({ kind: "idle" })
   const [pending, startTransition] = useTransition()
+
+  if (!clientEmail) return <p className="mt-2 font-sans text-xs text-white/30">No client email on file</p>
 
   const share = () => {
     setStatus({ kind: "idle" })

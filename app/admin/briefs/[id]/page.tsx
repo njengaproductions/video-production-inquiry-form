@@ -65,8 +65,9 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
   const gaps = Array.isArray(b.gaps) ? b.gaps : []
   const critical = gaps.filter((g) => g.severity === "critical")
   const minor = gaps.filter((g) => g.severity === "minor")
-  const reply = b.client_email
-    ? `mailto:${b.client_email}?subject=${encodeURIComponent("Re: Your project brief — NJENGA Productions Co.")}`
+  const clientEmail = b.client_email ?? (typeof f?.email === "string" ? f.email : null)
+  const reply = clientEmail
+    ? `mailto:${clientEmail}?subject=${encodeURIComponent("Re: Your project brief — NJENGA Productions Co.")}`
     : null
 
   return (
@@ -99,9 +100,9 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
             )}
           </div>
           <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 font-sans text-[13px]">
-            {b.client_email && (
-              <a href={`mailto:${b.client_email}`} className="text-brand underline-offset-4 hover:underline">
-                {b.client_email}
+            {clientEmail && (
+              <a href={`mailto:${clientEmail}`} className="text-brand underline-offset-4 hover:underline">
+                {clientEmail}
               </a>
             )}
             {f.phone && (
@@ -149,11 +150,7 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
                 <p className="m-0 font-mono text-3xl font-bold tracking-[0.2em] text-foreground">{b.tracker_id}</p>
-                {b.client_email ? (
-                  <ShareTrackerButton briefId={b.id} clientEmail={b.client_email} />
-                ) : (
-                  <p className="mt-2 font-sans text-xs text-white/30">No client email on file</p>
-                )}
+                <ShareTrackerButton briefId={b.id} clientEmail={clientEmail} />
               </div>
               <div className="text-right font-sans text-[12px] text-muted-foreground">
                 <p className="m-0">Views: {b.tracker_access_count ?? 0}</p>
