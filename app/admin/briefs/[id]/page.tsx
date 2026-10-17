@@ -181,12 +181,6 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
                         {s.label}
                       </span>
 
-                      {s.note && (
-                        <span className={`rounded px-1.5 py-0.5 font-sans text-[10px] font-semibold uppercase tracking-wide ${s.noteVisible ? "bg-accent text-brand" : "bg-muted text-muted-foreground"}`}>
-                          {s.noteVisible ? "Client note" : "Note"}
-                        </span>
-                      )}
-
                       <form
                         action={async (fd: FormData) => {
                           "use server"
@@ -200,8 +194,8 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
                           name="date"
                           defaultValue={s.date ?? ""}
                           aria-label={`Date for ${s.label}`}
-                          className="h-9 rounded-md border border-border bg-muted px-1.5 font-sans text-[16px] text-foreground outline-none focus:border-brand"
-                          style={{ colorScheme: "light" }}
+                          className="h-9 rounded-md border border-border bg-field px-1.5 font-sans text-[16px] text-foreground outline-none focus:border-brand"
+                          style={{ colorScheme: "light", color: "var(--foreground)" }}
                         />
                         <button type="submit" className="h-9 rounded-md border border-border bg-muted px-3 font-sans text-[11px] text-muted-foreground transition-colors hover:border-brand hover:text-brand">
                           Set
@@ -209,32 +203,44 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
                       </form>
                     </div>
 
-                    <form
-                      action={async (fd: FormData) => {
-                        "use server"
-                        await setStageNote(b.id, i, String(fd.get("note") ?? "").slice(0, 280), fd.get("visible") === "on")
-                      }}
-                      className="border-t border-border/40 px-3 pb-3 pt-2.5"
-                    >
-                      <textarea
-                        name="note"
-                        defaultValue={s.note ?? ""}
-                        rows={2}
-                        maxLength={280}
-                        placeholder="Add a stage note…"
-                        aria-label={`Note for ${s.label}`}
-                        className="w-full resize-none rounded-md border border-border bg-muted/60 px-2.5 py-1.5 font-sans text-[12px] text-foreground placeholder:text-muted-foreground/40 outline-none focus:border-brand focus:bg-surface"
-                      />
-                      <div className="mt-2 flex items-center justify-between">
-                        <label className="flex cursor-pointer items-center gap-2 py-2 font-sans text-[11px] text-muted-foreground">
-                          <input type="checkbox" name="visible" defaultChecked={s.noteVisible ?? false} className="h-4 w-4 accent-[var(--brand)]" />
-                          Visible to client
-                        </label>
-                        <button type="submit" className="rounded-md bg-brand px-3 py-2 font-sans text-[11px] font-semibold text-white transition-opacity hover:opacity-90">
-                          Save
-                        </button>
-                      </div>
-                    </form>
+                    <details className="border-t border-border/40" {...(s.note ? { open: true } : {})}>
+                      <summary className="flex cursor-pointer select-none list-none items-center gap-1.5 px-3 py-2 font-sans text-[11px] text-muted-foreground hover:text-foreground [&::-webkit-details-marker]:hidden">
+                        {s.note ? (
+                          <>
+                            <span className="flex-1 truncate text-foreground/70">{s.note}</span>
+                            <span className="ml-2 shrink-0 text-brand">Edit</span>
+                          </>
+                        ) : (
+                          <span className="text-muted-foreground/50">＋ Add note</span>
+                        )}
+                      </summary>
+                      <form
+                        action={async (fd: FormData) => {
+                          "use server"
+                          await setStageNote(b.id, i, String(fd.get("note") ?? "").slice(0, 280), fd.get("visible") === "on")
+                        }}
+                        className="px-3 pb-3 pt-1"
+                      >
+                        <textarea
+                          name="note"
+                          defaultValue={s.note ?? ""}
+                          rows={2}
+                          maxLength={280}
+                          placeholder="Add a stage note…"
+                          aria-label={`Note for ${s.label}`}
+                          className="w-full resize-none rounded-md border border-border bg-muted/60 px-2.5 py-1.5 font-sans text-[12px] text-foreground placeholder:text-muted-foreground/40 outline-none focus:border-brand focus:bg-surface"
+                        />
+                        <div className="mt-2 flex items-center justify-between">
+                          <label className="flex cursor-pointer items-center gap-2 py-2 font-sans text-[11px] text-muted-foreground">
+                            <input type="checkbox" name="visible" defaultChecked={s.noteVisible ?? false} className="h-4 w-4 accent-[var(--brand)]" />
+                            Visible to client
+                          </label>
+                          <button type="submit" className="rounded-md bg-brand px-3 py-2 font-sans text-[11px] font-semibold text-white transition-opacity hover:opacity-90">
+                            Save
+                          </button>
+                        </div>
+                      </form>
+                    </details>
                   </li>
                 ))}
               </ul>
