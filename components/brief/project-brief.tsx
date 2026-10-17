@@ -505,7 +505,7 @@ export function ProjectBrief({
             {SECTIONS.map((s, i) => (
               <div
                 key={s}
-                className={`flex-1 text-[9px] ${
+                className={`flex-1 text-[11px] ${
                   i === 0 ? "text-left" : i === SECTIONS.length - 1 ? "text-right" : "text-center"
                 } ${i === step ? "font-semibold text-brand" : "text-white/45"}`}
               >
@@ -689,7 +689,7 @@ export function ProjectBrief({
                   <p className="mb-3 font-sans text-xs font-semibold text-brand">
                     Suggested for {rule.label.toLowerCase()}: ${fmtMoney(rule.suggest[0])} – ${fmtMoney(rule.suggest[1])}
                   </p>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <TextField
                       label="From ($)"
                       type="tel"
@@ -795,7 +795,7 @@ export function ProjectBrief({
             type="button"
             onClick={goBack}
             disabled={step === 0}
-            className="rounded-md border border-input bg-surface px-5 py-2.5 font-sans text-[13px] text-muted-foreground transition-colors enabled:hover:border-brand/50 disabled:cursor-default disabled:text-input"
+            className="rounded-md border border-input bg-surface px-5 py-3 font-sans text-[13px] text-muted-foreground transition-colors enabled:hover:border-brand/50 disabled:cursor-default disabled:text-input"
           >
             ← Back
           </button>
@@ -809,7 +809,7 @@ export function ProjectBrief({
               type="button"
               onClick={goNext}
               disabled={!canNext()}
-              className="rounded-md bg-brand px-6 py-2.5 font-sans text-[13px] font-semibold text-primary-foreground transition-colors disabled:cursor-default disabled:bg-input"
+              className="rounded-md bg-brand px-6 py-3 font-sans text-[13px] font-semibold text-primary-foreground transition-colors disabled:cursor-default disabled:bg-input"
             >
               Continue →
             </button>
@@ -818,7 +818,7 @@ export function ProjectBrief({
               type="button"
               onClick={handleSubmit}
               disabled={!agreementsDone || sending}
-              className="rounded-md bg-brand px-6 py-2.5 font-sans text-[13px] font-semibold text-primary-foreground transition-colors disabled:cursor-default disabled:bg-input"
+              className="rounded-md bg-brand px-6 py-3 font-sans text-[13px] font-semibold text-primary-foreground transition-colors disabled:cursor-default disabled:bg-input"
             >
               {sending ? "Sending…" : questions?.length ? "Send brief" : "Submit Brief"}
             </button>

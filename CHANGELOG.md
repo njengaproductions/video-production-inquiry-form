@@ -6,6 +6,18 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.25.6 — 2026-10-17
+
+### Mobile
+- Brief inputs and textareas use 16px text so iOS Safari no longer zooms on focus.
+- Brief form: 2-column grid stacks on phones, step labels raised to 11px, Back/Next/Submit buttons taller (py-3).
+- Splash nav pills (Voices, Admin) meet the 44px minimum tap target.
+
+### Admin
+- Fixed invisible Trash filter pill (now uses light surface tokens); all filter pills are taller.
+- Brief detail: larger stage toggle tap area, taller date inputs (16px text) and Set buttons, bigger "Visible to client" checkbox, and a taller Save note button.
+- Admin header and nav wrap on narrow screens; nav links and Sign out have tap padding.
+
 ## 0.25.5 — 2026-10-17
 
 ### Admin
