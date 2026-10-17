@@ -6,6 +6,20 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.25.4 — 2026-10-17
+
+### Admin
+- The tracker stage date picker opens in dark colours again, matching the admin theme.
+
+---
+
+## 0.25.3 — 2026-10-17
+
+### Admin
+- Restyled the tracker stage list on the brief detail page: each stage is now its own rounded card (tinted when done), with round checkboxes, a "Note" / "Client note" badge when a stage has a note, and tighter date and note controls.
+
+---
+
 ## 0.25.2 — 2026-10-17
 
 ### Admin
