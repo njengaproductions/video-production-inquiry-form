@@ -33,7 +33,7 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
               key={s}
               href={`/admin?status=${s}`}
               aria-current={!trash && s === status ? "page" : undefined}
-              className={`rounded-full border px-4 py-1.5 font-sans text-[13px] ${
+              className={`rounded-full border px-4 py-2.5 font-sans text-[13px] ${
                 !trash && s === status ? "border-brand bg-accent font-semibold text-brand" : "border-input bg-surface text-muted-foreground"
               }`}
             >
@@ -43,8 +43,8 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
           <Link
             href="/admin?status=trash"
             aria-current={trash ? "page" : undefined}
-            className={`ml-auto rounded-full border px-4 py-1.5 font-sans text-[13px] ${
-              trash ? "border-brand bg-accent font-semibold text-brand" : "border-white/20 bg-black/30 text-white/70"
+            className={`ml-auto rounded-full border px-4 py-2.5 font-sans text-[13px] ${
+              trash ? "border-brand bg-accent font-semibold text-brand" : "border-input bg-surface text-muted-foreground"
             }`}
           >
             Trash <span className="ml-1 text-[11px] opacity-70">{counts.trash}</span>
