@@ -5,7 +5,6 @@ import { useEffect, useRef, useState } from "react"
 
 import { submitBrief } from "@/app/actions/submit-brief"
 import { suggestTier } from "@/app/actions/suggest-tier"
-import { sendTrackerEmail } from "@/app/actions/send-tracker-email"
 import type { ExtractedBrief } from "@/app/actions/extract-brief"
 import { BUDGET_TIERS, INITIAL_FORM, SECTIONS, type BriefForm } from "./data"
 import { CheckGroup, DateField, RadioGroup, SectionLabel, TextArea, TextField, type FieldStatus } from "./fields"
@@ -43,8 +42,6 @@ export function ProjectBrief({
   const [submitted, setSubmitted] = useState(false)
   const [trackerId, setTrackerId] = useState("")
   const [emailSent, setEmailSent] = useState(false)
-  const [emailSending, setEmailSending] = useState(false)
-  const [sendError, setSendError] = useState("")
   const [copied, setCopied] = useState(false)
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -283,6 +280,7 @@ export function ProjectBrief({
     if (result.ok) {
       setMeeting(result.meeting)
       if (result.trackerId) setTrackerId(result.trackerId)
+      setEmailSent(result.trackerEmailSent)
       setSubmitted(true)
     } else {
       setError(result.error)
@@ -329,21 +327,6 @@ export function ProjectBrief({
 
   if (submitted) {
     const digits = trackerId ? trackerId.split("") : []
-
-    const handleSendEmail = async () => {
-      if (emailSent || emailSending || !trackerId) return
-      setEmailSending(true)
-      setSendError("")
-      try {
-        const res = await sendTrackerEmail(form.email, form.fullName, trackerId)
-        if (res.ok) setEmailSent(true)
-        else setSendError("We couldn't send the email. Please copy your ID instead, or try again.")
-      } catch {
-        setSendError("We couldn't send the email. Please copy your ID instead, or try again.")
-      } finally {
-        setEmailSending(false)
-      }
-    }
 
     const handleCopy = async () => {
       if (!trackerId) return
@@ -400,34 +383,17 @@ export function ProjectBrief({
                   </svg>
                   {copied ? "Copied!" : "Copy ID to Clipboard"}
                 </button>
-                <button
-                  type="button"
-                  onClick={handleSendEmail}
-                  disabled={emailSent || emailSending || !form.email}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-brand/40 bg-brand/10 px-4 py-2.5 font-sans text-sm font-medium text-brand transition-colors hover:bg-brand/20 disabled:cursor-default disabled:opacity-50"
-                >
-                  {emailSent ? (
-                    <>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                        <path d="M20 6 9 17l-5-5" />
-                      </svg>
-                      Sent to {form.email}
-                    </>
-                  ) : emailSending ? (
-                    "Sending…"
-                  ) : (
-                    <>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                        <rect width="20" height="16" x="2" y="4" rx="2" />
-                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                      </svg>
-                      {sendError ? "Try Again" : "Send to My Email"}
-                    </>
-                  )}
-                </button>
-                <p role="status" aria-live="polite" className="m-0 font-sans text-[12px] text-red-400">
-                  {sendError}
-                </p>
+                {emailSent && (
+                  <p
+                    role="status"
+                    className="m-0 flex w-full items-center justify-center gap-2 rounded-lg border border-brand/40 bg-brand/10 px-4 py-2.5 font-sans text-sm font-medium text-brand"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                      <path d="M20 6 9 17l-5-5" />
+                    </svg>
+                    Sent to {form.email}
+                  </p>
+                )}
               </div>
               <p className="mt-4 font-sans text-[11px] leading-relaxed text-white/30">
                 Visit <span className="text-white/50">njengapro.co/track</span> anytime to check your project status.

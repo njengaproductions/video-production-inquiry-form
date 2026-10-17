@@ -6,6 +6,24 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.25.7 — 2026-10-17
+
+### Security
+- Public tracker lookup (`/api/tracker/[code]`) is rate limited to 20 requests per IP per minute (429 after that).
+- Backfill trackers route checks admin access at the HTTP layer before doing anything.
+- Voice logo uploads accept only JPEG, PNG, WebP and GIF. SVG is blocked.
+
+### Admin
+- Tracker stage toggle, date and note actions reject out-of-range stage indexes.
+- Notes textarea uses 16px text so iOS Safari no longer zooms on focus.
+- Brief lists show up to 1000 briefs (was 200).
+
+### Brief form
+- The tracker ID email is sent from the server on submit, so it arrives even if the client closes the tab. The success screen shows "Sent to {email}" when it goes out; the "Send to My Email" button is gone.
+- Failed brief saves are logged as critical with the client's name and email.
+
+---
+
 ## 0.25.6 — 2026-10-17
 
 ### Mobile

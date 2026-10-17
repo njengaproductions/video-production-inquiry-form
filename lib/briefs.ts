@@ -192,7 +192,11 @@ export async function saveBrief(input: {
       )`
     return { ok: true, trackerId }
   } catch (err) {
-    console.log("[v0] saveBrief error:", err instanceof Error ? err.message : String(err))
+    console.error("[saveBrief] CRITICAL: brief submission lost — could not save brief or generate tracker ID", {
+      clientName: input.form.fullName,
+      clientEmail: input.form.email,
+      err,
+    })
     return { ok: false }
   }
 }
@@ -205,7 +209,7 @@ export async function listBriefs(status: BriefStatus): Promise<BriefRow[]> {
     FROM briefs
     WHERE status = ${status} AND deleted_at IS NULL
     ORDER BY submitted_at DESC
-    LIMIT 200`
+    LIMIT 1000`
   return rows as unknown as BriefRow[]
 }
 
@@ -217,7 +221,7 @@ export async function listTrash(): Promise<BriefRow[]> {
     FROM briefs
     WHERE deleted_at IS NOT NULL
     ORDER BY deleted_at DESC
-    LIMIT 200`
+    LIMIT 1000`
   return rows as unknown as BriefRow[]
 }
 
