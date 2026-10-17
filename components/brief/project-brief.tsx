@@ -7,7 +7,7 @@ import { submitBrief } from "@/app/actions/submit-brief"
 import { suggestTier } from "@/app/actions/suggest-tier"
 import type { ExtractedBrief } from "@/app/actions/extract-brief"
 import { BUDGET_TIERS, INITIAL_FORM, SECTIONS, type BriefForm } from "./data"
-import { CheckGroup, RadioGroup, SectionLabel, TextArea, TextField, type FieldStatus } from "./fields"
+import { CheckGroup, DateField, RadioGroup, SectionLabel, TextArea, TextField, type FieldStatus } from "./fields"
 import { ScopeUpload, type UploadSummary } from "./scope-upload"
 import { Celebration } from "./celebration"
 import type { Gap, MeetingPlan } from "./gaps"
@@ -444,7 +444,7 @@ export function ProjectBrief({
                 <SectionLabel>Part 2 — Your Project</SectionLabel>
                 <RadioGroup label="What type of service do you need?" required id="field-serviceType" status={st("serviceType", true)} options={["Full Production (Shoot + Edit)", "Shoot Only — I need footage captured", "Edit Only — I have existing footage", "Not sure — let's talk"]} value={form.serviceType} onChange={set("serviceType")} />
                 <CheckGroup label="Type of Project" required id="field-projectType" status={st("projectType", true)} options={["Event Coverage", "Commercial", "Brand Film", "Wedding", "Social Media Content", "Other"]} values={form.projectType} onChange={set("projectType")} />
-                <TextField label="Project / Event Date" id="field-projectDate" status={st("projectDate")} placeholder="MM / DD / YYYY" value={form.projectDate} onChange={set("projectDate")} />
+                <DateField label="Project / Event Date" id="field-projectDate" status={st("projectDate")} value={form.projectDate} onChange={set("projectDate")} />
                 <TextField label="Project Location" id="field-location" status={st("location")} placeholder="City, venue, or address" value={form.location} onChange={set("location")} />
                 <RadioGroup label="Indoor or Outdoor?" options={["Indoor", "Outdoor", "Both", "N/A — Edit Only"]} value={form.indoorOutdoor} onChange={set("indoorOutdoor")} />
                 <TextField label="Estimated number of subjects / people" id="field-subjects" status={st("subjects")} placeholder="e.g. 2 people, 50 guests" value={form.subjects} onChange={set("subjects")} />
@@ -622,7 +622,7 @@ export function ProjectBrief({
                 <RadioGroup label="How soon do you want to get started?" required options={["Within 2 weeks", "1–2 months", "3–6 months", "Just exploring for now"]} value={form.startSoon} onChange={set("startSoon")} />
                 <RadioGroup label="Do you have a delivery deadline?" required options={["Yes — hard deadline", "Preferred date but flexible", "No deadline"]} value={form.deadline} onChange={set("deadline")} />
                 {form.deadline === "Yes — hard deadline" && (
-                  <TextField label="What is your delivery deadline?" id="field-deadlineDate" status={st("deadlineDate")} placeholder="MM / DD / YYYY" value={form.deadlineDate} onChange={set("deadlineDate")} />
+                  <DateField label="What is your delivery deadline?" id="field-deadlineDate" status={st("deadlineDate")} value={form.deadlineDate} onChange={set("deadlineDate")} />
                 )}
                 <RadioGroup label="Turnaround time expectation" options={["Standard (2–4 weeks)", "Expedited (1–2 weeks)", "Rush (under 1 week — additional fees apply)"]} value={form.turnaround} onChange={set("turnaround")} />
               </div>

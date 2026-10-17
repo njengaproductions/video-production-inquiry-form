@@ -107,6 +107,26 @@ async function generateTrackerId(): Promise<string> {
   throw new Error("Could not generate unique tracker ID after 10 attempts")
 }
 
+// One-off: gives every existing brief without a tracker an ID and its tier's default stages.
+export async function backfillTrackers(): Promise<number> {
+  await requireAdmin()
+  await ensureSchema()
+  const rows = (await sql()`
+    SELECT id, form->>'budgetTier' AS budget_tier FROM briefs WHERE tracker_id IS NULL`) as unknown as {
+    id: string
+    budget_tier: string | null
+  }[]
+  for (const row of rows) {
+    const trackerId = await generateTrackerId()
+    const stages = defaultStages(row.budget_tier ?? "")
+    await sql()`
+      UPDATE briefs
+      SET tracker_id = ${trackerId}, tracker_stages = ${JSON.stringify(stages)}::jsonb
+      WHERE id = ${row.id} AND tracker_id IS NULL`
+  }
+  return rows.length
+}
+
 const TRACKER_CODE = /^\d{6}$/
 
 // Public, no auth: the 6-digit code is the only key. Returns no contact details.
