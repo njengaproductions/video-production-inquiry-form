@@ -130,17 +130,28 @@ export async function backfillTrackers(): Promise<number> {
 const TRACKER_CODE = /^\d{6}$/
 
 // Public, no auth: the 6-digit code is the only key. Returns no contact details.
-export async function getByTrackerId(code: string, userAgent: string | null = null): Promise<PublicTracker | null> {
+export async function getByTrackerId(
+  code: string,
+  userAgent: string | null = null,
+  recordView = true,
+): Promise<PublicTracker | null> {
   if (!TRACKER_CODE.test(code)) return null
   await ensureSchema()
   const ua = userAgent ? userAgent.slice(0, 512) : null
-  const rows = (await sql()`
+  const rows = (
+    recordView
+      ? await sql()`
     UPDATE briefs
     SET tracker_access_count = COALESCE(tracker_access_count, 0) + 1,
         tracker_last_viewed = NOW(),
         tracker_last_ua = ${ua}
     WHERE tracker_id = ${code} AND deleted_at IS NULL
-    RETURNING client_name AS name, form->>'budgetTier' AS budget_tier, tracker_id, tracker_stages`) as unknown as PublicTracker[]
+    RETURNING client_name AS name, form->>'budgetTier' AS budget_tier, tracker_id, tracker_stages`
+      : await sql()`
+    SELECT client_name AS name, form->>'budgetTier' AS budget_tier, tracker_id, tracker_stages
+    FROM briefs
+    WHERE tracker_id = ${code} AND deleted_at IS NULL`
+  ) as unknown as PublicTracker[]
   const row = rows[0]
   if (!row) return null
   return { ...row, budget_tier: row.budget_tier || null, tracker_stages: Array.isArray(row.tracker_stages) ? row.tracker_stages : [] }

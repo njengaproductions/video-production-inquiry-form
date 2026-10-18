@@ -6,6 +6,11 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.26.1 — 2026-10-17
+
+### Admin — tracker view stats
+- Tracker lookups by a signed-in admin no longer count. `/api/tracker/[code]` checks `isAdmin()`; for admins, `getByTrackerId` only reads the tracker and leaves `tracker_access_count`, `tracker_last_viewed` and `tracker_last_ua` alone. Views, last viewed and last device now reflect only the client.
+
 ## 0.26.0 — 2026-10-17
 
 ### Admin — tracker view stats
