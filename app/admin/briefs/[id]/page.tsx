@@ -189,14 +189,37 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
                         }}
                         className="flex items-center gap-1"
                       >
-                        <input
-                          type="date"
-                          name="date"
-                          defaultValue={s.date ?? ""}
-                          aria-label={`Date for ${s.label}`}
-                          className="h-9 rounded-md border border-border bg-field px-1.5 font-sans text-[16px] text-foreground outline-none focus:border-brand"
-                          style={{ colorScheme: "light", color: "var(--brand)" }}
-                        />
+                        <div className="relative">
+                          <input
+                            type="date"
+                            name="date"
+                            required
+                            defaultValue={s.date ?? ""}
+                            min={new Date().toISOString().split("T")[0]}
+                            aria-label={`Date for ${s.label}`}
+                            className={`peer h-9 rounded-md border border-border bg-field px-1.5 font-sans text-[16px] text-foreground outline-none focus:border-brand ${s.date ? "" : "[&:invalid:not(:focus)::-webkit-datetime-edit]:text-transparent"}`}
+                            style={{ colorScheme: "light", color: "var(--brand)" }}
+                          />
+                          {!s.date && (
+                            <span className="pointer-events-none absolute inset-y-0 left-2 flex items-center font-sans text-[12px] text-muted-foreground peer-valid:hidden peer-focus:hidden">
+                              Select a date
+                            </span>
+                          )}
+                        </div>
+                        {s.date && (
+                          <button
+                            type="submit"
+                            formNoValidate
+                            formAction={async () => {
+                              "use server"
+                              await setStageDate(b.id, i, null)
+                            }}
+                            aria-label={`Clear date for ${s.label}`}
+                            className="px-1 font-sans text-[14px] leading-none text-muted-foreground transition-colors hover:text-foreground"
+                          >
+                            ×
+                          </button>
+                        )}
                         <button type="submit" className="h-9 rounded-md border border-border bg-muted px-3 font-sans text-[11px] text-muted-foreground transition-colors hover:border-brand hover:text-brand">
                           Set
                         </button>
