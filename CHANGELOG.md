@@ -6,6 +6,11 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.25.16 — 2026-10-17
+
+### Styles
+- Moved the `input[type="date"] { color: var(--brand); }` rule into the `@layer base` block in `app/globals.css`. The tracker stage date input already had the inline brand color, so nothing changed there.
+
 ## 0.25.15 — 2026-10-17
 
 ### Tracker
