@@ -62,7 +62,7 @@ function mapToTrackerTier(budgetTier: string): string {
 const TRACKER_STAGES: Record<string, TrackerStage[]> = {
   "edit-only": [
     { key: "brief-received", label: "Brief received", done: false },
-    { key: "contract-signed", label: "Contract signed", done: false },
+    { key: "pre-production-call", label: "Pre-production call", done: false },
     { key: "footage-received", label: "Footage received", done: false },
     { key: "editing", label: "Editing in progress", done: false },
     { key: "review", label: "Client review", done: false },
