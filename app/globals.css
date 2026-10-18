@@ -105,6 +105,9 @@
   body {
     @apply bg-background text-foreground;
   }
+  input[type="date"] {
+    color: var(--brand);
+  }
 }
 
 /* Step + celebration animations */
@@ -509,8 +512,4 @@ html:has(.voices-page) body {
   font-weight: 200;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-}
-
-input[type="date"] {
-  color: var(--brand);
 }
