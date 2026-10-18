@@ -61,6 +61,21 @@ export function ensureSchema(): Promise<void> {
     await db`ALTER TABLE briefs ADD COLUMN IF NOT EXISTS tracker_stages jsonb`
     await db`ALTER TABLE briefs ADD COLUMN IF NOT EXISTS tracker_access_count int DEFAULT 0`
     await db`ALTER TABLE briefs ADD COLUMN IF NOT EXISTS tracker_last_viewed timestamptz`
+    // Edit Only trackers replaced "Contract signed" with "Pre-production call" (0.25.13).
+    // Same position, so done/date carry over; the old note is dropped. Idempotent.
+    await db`
+      UPDATE briefs SET tracker_stages = (
+        SELECT jsonb_agg(
+          CASE WHEN elem->>'key' = 'contract-signed'
+            THEN jsonb_build_object('key', 'pre-production-call', 'label', 'Pre-production call', 'done', COALESCE(elem->'done', 'false'::jsonb))
+              || CASE WHEN elem ? 'date' THEN jsonb_build_object('date', elem->'date') ELSE '{}'::jsonb END
+            ELSE elem END
+          ORDER BY ord)
+        FROM jsonb_array_elements(tracker_stages) WITH ORDINALITY AS t(elem, ord)
+      )
+      WHERE form->>'budgetTier' = 'Edit Only'
+        AND jsonb_typeof(tracker_stages) = 'array'
+        AND tracker_stages @> '[{"key":"contract-signed"}]'::jsonb`
   })().catch((err) => {
     schemaReady = null // retry on the next call
     throw err

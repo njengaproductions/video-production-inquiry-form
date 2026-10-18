@@ -6,6 +6,11 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.25.14 — 2026-10-17
+
+### Tracker
+- Existing Edit Only briefs are migrated to the new stage list: their saved "Contract signed" stage becomes "Pre-production call", keeping its done state and date. Runs automatically with the schema check and is safe to repeat.
+
 ## 0.25.13 — 2026-10-17
 
 ### Tracker
