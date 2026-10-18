@@ -6,6 +6,24 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.26.1 — 2026-10-17
+
+### Admin — tracker view stats
+- Tracker lookups by a signed-in admin no longer count. `/api/tracker/[code]` checks `isAdmin()`; for admins, `getByTrackerId` only reads the tracker and leaves `tracker_access_count`, `tracker_last_viewed` and `tracker_last_ua` alone. Views, last viewed and last device now reflect only the client.
+
+## 0.26.0 — 2026-10-17
+
+### Admin — tracker view stats
+- Added a `tracker_last_ua` column (`ensureSchema`). Each client tracker lookup now saves the request's User-Agent along with `tracker_last_viewed`.
+- The tracker card now shows Views, Last viewed ("Sat, Oct 17 · 8:49 PM", or "Never"), and Last device (for example "Mobile · Safari"). Last device shows "—" until the client's next lookup.
+
+## 0.25.17 — 2026-10-17
+
+### Admin — tracker stage dates
+- Empty stage date inputs now show a "Select a date" label. It hides when the field is focused or filled in.
+- Added a × button next to a stage's date that clears it (`setStageDate(id, i, null)`).
+- Date inputs now set `min` to today, so you can't pick a past date.
+
 ## 0.25.16 — 2026-10-17
 
 ### Styles

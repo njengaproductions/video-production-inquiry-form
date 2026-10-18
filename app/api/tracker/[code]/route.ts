@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { getByTrackerId } from "@/lib/briefs"
+import { isAdmin } from "@/auth"
 
 export const dynamic = "force-dynamic"
 
@@ -24,7 +25,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ code: st
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown"
   if (!allow(ip)) return NextResponse.json({ error: "too_many_requests" }, { status: 429 })
   const { code } = await params
-  const data = await getByTrackerId(code)
+  const viewerIsAdmin = await isAdmin().catch(() => false)
+  const data = await getByTrackerId(code, req.headers.get("user-agent"), !viewerIsAdmin)
   if (!data) return NextResponse.json({ error: "not_found" }, { status: 404 })
   return NextResponse.json(data, { headers: { "Cache-Control": "no-store" } })
 }

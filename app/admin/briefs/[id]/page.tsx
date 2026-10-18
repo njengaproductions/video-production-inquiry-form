@@ -18,6 +18,32 @@ import type { Gap } from "@/components/brief/gaps"
 export const dynamic = "force-dynamic"
 export const metadata: Metadata = { title: "Brief — NJENGA Admin", robots: { index: false, follow: false } }
 
+const fmtViewed = (d: string) => {
+  const date = new Date(d)
+  const day = date.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "America/New_York" })
+  const time = date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: "America/New_York" })
+  return `${day} · ${time}`
+}
+
+function describeDevice(ua: string | null): string {
+  if (!ua) return "—"
+  const mobile = /Mobi|Android|iPhone|iPad|iPod/i.test(ua) ? "Mobile" : "Desktop"
+  const browser = /Edg\//.test(ua)
+    ? "Edge"
+    : /OPR\/|Opera/.test(ua)
+      ? "Opera"
+      : /SamsungBrowser/.test(ua)
+        ? "Samsung Internet"
+        : /Firefox\/|FxiOS/.test(ua)
+          ? "Firefox"
+          : /Chrome\/|CriOS/.test(ua)
+            ? "Chrome"
+            : /Safari\//.test(ua)
+              ? "Safari"
+              : "Other"
+  return `${mobile} · ${browser}`
+}
+
 const fmtDate = (d: string) =>
   new Date(d).toLocaleDateString("en-US", {
     weekday: "short",
@@ -152,7 +178,8 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
                 <p className="m-0 font-mono text-3xl font-bold tracking-[0.2em] text-foreground">{b.tracker_id}</p>
                 <div className="shrink-0 text-right font-sans text-[12px] text-muted-foreground">
                   <p className="m-0">Views: {b.tracker_access_count ?? 0}</p>
-                  <p className="m-0">Last viewed: {b.tracker_last_viewed ? fmtDate(b.tracker_last_viewed) : "Never"}</p>
+                  <p className="m-0">Last viewed: {b.tracker_last_viewed ? fmtViewed(b.tracker_last_viewed) : "Never"}</p>
+                  <p className="m-0">Last device: {describeDevice(b.tracker_last_ua)}</p>
                 </div>
               </div>
               <ShareTrackerButton briefId={b.id} clientEmail={clientEmail} />
@@ -189,14 +216,37 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
                         }}
                         className="flex items-center gap-1"
                       >
-                        <input
-                          type="date"
-                          name="date"
-                          defaultValue={s.date ?? ""}
-                          aria-label={`Date for ${s.label}`}
-                          className="h-9 rounded-md border border-border bg-field px-1.5 font-sans text-[16px] text-foreground outline-none focus:border-brand"
-                          style={{ colorScheme: "light", color: "var(--brand)" }}
-                        />
+                        <div className="relative">
+                          <input
+                            type="date"
+                            name="date"
+                            required
+                            defaultValue={s.date ?? ""}
+                            min={new Date().toISOString().split("T")[0]}
+                            aria-label={`Date for ${s.label}`}
+                            className={`peer h-9 rounded-md border border-border bg-field px-1.5 font-sans text-[16px] text-foreground outline-none focus:border-brand ${s.date ? "" : "[&:invalid:not(:focus)::-webkit-datetime-edit]:text-transparent"}`}
+                            style={{ colorScheme: "light", color: "var(--brand)" }}
+                          />
+                          {!s.date && (
+                            <span className="pointer-events-none absolute inset-y-0 left-2 flex items-center font-sans text-[12px] text-muted-foreground peer-valid:hidden peer-focus:hidden">
+                              Select a date
+                            </span>
+                          )}
+                        </div>
+                        {s.date && (
+                          <button
+                            type="submit"
+                            formNoValidate
+                            formAction={async () => {
+                              "use server"
+                              await setStageDate(b.id, i, null)
+                            }}
+                            aria-label={`Clear date for ${s.label}`}
+                            className="px-1 font-sans text-[14px] leading-none text-muted-foreground transition-colors hover:text-foreground"
+                          >
+                            ×
+                          </button>
+                        )}
                         <button type="submit" className="h-9 rounded-md border border-border bg-muted px-3 font-sans text-[11px] text-muted-foreground transition-colors hover:border-brand hover:text-brand">
                           Set
                         </button>

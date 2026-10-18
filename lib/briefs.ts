@@ -43,6 +43,7 @@ export type BriefDetail = BriefRow & {
   tracker_stages: TrackerStage[] | null
   tracker_access_count: number
   tracker_last_viewed: string | null
+  tracker_last_ua: string | null
 }
 
 export type PublicTracker = {
@@ -129,15 +130,28 @@ export async function backfillTrackers(): Promise<number> {
 const TRACKER_CODE = /^\d{6}$/
 
 // Public, no auth: the 6-digit code is the only key. Returns no contact details.
-export async function getByTrackerId(code: string): Promise<PublicTracker | null> {
+export async function getByTrackerId(
+  code: string,
+  userAgent: string | null = null,
+  recordView = true,
+): Promise<PublicTracker | null> {
   if (!TRACKER_CODE.test(code)) return null
   await ensureSchema()
-  const rows = (await sql()`
+  const ua = userAgent ? userAgent.slice(0, 512) : null
+  const rows = (
+    recordView
+      ? await sql()`
     UPDATE briefs
     SET tracker_access_count = COALESCE(tracker_access_count, 0) + 1,
-        tracker_last_viewed = NOW()
+        tracker_last_viewed = NOW(),
+        tracker_last_ua = ${ua}
     WHERE tracker_id = ${code} AND deleted_at IS NULL
-    RETURNING client_name AS name, form->>'budgetTier' AS budget_tier, tracker_id, tracker_stages`) as unknown as PublicTracker[]
+    RETURNING client_name AS name, form->>'budgetTier' AS budget_tier, tracker_id, tracker_stages`
+      : await sql()`
+    SELECT client_name AS name, form->>'budgetTier' AS budget_tier, tracker_id, tracker_stages
+    FROM briefs
+    WHERE tracker_id = ${code} AND deleted_at IS NULL`
+  ) as unknown as PublicTracker[]
   const row = rows[0]
   if (!row) return null
   return { ...row, budget_tier: row.budget_tier || null, tracker_stages: Array.isArray(row.tracker_stages) ? row.tracker_stages : [] }
@@ -261,7 +275,7 @@ export async function getBrief(id: string): Promise<BriefDetail | null> {
   const rows = (await sql()`
     SELECT id, submitted_at, status, source, client_name, client_email, budget, meeting_type, gap_count, deleted_at,
            form, gaps, meeting, quote, notes,
-           tracker_id, tracker_stages, tracker_access_count, tracker_last_viewed
+           tracker_id, tracker_stages, tracker_access_count, tracker_last_viewed, tracker_last_ua
     FROM briefs WHERE id = ${id}`) as unknown as BriefDetail[]
   return rows[0] ?? null
 }
