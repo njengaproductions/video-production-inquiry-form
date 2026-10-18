@@ -6,6 +6,16 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.25.15 — 2026-10-17
+
+### Tracker
+- "Contract signed" is retired on every tier (Shoot Only, Full Production, Wedding) until further notice. New trackers no longer include it, and existing trackers have it removed automatically during the schema check. The other stages keep their done states, dates, and notes.
+
+## 0.25.14 — 2026-10-17
+
+### Tracker
+- Existing Edit Only briefs are migrated to the new stage list: their saved "Contract signed" stage becomes "Pre-production call", keeping its done state and date. Runs automatically with the schema check and is safe to repeat.
+
 ## 0.25.13 — 2026-10-17
 
 ### Tracker
