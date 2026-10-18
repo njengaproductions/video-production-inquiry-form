@@ -89,7 +89,7 @@ function TrackerResult({ data }: { data: Tracker }) {
   const currentIdx = stages.findIndex((s) => !s.done)
 
   return (
-    <section className="rounded-lg border border-white/10 bg-white/[0.03] p-5 sm:p-6">
+    <section className="rounded-lg border border-white/[0.07] bg-[#161311] p-5 sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="m-0 font-serif text-2xl font-semibold">{data.name}</h2>
         {data.budget_tier && (

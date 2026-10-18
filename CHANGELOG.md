@@ -6,6 +6,12 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.25.12 — 2026-10-17
+
+### Tracker
+- Heavier background overlay on `/track` (`from-black/95 via-black/80 to-black/50`) so the calligraphy reads as texture.
+- Project result card is now a solid `#161311` surface with a subtle `white/[0.07]` border.
+
 ## 0.25.11 — 2026-10-17
 
 ### Admin
