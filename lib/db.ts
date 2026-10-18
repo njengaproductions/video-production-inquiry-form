@@ -76,6 +76,15 @@ export function ensureSchema(): Promise<void> {
       WHERE form->>'budgetTier' = 'Edit Only'
         AND jsonb_typeof(tracker_stages) = 'array'
         AND tracker_stages @> '[{"key":"contract-signed"}]'::jsonb`
+    // "Contract signed" is retired on every tier (0.25.15): drop it from any remaining trackers.
+    await db`
+      UPDATE briefs SET tracker_stages = (
+        SELECT COALESCE(jsonb_agg(elem ORDER BY ord), '[]'::jsonb)
+        FROM jsonb_array_elements(tracker_stages) WITH ORDINALITY AS t(elem, ord)
+        WHERE elem->>'key' <> 'contract-signed'
+      )
+      WHERE jsonb_typeof(tracker_stages) = 'array'
+        AND tracker_stages @> '[{"key":"contract-signed"}]'::jsonb`
   })().catch((err) => {
     schemaReady = null // retry on the next call
     throw err

@@ -70,14 +70,12 @@ const TRACKER_STAGES: Record<string, TrackerStage[]> = {
   ],
   "shoot-only": [
     { key: "brief-received", label: "Brief received", done: false },
-    { key: "contract-signed", label: "Contract signed", done: false },
     { key: "pre-production", label: "Pre-production planning", done: false },
     { key: "shoot", label: "Shoot day", done: false },
     { key: "delivery", label: "Raw footage delivery", done: false },
   ],
   "full-production": [
     { key: "brief-received", label: "Brief received", done: false },
-    { key: "contract-signed", label: "Contract signed", done: false },
     { key: "pre-production", label: "Pre-production planning", done: false },
     { key: "shoot", label: "Shoot day", done: false },
     { key: "editing", label: "Editing & post-production", done: false },
@@ -86,7 +84,6 @@ const TRACKER_STAGES: Record<string, TrackerStage[]> = {
   ],
   wedding: [
     { key: "consultation", label: "Initial consultation", done: false },
-    { key: "contract-signed", label: "Contract signed", done: false },
     { key: "pre-production", label: "Pre-production planning", done: false },
     { key: "shoot", label: "Shoot day", done: false },
     { key: "editing", label: "Editing & post", done: false },
