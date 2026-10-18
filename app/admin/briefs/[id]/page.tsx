@@ -18,6 +18,32 @@ import type { Gap } from "@/components/brief/gaps"
 export const dynamic = "force-dynamic"
 export const metadata: Metadata = { title: "Brief — NJENGA Admin", robots: { index: false, follow: false } }
 
+const fmtViewed = (d: string) => {
+  const date = new Date(d)
+  const day = date.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "America/New_York" })
+  const time = date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: "America/New_York" })
+  return `${day} · ${time}`
+}
+
+function describeDevice(ua: string | null): string {
+  if (!ua) return "—"
+  const mobile = /Mobi|Android|iPhone|iPad|iPod/i.test(ua) ? "Mobile" : "Desktop"
+  const browser = /Edg\//.test(ua)
+    ? "Edge"
+    : /OPR\/|Opera/.test(ua)
+      ? "Opera"
+      : /SamsungBrowser/.test(ua)
+        ? "Samsung Internet"
+        : /Firefox\/|FxiOS/.test(ua)
+          ? "Firefox"
+          : /Chrome\/|CriOS/.test(ua)
+            ? "Chrome"
+            : /Safari\//.test(ua)
+              ? "Safari"
+              : "Other"
+  return `${mobile} · ${browser}`
+}
+
 const fmtDate = (d: string) =>
   new Date(d).toLocaleDateString("en-US", {
     weekday: "short",
@@ -152,7 +178,8 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
                 <p className="m-0 font-mono text-3xl font-bold tracking-[0.2em] text-foreground">{b.tracker_id}</p>
                 <div className="shrink-0 text-right font-sans text-[12px] text-muted-foreground">
                   <p className="m-0">Views: {b.tracker_access_count ?? 0}</p>
-                  <p className="m-0">Last viewed: {b.tracker_last_viewed ? fmtDate(b.tracker_last_viewed) : "Never"}</p>
+                  <p className="m-0">Last viewed: {b.tracker_last_viewed ? fmtViewed(b.tracker_last_viewed) : "Never"}</p>
+                  <p className="m-0">Last device: {describeDevice(b.tracker_last_ua)}</p>
                 </div>
               </div>
               <ShareTrackerButton briefId={b.id} clientEmail={clientEmail} />

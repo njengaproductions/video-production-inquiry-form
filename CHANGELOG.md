@@ -6,6 +6,12 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.26.0 — 2026-10-17
+
+### Admin — tracker view stats
+- Added a `tracker_last_ua` column (`ensureSchema`). Each client tracker lookup now saves the request's User-Agent along with `tracker_last_viewed`.
+- The tracker card now shows Views, Last viewed ("Sat, Oct 17 · 8:49 PM", or "Never"), and Last device (for example "Mobile · Safari"). Last device shows "—" until the client's next lookup.
+
 ## 0.25.17 — 2026-10-17
 
 ### Admin — tracker stage dates

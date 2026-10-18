@@ -61,6 +61,7 @@ export function ensureSchema(): Promise<void> {
     await db`ALTER TABLE briefs ADD COLUMN IF NOT EXISTS tracker_stages jsonb`
     await db`ALTER TABLE briefs ADD COLUMN IF NOT EXISTS tracker_access_count int DEFAULT 0`
     await db`ALTER TABLE briefs ADD COLUMN IF NOT EXISTS tracker_last_viewed timestamptz`
+    await db`ALTER TABLE briefs ADD COLUMN IF NOT EXISTS tracker_last_ua TEXT`
     // Edit Only trackers replaced "Contract signed" with "Pre-production call" (0.25.13).
     // Same position, so done/date carry over; the old note is dropped. Idempotent.
     await db`
