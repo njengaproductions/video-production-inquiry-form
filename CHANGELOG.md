@@ -6,6 +6,12 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.26.3 — 2026-10-17
+
+### Emails — dark branded template
+- `app/actions/send-tracker-email.ts`: `buildTrackerEmailHtml()` now outputs the dark NJENGA template (gradient top rule, NJENGA / Productions Co. wordmark with "Project Tracker" pill, Lora + Poppins type, dark digit boxes, gradient CTA, two-column footer). Signature and logic unchanged.
+- `app/actions/submit-brief.ts`: admin brief notification restyled to match — `gapListHtml`, `packetHtml`, and `buildHtml` (shell, "New Brief" pill, section headers, label/value rows, footer). Logic, `buildRows`, `buildText`, and `submitBrief` unchanged.
+
 ## 0.26.2 — 2026-10-17
 
 ### Client tracker — stage notes

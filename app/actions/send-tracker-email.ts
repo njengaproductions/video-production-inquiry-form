@@ -14,33 +14,42 @@ function buildTrackerEmailHtml(name: string, trackerId: string): string {
     .split("")
     .map(
       (d) =>
-        `<td style="padding:0 4px;"><div style="width:44px;height:56px;background:#2b2620;border:1.5px solid #B5520A;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font:700 28px/1 Georgia,serif;color:#B5520A;">${d}</div></td>`,
+        `<td style="padding:0 3px;"><div style="width:42px;height:54px;background:#161310;border:1.5px solid rgba(177,89,39,0.5);border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font:700 26px/1 Georgia,serif;color:#D35F22;">${d}</div></td>`,
     )
     .join("")
 
-  return `<!doctype html><html><body style="margin:0;background:#f4f1ea;padding:32px 0;font-family:${FONT};">
-    <table role="presentation" width="520" align="center" cellpadding="0" cellspacing="0" style="background:#fffdf8;border:1px solid #eadfce;border-radius:10px;overflow:hidden;">
-      <tr><td style="background:#2b2620;padding:20px 28px;">
-        <div style="font:700 18px/1.2 Georgia,serif;color:#B5520A;">NJENGA Productions Co.</div>
-        <div style="font:400 12px/1.4 ${FONT};color:rgba(255,255,255,0.5);margin-top:3px;">Content that builds brands.</div>
+  return `<!doctype html><html><head><style>@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,700;1,400&family=Poppins:wght@300;500;600;700&display=swap');</style></head><body style="margin:0;background:#0A0806;padding:32px 0;">
+    <table role="presentation" width="560" align="center" cellpadding="0" cellspacing="0" style="background:#0E0C09;border-radius:10px;overflow:hidden;">
+      <tr><td style="height:2px;background:linear-gradient(90deg,#D35F22 0%,#B15927 40%,#8C6E6F 100%);font-size:0;line-height:0;">&nbsp;</td></tr>
+      <tr><td style="padding:22px 36px 20px;border-bottom:1px solid rgba(255,255,255,0.06);">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
+          <td><span style="font:700 14px/1 'Poppins',Arial,sans-serif;letter-spacing:0.12em;text-transform:uppercase;color:#D35F22;">NJENGA</span><span style="font:400 11px/1 'Lora',Georgia,serif;font-style:italic;color:#957D7D;margin-left:5px;">Productions Co.</span></td>
+          <td align="right"><span style="font:600 9px/1 'Poppins',Arial,sans-serif;letter-spacing:0.14em;text-transform:uppercase;color:#B15927;border:1px solid rgba(177,89,39,0.35);border-radius:20px;padding:3px 10px;">Project Tracker</span></td>
+        </tr></table>
       </td></tr>
-      <tr><td style="padding:32px 28px 8px;">
-        <div style="font:700 22px/1.3 Georgia,serif;color:#2b2620;">Your project is in motion, ${firstName}.</div>
-        <div style="font:400 14px/1.6 ${FONT};color:#6b6257;margin-top:10px;">We've received your brief and are reviewing everything now. Use the code below to track your project at any time:</div>
+      <tr><td style="padding:36px 36px 0;">
+        <div style="font:600 9px/1 'Poppins',Arial,sans-serif;letter-spacing:0.18em;text-transform:uppercase;color:#B15927;margin-bottom:14px;">Your Project</div>
+        <div style="font:700 27px/1.2 'Lora',Georgia,serif;color:#F2EDE5;margin-bottom:10px;">Your project is <em style="font-style:italic;color:#D35F22;">in motion</em>, ${firstName}.</div>
+        <div style="font:300 13px/1.7 'Poppins',Arial,sans-serif;color:rgba(232,226,216,0.5);max-width:380px;margin-bottom:32px;">We've received your brief and are reviewing everything. Use the code below to track your project at any time from any device.</div>
       </td></tr>
-      <tr><td style="padding:20px 28px;">
-        <div style="font:600 11px/1 ${FONT};color:#8a8172;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;">Your Project Tracker ID</div>
-        <table role="presentation" cellpadding="0" cellspacing="0"><tr>${digitBoxes}</tr></table>
-        <div style="margin-top:14px;">
-          <a href="https://njengapro.co/track" style="display:inline-block;background:#B5520A;color:#fffdf8;font:600 13px/1 ${FONT};text-decoration:none;padding:10px 22px;border-radius:6px;">Track My Project →</a>
+      <tr><td style="padding:0 36px 32px;">
+        <div style="background:#161310;border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:20px 20px 24px;">
+          <div style="font:600 9px/1 'Poppins',Arial,sans-serif;letter-spacing:0.14em;text-transform:uppercase;color:#8C6E6F;margin-bottom:14px;">Your Tracker Code</div>
+          <table role="presentation" cellpadding="0" cellspacing="0"><tr>${digitBoxes}</tr></table>
+          <div style="margin-top:10px;font:300 11px/1.5 'Poppins',Arial,sans-serif;color:rgba(232,226,216,0.28);">Enter this code at njengapro.co/track</div>
         </div>
-        <div style="margin-top:10px;font:400 12px/1.5 ${FONT};color:#8a8172;">Or go to <strong>njengapro.co/track</strong> and enter your 6-digit code.</div>
+        <div style="margin-top:20px;">
+          <a href="https://njengapro.co/track" style="display:inline-block;background:linear-gradient(135deg,#D35F22 0%,#B15927 100%);color:#fff;font:600 11px/1 'Poppins',Arial,sans-serif;letter-spacing:0.05em;text-transform:uppercase;text-decoration:none;padding:12px 24px;border-radius:6px;">Track My Project →</a>
+        </div>
       </td></tr>
-      <tr><td style="padding:20px 28px;border-top:1px solid #eadfce;">
-        <div style="font:400 12px/1.6 ${FONT};color:#8a8172;">Expect to hear from us within <strong>24–48 hours</strong> to schedule your pre-production call. Reply to this email with any questions.</div>
+      <tr><td style="padding:20px 36px;border-top:1px solid rgba(255,255,255,0.05);">
+        <div style="font:300 12px/1.6 'Poppins',Arial,sans-serif;color:rgba(232,226,216,0.38);">Expect to hear from us within <span style="color:rgba(232,226,216,0.65);font-weight:500;">24–48 hours</span> to schedule your pre-production call. Reply to this email with any questions.</div>
       </td></tr>
-      <tr><td style="padding:12px 28px 20px;background:#f9f6f0;border-top:1px solid #eadfce;">
-        <div style="font:400 11px/1.5 ${FONT};color:#a09486;">NJENGA Productions Co. · Pittsburgh, PA · njengapro.co</div>
+      <tr><td style="padding:14px 36px 20px;border-top:1px solid rgba(255,255,255,0.04);">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
+          <td><div style="font:400 10px/1.5 'Poppins',Arial,sans-serif;color:rgba(232,226,216,0.18);">NJENGA Productions Co. · Pittsburgh, PA · njengapro.co</div></td>
+          <td align="right"><div style="font:400 10px/1 'Lora',Georgia,serif;font-style:italic;color:rgba(177,89,39,0.4);">Content that builds brands.</div></td>
+        </tr></table>
       </td></tr>
     </table>
   </body></html>`

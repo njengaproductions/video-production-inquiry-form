@@ -133,13 +133,13 @@ function escapeHtml(s: string): string {
 const FONT = "-apple-system,Arial,sans-serif"
 
 function gapListHtml(gaps: Gap[], color: string): string {
-  if (!gaps.length) return `<div style="font:400 13px/1.5 ${FONT};color:#8a8172;">None</div>`
+  if (!gaps.length) return `<div style="font:300 13px/1.5 'Poppins',${FONT};color:rgba(232,226,216,0.3);">None</div>`
   return gaps
     .map(
       (g) => `
       <div style="border-left:3px solid ${color};padding:4px 0 4px 10px;margin:0 0 8px 0;">
-        <div style="font:600 13px/1.4 ${FONT};color:#2b2620;">${escapeHtml(g.agenda)}</div>
-        <div style="font:400 11px/1.4 ${FONT};color:#8a8172;">${escapeHtml(g.label)} · ${g.source === "document" ? "from SOW" : "from form"}</div>
+        <div style="font:600 13px/1.4 'Poppins',${FONT};color:#E8E2D8;">${escapeHtml(g.agenda)}</div>
+        <div style="font:300 11px/1.4 'Poppins',${FONT};color:rgba(232,226,216,0.38);">${escapeHtml(g.label)} · ${g.source === "document" ? "from SOW" : "from form"}</div>
       </div>`,
     )
     .join("")
@@ -149,21 +149,21 @@ function packetHtml(gaps: Gap[], plan: MeetingPlan, quote: string): string {
   const critical = gaps.filter((g) => g.severity === "critical")
   const minor = gaps.filter((g) => g.severity === "minor")
   const approver = plan.bringApprover
-    ? `<div style="margin-top:8px;font:700 12px/1.4 ${FONT};color:#B5520A;">⚠ Client is not the decision maker — get the approver on the call.</div>`
+    ? `<div style="margin-top:8px;font:600 12px/1.4 'Poppins',${FONT};color:#D35F22;">⚠ Client is not the decision maker — get the approver on the call.</div>`
     : ""
   return `
     <tr><td style="padding:24px 24px 4px 24px;">
-      <div style="background:#f4f1ea;border:1px solid #eadfce;border-radius:8px;padding:16px;">
-        <div style="font:700 13px/1.4 Georgia,serif;color:#B5520A;text-transform:uppercase;letter-spacing:0.05em;">Pre-Pro Packet</div>
-        <div style="margin-top:8px;font:600 14px/1.4 ${FONT};color:#2b2620;">
+      <div style="background:#161310;border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:16px;">
+        <div style="font:700 11px/1.4 'Poppins',${FONT};color:#B15927;text-transform:uppercase;letter-spacing:0.1em;">Pre-Pro Packet</div>
+        <div style="margin-top:8px;font:600 14px/1.4 'Poppins',${FONT};color:#E8E2D8;">
           Meeting: ${plan.type === "full" ? "Full" : "Quick"} (${plan.minutes} min) · ${critical.length} critical / ${minor.length} minor gaps
         </div>
-        <div style="margin-top:4px;font:400 13px/1.4 ${FONT};color:#2b2620;">Draft range: ${escapeHtml(quote)}</div>
+        <div style="margin-top:4px;font:300 13px/1.4 'Poppins',${FONT};color:rgba(232,226,216,0.5);">Draft range: ${escapeHtml(quote)}</div>
         ${approver}
-        <div style="margin-top:14px;font:700 12px/1.4 ${FONT};color:#6b6257;text-transform:uppercase;">Agenda — must resolve</div>
-        <div style="margin-top:6px;">${gapListHtml(critical, "#B5520A")}</div>
-        <div style="margin-top:10px;font:700 12px/1.4 ${FONT};color:#6b6257;text-transform:uppercase;">Agenda — clarify if time</div>
-        <div style="margin-top:6px;">${gapListHtml(minor, "#8C7266")}</div>
+        <div style="margin-top:14px;font:700 10px/1.4 'Poppins',${FONT};color:rgba(232,226,216,0.3);text-transform:uppercase;letter-spacing:0.08em;">Agenda — must resolve</div>
+        <div style="margin-top:6px;">${gapListHtml(critical, "#B15927")}</div>
+        <div style="margin-top:10px;font:700 10px/1.4 'Poppins',${FONT};color:rgba(232,226,216,0.3);text-transform:uppercase;letter-spacing:0.08em;">Agenda — clarify if time</div>
+        <div style="margin-top:6px;">${gapListHtml(minor, "#8C6E6F")}</div>
       </div>
     </td></tr>`
 }
@@ -173,7 +173,7 @@ function buildHtml(form: BriefForm, gaps: Gap[], plan: MeetingPlan, quote: strin
     .map(
       ({ section, rows }) => `
       <tr><td style="padding:24px 24px 8px 24px;">
-        <div style="font:700 13px/1.4 Georgia,serif;color:#B5520A;text-transform:uppercase;letter-spacing:0.05em;border-bottom:2px solid #eadfce;padding-bottom:6px;">${escapeHtml(section)}</div>
+        <div style="font:700 10px/1.4 'Poppins',${FONT};color:#B15927;text-transform:uppercase;letter-spacing:0.1em;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:8px;">${escapeHtml(section)}</div>
       </td></tr>
       ${rows
         .map(
@@ -181,8 +181,8 @@ function buildHtml(form: BriefForm, gaps: Gap[], plan: MeetingPlan, quote: strin
         <tr><td style="padding:6px 24px;">
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
             <tr>
-              <td width="200" style="font:600 12px/1.5 ${FONT};color:#6b6257;vertical-align:top;padding-right:12px;">${escapeHtml(r.label)}</td>
-              <td style="font:400 13px/1.5 ${FONT};color:#2b2620;vertical-align:top;white-space:pre-wrap;">${escapeHtml(r.value)}</td>
+              <td width="200" style="font:600 11px/1.5 'Poppins',${FONT};color:rgba(232,226,216,0.35);vertical-align:top;padding-right:12px;">${escapeHtml(r.label)}</td>
+              <td style="font:400 13px/1.5 'Poppins',${FONT};color:#E8E2D8;vertical-align:top;white-space:pre-wrap;">${escapeHtml(r.value)}</td>
             </tr>
           </table>
         </td></tr>`,
@@ -191,15 +191,18 @@ function buildHtml(form: BriefForm, gaps: Gap[], plan: MeetingPlan, quote: strin
     )
     .join("")
 
-  return `<!doctype html><html><body style="margin:0;background:#f4f1ea;padding:24px 0;">
-    <table role="presentation" width="600" align="center" cellpadding="0" cellspacing="0" style="background:#fffdf8;border:1px solid #eadfce;border-radius:10px;overflow:hidden;">
-      <tr><td style="background:#2b2620;padding:20px 24px;">
-        <div style="font:700 18px/1.2 Georgia,serif;color:#B5520A;">NJENGA Productions Co.</div>
-        <div style="font:400 12px/1.4 ${FONT};color:rgba(255,255,255,0.55);margin-top:4px;">New Client Project Brief</div>
+  return `<!doctype html><html><head><style>@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,700;1,400&family=Poppins:wght@300;500;600;700&display=swap');</style></head><body style="margin:0;background:#0A0806;padding:24px 0;">
+    <table role="presentation" width="600" align="center" cellpadding="0" cellspacing="0" style="background:#0E0C09;border-radius:10px;overflow:hidden;">
+      <tr><td style="height:2px;background:linear-gradient(90deg,#D35F22 0%,#B15927 40%,#8C6E6F 100%);font-size:0;line-height:0;">&nbsp;</td></tr>
+      <tr><td style="padding:20px 28px;border-bottom:1px solid rgba(255,255,255,0.06);">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
+          <td><span style="font:700 14px/1 'Poppins',Arial,sans-serif;letter-spacing:0.12em;text-transform:uppercase;color:#D35F22;">NJENGA</span><span style="font:400 11px/1 'Lora',Georgia,serif;font-style:italic;color:#957D7D;margin-left:5px;">Productions Co.</span></td>
+          <td align="right"><span style="font:600 9px/1 'Poppins',Arial,sans-serif;letter-spacing:0.14em;text-transform:uppercase;color:#B15927;border:1px solid rgba(177,89,39,0.35);border-radius:20px;padding:3px 10px;">New Brief</span></td>
+        </tr></table>
       </td></tr>
       ${packetHtml(gaps, plan, quote)}
       ${sections}
-      <tr><td style="padding:20px 24px;border-top:1px solid #eadfce;font:400 11px/1.5 ${FONT};color:#8a8172;">
+      <tr><td style="padding:16px 24px;border-top:1px solid rgba(255,255,255,0.05);font:300 11px/1.5 'Poppins',${FONT};color:rgba(232,226,216,0.25);">
         Submitted via the Client Project Brief form.
       </td></tr>
     </table>
