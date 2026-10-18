@@ -28,5 +28,16 @@ export async function GET(req: Request, { params }: { params: Promise<{ code: st
   const viewerIsAdmin = await isAdmin().catch(() => false)
   const data = await getByTrackerId(code, req.headers.get("user-agent"), !viewerIsAdmin)
   if (!data) return NextResponse.json({ error: "not_found" }, { status: 404 })
-  return NextResponse.json(data, { headers: { "Cache-Control": "no-store" } })
+  const tracker_stages = data.tracker_stages.map((stage) => {
+    const noteVisible = stage.noteVisible ?? false
+    return {
+      key: stage.key,
+      label: stage.label,
+      done: stage.done,
+      date: stage.date ?? null,
+      note: noteVisible ? stage.note ?? null : null,
+      noteVisible,
+    }
+  })
+  return NextResponse.json({ ...data, tracker_stages }, { headers: { "Cache-Control": "no-store" } })
 }
