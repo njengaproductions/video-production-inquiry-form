@@ -6,6 +6,12 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.26.2 — 2026-10-17
+
+### Client tracker — stage notes
+- `/api/tracker/[code]` now maps each stage to `{ key, label, done, date, note, noteVisible }`. `note` is only sent when `noteVisible` is true, so hidden admin notes never reach the client.
+- `components/track/tracker-lookup.tsx`: `Stage` type gains `note` / `noteVisible`; visible notes render under the stage row (12px, `text-white/60`). The row content moved into an inner flex `div` so the note can sit below it.
+
 ## 0.26.1 — 2026-10-17
 
 ### Admin — tracker view stats

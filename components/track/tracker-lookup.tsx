@@ -2,7 +2,14 @@
 
 import { useState, type FormEvent } from "react"
 
-type Stage = { key: string; label: string; done: boolean; date?: string }
+type Stage = {
+  key: string
+  label: string
+  done: boolean
+  date?: string
+  note?: string
+  noteVisible?: boolean
+}
 type Tracker = { name: string; budget_tier: string | null; tracker_id: string; tracker_stages: Stage[] }
 
 type State =
@@ -120,7 +127,8 @@ function TrackerResult({ data }: { data: Tracker }) {
         {stages.map((s, i) => {
           const inProgress = i === currentIdx
           return (
-            <li key={s.key} className="flex items-center gap-3 border-b border-white/5 py-3 last:border-b-0">
+            <li key={s.key} className="border-b border-white/5 py-3 last:border-b-0">
+              <div className="flex items-center gap-3">
               <span className="relative flex h-3 w-3 flex-shrink-0 items-center justify-center" aria-hidden="true">
                 {s.done ? (
                   <span className="h-3 w-3 rounded-full bg-[#B15927]" />
@@ -140,6 +148,10 @@ function TrackerResult({ data }: { data: Tracker }) {
               <span className={`font-sans text-[12px] ${inProgress && !s.date ? "text-emerald-400" : "text-white/40"}`}>
                 {s.date ? fmtDate(s.date) : inProgress ? "In progress" : "—"}
               </span>
+              </div>
+              {s.note && s.noteVisible && (
+                <p className="mt-1 pl-6 font-sans text-[12px] leading-snug text-white/60">{s.note}</p>
+              )}
             </li>
           )
         })}
