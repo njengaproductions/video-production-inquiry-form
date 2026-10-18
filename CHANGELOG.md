@@ -6,6 +6,14 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.25.13 — 2026-10-17
+
+### Tracker
+- Edit-only tracker stages: removed "Contract signed" and added "Pre-production call" after "Brief received".
+
+### Admin
+- Tracker stage date inputs now show their text in the brand colour, inline and through a global `input[type="date"]` rule in `globals.css`.
+
 ## 0.25.12 — 2026-10-17
 
 ### Tracker

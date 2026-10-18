@@ -195,7 +195,7 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
                           defaultValue={s.date ?? ""}
                           aria-label={`Date for ${s.label}`}
                           className="h-9 rounded-md border border-border bg-field px-1.5 font-sans text-[16px] text-foreground outline-none focus:border-brand"
-                          style={{ colorScheme: "light", color: "var(--foreground)" }}
+                          style={{ colorScheme: "light", color: "var(--brand)" }}
                         />
                         <button type="submit" className="h-9 rounded-md border border-border bg-muted px-3 font-sans text-[11px] text-muted-foreground transition-colors hover:border-brand hover:text-brand">
                           Set
