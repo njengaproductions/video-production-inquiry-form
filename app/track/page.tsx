@@ -15,7 +15,7 @@ export default async function TrackPage() {
   const admin = await isAdmin()
   return (
     <main className="relative flex min-h-screen flex-col text-white" style={{ backgroundColor: "#121110", backgroundImage: "url('/images/admin-bg.webp')", backgroundSize: "cover", backgroundPosition: "right" }}>
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/95 via-black/80 to-black/50" />
       <div className="relative z-10 flex flex-1 flex-col">
         {admin ? (
           <AdminHeader subtitle="Project Tracker" />
