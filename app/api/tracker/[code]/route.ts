@@ -21,12 +21,28 @@ function allow(ip: string): boolean {
   return true
 }
 
+function decodeHeader(value: string | null): string | null {
+  if (!value) return null
+  try {
+    return decodeURIComponent(value)
+  } catch {
+    return value
+  }
+}
+
+// Vercel injects these geo headers on every deployed request; absent in local dev.
+function geoLocation(req: Request): string | null {
+  const city = decodeHeader(req.headers.get("x-vercel-ip-city"))
+  const region = decodeHeader(req.headers.get("x-vercel-ip-country-region"))
+  return [city, region].filter(Boolean).join(", ") || null
+}
+
 export async function GET(req: Request, { params }: { params: Promise<{ code: string }> }) {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown"
   if (!allow(ip)) return NextResponse.json({ error: "too_many_requests" }, { status: 429 })
   const { code } = await params
   const viewerIsAdmin = await isAdmin().catch(() => false)
-  const data = await getByTrackerId(code, req.headers.get("user-agent"), !viewerIsAdmin)
+  const data = await getByTrackerId(code, req.headers.get("user-agent"), !viewerIsAdmin, geoLocation(req))
   if (!data) return NextResponse.json({ error: "not_found" }, { status: 404 })
   const tracker_stages = data.tracker_stages.map((stage) => {
     const noteVisible = stage.noteVisible ?? false

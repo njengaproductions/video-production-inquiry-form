@@ -179,6 +179,7 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
                 <div className="shrink-0 text-right font-sans text-[12px] text-muted-foreground">
                   <p className="m-0">Views: {b.tracker_access_count ?? 0}</p>
                   <p className="m-0">Last viewed: {b.tracker_last_viewed ? fmtViewed(b.tracker_last_viewed) : "Never"}</p>
+                  {b.tracker_last_location && <p className="m-0">Last location: {b.tracker_last_location}</p>}
                   <p className="m-0">Last device: {describeDevice(b.tracker_last_ua)}</p>
                 </div>
               </div>
