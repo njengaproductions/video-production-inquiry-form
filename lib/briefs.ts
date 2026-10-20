@@ -44,6 +44,7 @@ export type BriefDetail = BriefRow & {
   tracker_access_count: number
   tracker_last_viewed: string | null
   tracker_last_ua: string | null
+  tracker_last_location: string | null
 }
 
 export type PublicTracker = {
@@ -134,17 +135,20 @@ export async function getByTrackerId(
   code: string,
   userAgent: string | null = null,
   recordView = true,
+  location: string | null = null,
 ): Promise<PublicTracker | null> {
   if (!TRACKER_CODE.test(code)) return null
   await ensureSchema()
   const ua = userAgent ? userAgent.slice(0, 512) : null
+  const loc = location ? location.slice(0, 200) : null
   const rows = (
     recordView
       ? await sql()`
     UPDATE briefs
     SET tracker_access_count = COALESCE(tracker_access_count, 0) + 1,
         tracker_last_viewed = NOW(),
-        tracker_last_ua = ${ua}
+        tracker_last_ua = ${ua},
+        tracker_last_location = ${loc}
     WHERE tracker_id = ${code} AND deleted_at IS NULL
     RETURNING client_name AS name, form->>'budgetTier' AS budget_tier, tracker_id, tracker_stages`
       : await sql()`
@@ -275,7 +279,7 @@ export async function getBrief(id: string): Promise<BriefDetail | null> {
   const rows = (await sql()`
     SELECT id, submitted_at, status, source, client_name, client_email, budget, meeting_type, gap_count, deleted_at,
            form, gaps, meeting, quote, notes,
-           tracker_id, tracker_stages, tracker_access_count, tracker_last_viewed, tracker_last_ua
+           tracker_id, tracker_stages, tracker_access_count, tracker_last_viewed, tracker_last_ua, tracker_last_location
     FROM briefs WHERE id = ${id}`) as unknown as BriefDetail[]
   return rows[0] ?? null
 }

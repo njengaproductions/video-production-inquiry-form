@@ -6,6 +6,14 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.27.0 — 2026-10-20
+
+### Tracker — last view location
+- `lib/db.ts`: `ensureSchema()` adds nullable `tracker_last_location TEXT` to `briefs` (`ADD COLUMN IF NOT EXISTS`, safe to re-run).
+- `app/api/tracker/[code]/route.ts`: builds "City, Region" from Vercel's `x-vercel-ip-city` (URL-decoded) and `x-vercel-ip-country-region` headers and passes it to the lookup. No external API.
+- `lib/briefs.ts`: `getByTrackerId()` stores the location alongside view count, last viewed, and last device (client views only; admin views still skipped). `BriefDetail` and `getBrief()` include `tracker_last_location`.
+- `app/admin/briefs/[id]/page.tsx`: tracker card shows "Last location: …" between Last viewed and Last device, same style. Hidden when null (views recorded before this change).
+
 ## 0.26.3 — 2026-10-17
 
 ### Emails — dark branded template
