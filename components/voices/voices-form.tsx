@@ -76,11 +76,11 @@ export function VoicesForm({ testimonials, photos = [] }: { testimonials: Approv
         </div>
       ) : (
         <>
-          <VoicesHero count={testimonials.length} photos={photos} />
+          <VoicesHero photos={photos} />
           <PinnedQuote voice={testimonials[0]} />
           <ChipBurst voices={testimonials} />
           <HorizontalVoices voices={shuffled} />
-          <GiantCounter count={testimonials.length} overlap={testimonials.length > 0} />
+          <GiantCounter overlap={testimonials.length > 0} />
 
           <section id="add-your-voice" className={`${SCENE_EDGE} z-10 scroll-mt-6 bg-[#0a0806] px-6 py-24 md:py-32`}>
             <div className="mx-auto max-w-2xl">
