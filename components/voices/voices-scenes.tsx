@@ -153,7 +153,7 @@ function GhostPhotos({ photos, progress }: { photos: string[]; progress: number 
   )
 }
 
-export function VoicesHero({ count, photos = [] }: { count: number; photos?: string[] }) {
+export function VoicesHero({ photos = [] }: { photos?: string[] }) {
   const [heroRef, progress] = useExitProgress<HTMLElement>()
   const leakProgress = Math.max(0, Math.min(1, (progress - 0.35) / 0.4))
   const leakOpacity = Math.sin(leakProgress * Math.PI) * 0.85
@@ -194,8 +194,8 @@ export function VoicesHero({ count, photos = [] }: { count: number; photos?: str
       <div className="relative z-10 mx-auto flex w-full max-w-6xl items-end justify-between gap-6 pb-8" style={{ transform: `translateY(${progress * 2.4}vh)` }}>
         <p className="max-w-[10rem] text-[9px] font-semibold uppercase tracking-[5px] text-primary">The voices behind the work</p>
         <div className="text-right">
-          <p className="font-serif text-[52px] font-normal leading-none text-[rgba(181,82,10,0.35)]">{count}</p>
-          <p className="mt-2 text-[8px] uppercase tracking-[3px] text-[rgba(240,236,230,0.62)]">Voices &amp; counting</p>
+          <p className="font-serif text-[22px] font-normal leading-[1.2] text-[rgba(232,201,154,0.55)]">Every moment.<br /><em className="not-italic text-[rgba(177,89,39,0.7)]">Every brand.</em></p>
+          <p className="mt-2 text-[8px] uppercase tracking-[3px] text-[rgba(240,236,230,0.62)]">The relationships behind the work</p>
         </div>
         <div aria-hidden="true" className="absolute bottom-8 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-3 sm:flex">
           <span className="voices-scroll-label text-[8px] uppercase tracking-[3px] text-[rgba(240,236,230,0.62)]">Scroll to explore</span>
@@ -734,7 +734,7 @@ export function HorizontalVoices({ voices }: { voices: ApprovedVoice[] }) {
       <div className="sticky bg-[#0a0806] top-0 flex h-screen flex-col justify-center gap-10 overflow-hidden py-12">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6">
           <p className="text-[9px] font-semibold uppercase tracking-[5px] text-primary">All voices</p>
-          <p className="font-serif text-sm text-[rgba(240,236,230,0.62)]" aria-live="polite"><span style={{ color: HEADLINE }}>{current}</span> / {voices.length}</p>
+          <p className="text-[9px] font-semibold uppercase tracking-[3px] text-[rgba(240,236,230,0.35)]">Scroll to explore</p>
         </div>
         <div ref={viewportRef} className="mx-auto w-full max-w-6xl px-6">
           <div ref={trackRef} className="flex w-max gap-6 will-change-transform" style={{ transform: `translate3d(${-progress * maxShift}px,0,0)` }}>
@@ -751,18 +751,26 @@ export function HorizontalVoices({ voices }: { voices: ApprovedVoice[] }) {
   )
 }
 
-export function GiantCounter({ count, overlap }: { count: number; overlap: boolean }) {
+export function GiantCounter({ overlap }: { overlap: boolean }) {
   const [ref, progress] = useScrollProgress<HTMLElement>(overlap ? 0.5 : -0.6)
   const visible = progress > 0
   return (
     <section ref={ref} data-visible={visible} className={`voices-counter ${SCENE_EDGE} z-20 bg-[#0a0806] ${overlap ? "-mt-[calc(100vh+4px)] h-[calc(200vh+4px)]" : "h-[200vh]"}`}>
       <div className="sticky top-0 flex h-screen flex-col items-center justify-center bg-[#0a0806] px-6 text-center">
         <motion.div {...reveal()}>
-          <p className="voices-counter-number font-serif text-[120px] font-normal leading-none">{count}</p>
+          <p className="voices-counter-number font-serif font-normal leading-none" style={{ fontSize: "clamp(64px,10vw,108px)" }}>
+            <span className="block text-[#B15927]">Every moment.</span>
+            <span className="block text-[#e8c99a]">Every brand.</span>
+          </p>
         </motion.div>
         <motion.div {...reveal(0.08)}>
-          <p className="voices-counter-label mt-4 text-[8px] uppercase tracking-[3px] text-[rgba(240,236,230,0.62)]">Voices &amp; counting</p>
+          <div className="mx-auto mt-6 h-px w-8 bg-[#B15927] opacity-50" />
           <p className="voices-counter-phrase mt-6 font-serif text-lg italic text-[rgba(240,236,230,0.62)]">People we&apos;ve had the privilege of creating with.</p>
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+            {["Brands", "Churches", "Events", "Nonprofits"].map((tag) => (
+              <span key={tag} className="rounded-full border border-white/10 px-3 py-1 text-[9px] font-semibold uppercase tracking-[3px] text-[rgba(240,236,230,0.35)]">{tag}</span>
+            ))}
+          </div>
         </motion.div>
       </div>
     </section>

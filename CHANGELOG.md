@@ -6,6 +6,16 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.27.1 — 2026-10-20
+
+### Voices page — relationship language instead of counts
+- `components/voices/voices-scenes.tsx`: `VoicesHero` drops the `count` prop; the corner number is replaced with "Every moment. / Every brand." and the label "The relationships behind the work".
+- `GiantCounter` drops the `count` prop; the giant number is replaced with a two-line "Every moment. / Every brand." headline, a short brand-colored rule, the existing phrase, and Brands / Churches / Events / Nonprofits tags.
+- `HorizontalVoices`: the visible "current / total" counter is replaced with "Scroll to explore" (the `current` value still drives the progress bar's `aria-valuenow`).
+- `components/voices/voices-form.tsx`: removed `count` from the `VoicesHero` and `GiantCounter` calls.
+
+---
+
 ## 0.27.0 — 2026-10-20
 
 ### Tracker — last view location
