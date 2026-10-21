@@ -6,6 +6,12 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.27.2 — 2026-10-21
+
+### Admin — tracker dates use Eastern time
+- `app/admin/briefs/[id]/page.tsx`: stage date inputs compute `min` (today) in `America/New_York` instead of UTC, so evening ET no longer blocks today.
+- `app/admin/actions.ts`: the fallback stage date when no valid date is passed uses today in `America/New_York` instead of UTC.
+
 ## 0.27.1 — 2026-10-20
 
 ### Voices page — relationship language instead of counts
