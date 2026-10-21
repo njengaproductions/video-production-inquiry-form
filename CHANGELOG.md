@@ -6,6 +6,11 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.27.4 — 2026-10-21
+
+### Admin
+- Stage card date inputs no longer restrict selection to today or later (removed `min`).
+
 ## 0.27.3 — 2026-10-21
 
 ### Tracker — stage dates no longer off by one
