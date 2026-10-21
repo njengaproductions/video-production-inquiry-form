@@ -223,7 +223,7 @@ export default async function BriefPage({ params }: { params: Promise<{ id: stri
                             name="date"
                             required
                             defaultValue={s.date ?? ""}
-                            min={new Date().toISOString().split("T")[0]}
+                            min={new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(new Date())}
                             aria-label={`Date for ${s.label}`}
                             className={`peer h-9 rounded-md border border-border bg-field px-1.5 font-sans text-[16px] text-foreground outline-none focus:border-brand ${s.date ? "" : "[&:invalid:not(:focus)::-webkit-datetime-edit]:text-transparent"}`}
                             style={{ colorScheme: "light", color: "var(--brand)" }}

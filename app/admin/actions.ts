@@ -129,7 +129,7 @@ export async function importBrief(rawForm: unknown, date: string): Promise<Resul
   if (denied) return denied
   const form = normalizeForm(pickForm(rawForm))
   if (!form.fullName.trim()) return { ok: false, error: "A client name is required." }
-  const day = /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : new Date().toISOString().slice(0, 10)
+  const day = /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(new Date())
   const gaps = structuralGaps(form)
   try {
     await insertImported({
