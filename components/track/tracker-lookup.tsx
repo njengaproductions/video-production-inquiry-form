@@ -23,8 +23,14 @@ const fmtDate = (d: string) => {
   const date = new Date(d)
   return Number.isNaN(date.getTime())
     ? d
-    : date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-}
+  : date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      // Date-only strings parse as UTC midnight; format in UTC so the stored calendar day is shown as-is.
+      timeZone: /^\d{4}-\d{2}-\d{2}$/.test(d) ? "UTC" : "America/New_York",
+    })
+  }
 
 export function TrackerLookup() {
   const [code, setCode] = useState("")

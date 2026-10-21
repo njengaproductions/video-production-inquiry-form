@@ -6,6 +6,11 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.27.3 — 2026-10-21
+
+### Tracker — stage dates no longer off by one
+- `components/track/tracker-lookup.tsx`: `fmtDate` formats date-only values (`YYYY-MM-DD`) in UTC so the date set in admin shows exactly on the client tracker (previously showed the day before for US time zones). Full timestamps still format in `America/New_York`.
+
 ## 0.27.2 — 2026-10-21
 
 ### Admin — tracker dates use Eastern time
