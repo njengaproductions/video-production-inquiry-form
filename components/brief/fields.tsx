@@ -83,6 +83,48 @@ export function TextField({ label, required, placeholder, value, onChange, type 
   )
 }
 
+export function TimeField({ label, required, value, onChange, status, error, id }: Omit<InputProps, "placeholder" | "type">) {
+  const filled = value.length > 0
+  const hasError = !!error
+
+  const wrapClass = [
+    "flex items-center gap-2.5 w-full rounded-md border px-3.5 font-sans outline-none transition-colors",
+    "h-[46px] focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/15",
+    hasError
+      ? "border-red-400 ring-2 ring-red-400/15 bg-red-50 dark:bg-red-950/20"
+      : status === "missing"
+      ? "border-brand ring-2 ring-brand/20 brief-pulse bg-field"
+      : filled
+      ? "bg-accent border-brand/[0.22]"
+      : "bg-field border-input",
+  ].join(" ")
+
+  return (
+    <label id={id} className="block scroll-mt-24">
+      <Label required={required} status={status}>{label}</Label>
+      <div className={wrapClass}>
+        <svg
+          className={`shrink-0 w-4 h-4 transition-colors ${hasError ? "text-red-400" : filled ? "text-brand" : "text-muted-foreground/50"}`}
+          viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="8" cy="8" r="6.25"/>
+          <path d="M8 5v3l2 1.5"/>
+        </svg>
+        <input
+          type="time"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          aria-invalid={hasError || status === "missing" ? true : undefined}
+          className="flex-1 min-w-0 bg-transparent text-foreground outline-none font-sans text-[16px] focus:outline-none"
+          style={{ colorScheme: "light" }}
+        />
+      </div>
+      {error && <span className="mt-1.5 block font-sans text-[12px] text-red-500">{error}</span>}
+    </label>
+  )
+}
+
 const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 const DAY_NAMES = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
 
@@ -91,22 +133,6 @@ function parseMDY(value: string): Date | null {
   const [m, d, y] = value.split("/").map((p) => p.trim())
   const dt = new Date(Number(y), Number(m) - 1, Number(d))
   return Number.isNaN(dt.getTime()) ? null : dt
-}
-
-export function TimeField({ label, required, value, onChange, status, id }: Omit<InputProps, "placeholder" | "type">) {
-  return (
-    <label id={id} className="mb-[18px] block scroll-mt-24">
-      <Label required={required} status={status}>{label}</Label>
-      <input
-        type="time"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        aria-invalid={status === "error" || status === "missing" ? true : undefined}
-        className={controlClass(status)}
-        style={{ colorScheme: "dark" }}
-      />
-    </label>
-  )
 }
 
 export function DateField({ label, required, value, onChange, status, id, showFeeHint = false }: Omit<InputProps, "placeholder" | "type"> & { showFeeHint?: boolean }) {
