@@ -6,6 +6,11 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.27.8 — 2026-10-22
+
+### Client brief
+- Improved native time-input styling and focused field contrast.
+
 ## 0.27.7 — 2026-10-22
 
 ### Client brief
