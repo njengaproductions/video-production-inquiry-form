@@ -192,7 +192,6 @@ export function ProjectBrief({
   const hasEnd = form.endTime.length > 0
   const toMins = (t: string) => { const [h, m] = t.split(":").map(Number); return h * 60 + (m || 0) }
   const sameMoment = hasStart && hasEnd && form.startTime === form.endTime
-  const isOvernight = hasStart && hasEnd && !sameMoment && toMins(form.endTime) < toMins(form.startTime)
   const timeStatus = (which: "start" | "end"): FieldStatus | undefined => {
     if (!hasStart && !hasEnd) return undefined
     if (which === "start" && !hasStart) return "error"
@@ -211,13 +210,38 @@ export function ProjectBrief({
     if (first) document.getElementById(`field-${first}`)?.scrollIntoView({ behavior: "smooth", block: "center" })
   }
 
+  const parseMDY = (s: string) => {
+    const [m, d, y] = s.split("/").map(Number)
+    const dt = new Date(y, m - 1, d)
+    return s && !Number.isNaN(dt.getTime()) ? dt : null
+  }
+  const startDate = parseMDY(form.projectDate)
+  const endDateParsed = parseMDY(form.endDate)
+  const daysSpan = startDate && endDateParsed
+    ? Math.round((endDateParsed.getTime() - startDate.getTime()) / 86400000)
+    : null
+  const isMultiDay = daysSpan !== null && daysSpan > 0
+  const endBeforeStart = daysSpan !== null && daysSpan < 0
+  const endDateError = endBeforeStart ? "End date must be on or after the project start date." : null
+  const durationLabel = daysSpan === null
+    ? null
+    : daysSpan === 0
+      ? "Single-day shoot"
+      : isMultiDay
+        ? `${daysSpan + 1}-day project · ${startDate!.toLocaleDateString("en-US", { month: "short", day: "numeric" })} – ${endDateParsed!.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`
+        : null
+
+  const isOvernight = hasStart && hasEnd && !sameMoment && !isMultiDay && toMins(form.endTime) < toMins(form.startTime)
+  const startTimeError = !hasStart && hasEnd ? "Required" : sameMoment ? "Cannot match end time" : undefined
+  const endTimeError = hasStart && !hasEnd ? "Required" : sameMoment ? "Cannot match start time" : undefined
+
   const applyExtracted = (data: ExtractedBrief) => {
     // Computed from current state (upload is a single user action) so we can count what was filled.
     const next = { ...form }
     const filled: (keyof BriefForm)[] = []
     // Only fill empty fields so we never overwrite what the client already typed.
     const strKeys = [
-      "fullName", "email", "phone", "serviceType", "projectDate", "startTime", "endTime", "location",
+      "fullName", "email", "phone", "serviceType", "projectDate", "endDate", "startTime", "endTime", "location",
       "subjects", "projectDesc", "customDesc", "deadlineDate", "references", "notes",
     ] as const
     for (const k of strKeys) {
@@ -524,37 +548,23 @@ export function ProjectBrief({
                 <SectionLabel>Part 2 — Your Project</SectionLabel>
                 <RadioGroup label="What type of service do you need?" required id="field-serviceType" status={st("serviceType", true)} options={["Full Production (Shoot + Edit)", "Shoot Only — I need footage captured", "Edit Only — I have existing footage", "Not sure — let's talk"]} value={form.serviceType} onChange={set("serviceType")} />
                 <CheckGroup label="Type of Project" required id="field-projectType" status={st("projectType", true)} options={["Event Coverage", "Commercial", "Brand Film", "Wedding", "Social Media Content", "Other"]} values={form.projectType} onChange={set("projectType")} />
-                <DateField label="Project / Event Date" id="field-projectDate" status={st("projectDate")} value={form.projectDate} onChange={set("projectDate")} />
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <TimeField label="Start Time" id="field-startTime" value={form.startTime} onChange={set("startTime")} status={timeStatus("start")} />
-                  <TimeField label="End Time" id="field-endTime" value={form.endTime} onChange={set("endTime")} status={timeStatus("end")} />
+                <div className="mb-[18px]">
+                  <div className="grid grid-cols-1 gap-x-3 sm:grid-cols-2">
+                    <DateField label="Project / Event Date" id="field-projectDate" status={st("projectDate")} value={form.projectDate} onChange={set("projectDate")} />
+                    <DateField label="End Date" id="field-endDate" value={form.endDate} onChange={set("endDate")} error={endDateError ?? undefined} />
+                  </div>
+                  {durationLabel && !endBeforeStart && <div className="-mt-2 mb-3 inline-flex items-center rounded-full border border-brand/18 bg-brand/[0.07] px-3 py-1 font-sans text-[11px] font-semibold text-brand">{durationLabel}</div>}
+                  {endDateError && <div role="status" aria-live="polite" className="-mt-2 mb-3 rounded-lg border border-brand/20 bg-brand/[0.06] px-3 py-2.5 font-sans text-[12px] text-brand">{endDateError}</div>}
                 </div>
-  {timePairError && (
-    <div
-      role="status"
-      aria-live="polite"
-      className="mt-2.5 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 dark:border-red-900/40 dark:bg-red-950/20"
-    >
-      <svg className="mt-px h-3.5 w-3.5 shrink-0 text-red-500" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <circle cx="7" cy="7" r="5.5" />
-        <path d="M7 4.5v3M7 9v.5" />
-      </svg>
-      <span className="font-sans text-[12px] leading-relaxed text-red-600 dark:text-red-400">{timePairError}</span>
-    </div>
-  )}
-  {isOvernight && !timePairError && (
-    <div
-      role="status"
-      aria-live="polite"
-      className="mt-2.5 flex items-start gap-2 rounded-lg border border-brand/20 bg-brand/[0.06] px-3 py-2.5"
-    >
-      <svg className="mt-px h-3.5 w-3.5 shrink-0 text-brand" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <circle cx="7" cy="7" r="5.5" />
-        <path d="M8.5 7.5A2.5 2.5 0 0 1 6 5a2.5 2.5 0 0 0 2.5 5A2.5 2.5 0 0 1 8.5 7.5z" />
-      </svg>
-      <span className="font-sans text-[12px] leading-relaxed text-brand">Overnight shoot detected — end time is next day.</span>
-    </div>
-  )}
+                <div className="mb-[18px]">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <TimeField label="Start Time" id="field-startTime" value={form.startTime} onChange={set("startTime")} status={timeStatus("start")} error={startTimeError} />
+                    <TimeField label="End Time" id="field-endTime" value={form.endTime} onChange={set("endTime")} status={timeStatus("end")} error={endTimeError} />
+                  </div>
+                  {timePairError && <div role="status" aria-live="polite" className="mt-2.5 rounded-lg border border-brand/20 bg-brand/[0.06] px-3 py-2.5 font-sans text-[12px] text-brand">{timePairError}</div>}
+                  {isOvernight && !timePairError && <div role="status" aria-live="polite" className="mt-2.5 rounded-lg border border-brand/20 bg-brand/[0.06] px-3 py-2.5 font-sans text-[12px] text-brand">Overnight shoot detected — end time is next day.</div>}
+                  {isMultiDay && !timePairError && <p className="mt-1.5 font-sans text-[11px] text-muted-foreground/70">Times apply to each shoot day.</p>}
+                </div>
                 <TextField label="Project Location" id="field-location" status={st("location")} placeholder="City, venue, or address" value={form.location} onChange={set("location")} />
                 <RadioGroup label="Indoor or Outdoor?" options={["Indoor", "Outdoor", "Both", "N/A — Edit Only"]} value={form.indoorOutdoor} onChange={set("indoorOutdoor")} />
                 <TextField label="Estimated number of subjects / people" id="field-subjects" status={st("subjects")} placeholder="e.g. 2 people, 50 guests" value={form.subjects} onChange={set("subjects")} />

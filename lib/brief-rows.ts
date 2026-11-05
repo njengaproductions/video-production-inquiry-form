@@ -24,6 +24,7 @@ export const SECTIONS: { title: string; rows: { label: string; key: Key }[] }[] 
       { label: "Service Type", key: "serviceType" },
       { label: "Project Type", key: "projectType" },
       { label: "Project / Event Date", key: "projectDate" },
+      { label: "End Date", key: "endDate" },
       { label: "Start Time", key: "startTime" },
       { label: "End Time", key: "endTime" },
       { label: "Location", key: "location" },
