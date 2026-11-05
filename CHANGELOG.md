@@ -6,6 +6,13 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.27.5 — 2026-10-22
+
+### Client brief
+- Added start and end time fields with same-time, missing-pair, and overnight guidance.
+- Included project times in extracted briefs, saved brief rows, and producer email summaries.
+- Added red error styling for invalid time-field states.
+
 ## 0.27.4 — 2026-10-21
 
 ### Admin

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, 
 
 // "filled"  = pre-filled from the uploaded document (client should review it)
 // "missing" = required and still empty after an upload (pulses, then keeps an outline)
-export type FieldStatus = "filled" | "missing"
+export type FieldStatus = "filled" | "missing" | "error"
 
 function Label({ children, required, status }: { children: ReactNode; required?: boolean; status?: FieldStatus }) {
   return (
@@ -44,9 +44,11 @@ function controlClass(status?: FieldStatus, error?: string) {
   const border =
     status === "missing"
       ? "border-brand ring-2 ring-brand/20 brief-pulse"
-      : error
-        ? "border-brand ring-2 ring-brand/15"
-        : "border-input"
+      : status === "error"
+        ? "border-red-500 ring-2 ring-red-500/20"
+        : error
+          ? "border-brand ring-2 ring-brand/15"
+          : "border-input"
   return `${controlBase} ${bg} ${border}`
 }
 
@@ -89,6 +91,22 @@ function parseMDY(value: string): Date | null {
   const [m, d, y] = value.split("/").map((p) => p.trim())
   const dt = new Date(Number(y), Number(m) - 1, Number(d))
   return Number.isNaN(dt.getTime()) ? null : dt
+}
+
+export function TimeField({ label, required, value, onChange, status, id }: Omit<InputProps, "placeholder" | "type">) {
+  return (
+    <label id={id} className="mb-[18px] block scroll-mt-24">
+      <Label required={required} status={status}>{label}</Label>
+      <input
+        type="time"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        aria-invalid={status === "error" || status === "missing" ? true : undefined}
+        className={controlClass(status)}
+        style={{ colorScheme: "dark" }}
+      />
+    </label>
+  )
 }
 
 export function DateField({ label, required, value, onChange, status, id, showFeeHint = false }: Omit<InputProps, "placeholder" | "type"> & { showFeeHint?: boolean }) {

@@ -36,6 +36,8 @@ const ExtractionSchema = z.object({
   serviceType: z.enum(SERVICE_TYPES).describe("Best match for the service needed. Empty string if unclear."),
   projectType: z.array(z.enum(PROJECT_TYPES)).describe("All that clearly apply. Empty array if none."),
   projectDate: z.string().describe("The project or event date if mentioned. Empty string if not found."),
+  startTime: z.string().describe("Start time of the project or event if mentioned. Empty string if not found."),
+  endTime: z.string().describe("End time of the project or event if mentioned. Empty string if not found."),
   location: z.string().describe("The project location, city, venue, or address. Empty string if not found."),
   subjects: z.string().describe("Estimated number of subjects/people involved. Empty string if not found."),
   projectDesc: z.string().describe("A concise summary of the project vision, goals, and scope described in the document."),
