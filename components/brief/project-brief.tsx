@@ -529,8 +529,32 @@ export function ProjectBrief({
                   <TimeField label="Start Time" id="field-startTime" value={form.startTime} onChange={set("startTime")} status={timeStatus("start")} />
                   <TimeField label="End Time" id="field-endTime" value={form.endTime} onChange={set("endTime")} status={timeStatus("end")} />
                 </div>
-                {timePairError && <p className="mb-4 -mt-2 text-xs text-red-400">{timePairError}</p>}
-                {isOvernight && !timePairError && <p className="mb-4 -mt-2 text-xs text-amber-400">Overnight shoot detected — end time is next day.</p>}
+  {timePairError && (
+    <div
+      role="status"
+      aria-live="polite"
+      className="mt-2.5 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 dark:border-red-900/40 dark:bg-red-950/20"
+    >
+      <svg className="mt-px h-3.5 w-3.5 shrink-0 text-red-500" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <circle cx="7" cy="7" r="5.5" />
+        <path d="M7 4.5v3M7 9v.5" />
+      </svg>
+      <span className="font-sans text-[12px] leading-relaxed text-red-600 dark:text-red-400">{timePairError}</span>
+    </div>
+  )}
+  {isOvernight && !timePairError && (
+    <div
+      role="status"
+      aria-live="polite"
+      className="mt-2.5 flex items-start gap-2 rounded-lg border border-brand/20 bg-brand/[0.06] px-3 py-2.5"
+    >
+      <svg className="mt-px h-3.5 w-3.5 shrink-0 text-brand" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <circle cx="7" cy="7" r="5.5" />
+        <path d="M8.5 7.5A2.5 2.5 0 0 1 6 5a2.5 2.5 0 0 0 2.5 5A2.5 2.5 0 0 1 8.5 7.5z" />
+      </svg>
+      <span className="font-sans text-[12px] leading-relaxed text-brand">Overnight shoot detected — end time is next day.</span>
+    </div>
+  )}
                 <TextField label="Project Location" id="field-location" status={st("location")} placeholder="City, venue, or address" value={form.location} onChange={set("location")} />
                 <RadioGroup label="Indoor or Outdoor?" options={["Indoor", "Outdoor", "Both", "N/A — Edit Only"]} value={form.indoorOutdoor} onChange={set("indoorOutdoor")} />
                 <TextField label="Estimated number of subjects / people" id="field-subjects" status={st("subjects")} placeholder="e.g. 2 people, 50 guests" value={form.subjects} onChange={set("subjects")} />
