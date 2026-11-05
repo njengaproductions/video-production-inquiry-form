@@ -525,7 +525,7 @@ export function ProjectBrief({
                 <RadioGroup label="What type of service do you need?" required id="field-serviceType" status={st("serviceType", true)} options={["Full Production (Shoot + Edit)", "Shoot Only — I need footage captured", "Edit Only — I have existing footage", "Not sure — let's talk"]} value={form.serviceType} onChange={set("serviceType")} />
                 <CheckGroup label="Type of Project" required id="field-projectType" status={st("projectType", true)} options={["Event Coverage", "Commercial", "Brand Film", "Wedding", "Social Media Content", "Other"]} values={form.projectType} onChange={set("projectType")} />
                 <DateField label="Project / Event Date" id="field-projectDate" status={st("projectDate")} value={form.projectDate} onChange={set("projectDate")} />
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <TimeField label="Start Time" id="field-startTime" value={form.startTime} onChange={set("startTime")} status={timeStatus("start")} />
                   <TimeField label="End Time" id="field-endTime" value={form.endTime} onChange={set("endTime")} status={timeStatus("end")} />
                 </div>
