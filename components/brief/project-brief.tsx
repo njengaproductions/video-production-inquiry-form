@@ -7,7 +7,7 @@ import { submitBrief } from "@/app/actions/submit-brief"
 import { suggestTier } from "@/app/actions/suggest-tier"
 import type { ExtractedBrief } from "@/app/actions/extract-brief"
 import { BUDGET_TIERS, INITIAL_FORM, SECTIONS, type BriefForm } from "./data"
-import { CheckGroup, DateField, RadioGroup, SectionLabel, TextArea, TextField, type FieldStatus } from "./fields"
+import { CheckGroup, DateField, RadioGroup, SectionLabel, TextArea, TextField, TimeField, type FieldStatus } from "./fields"
 import { ScopeUpload, type UploadSummary } from "./scope-upload"
 import { Celebration } from "./celebration"
 import type { Gap, MeetingPlan } from "./gaps"
@@ -188,6 +188,24 @@ export function ProjectBrief({
   const st = (k: keyof BriefForm, required = false): FieldStatus | undefined =>
     required && flagMissing && isEmpty(form, k) ? "missing" : autoFilled.has(k) ? "filled" : undefined
 
+  const hasStart = form.startTime.length > 0
+  const hasEnd = form.endTime.length > 0
+  const toMins = (t: string) => { const [h, m] = t.split(":").map(Number); return h * 60 + (m || 0) }
+  const sameMoment = hasStart && hasEnd && form.startTime === form.endTime
+  const isOvernight = hasStart && hasEnd && !sameMoment && toMins(form.endTime) < toMins(form.startTime)
+  const timeStatus = (which: "start" | "end"): FieldStatus | undefined => {
+    if (!hasStart && !hasEnd) return undefined
+    if (which === "start" && !hasStart) return "error"
+    if (which === "end" && !hasEnd) return "error"
+    if (sameMoment) return "error"
+    return undefined
+  }
+  const timePairError = sameMoment
+    ? "Start and end time cannot be the same."
+    : (hasStart && !hasEnd) || (!hasStart && hasEnd)
+    ? "Please fill in both start and end times."
+    : null
+
   const scrollToMissing = (keys: readonly (keyof BriefForm)[] = missingKeys) => {
     const first = keys[0]
     if (first) document.getElementById(`field-${first}`)?.scrollIntoView({ behavior: "smooth", block: "center" })
@@ -199,7 +217,7 @@ export function ProjectBrief({
     const filled: (keyof BriefForm)[] = []
     // Only fill empty fields so we never overwrite what the client already typed.
     const strKeys = [
-      "fullName", "email", "phone", "serviceType", "projectDate", "location",
+      "fullName", "email", "phone", "serviceType", "projectDate", "startTime", "endTime", "location",
       "subjects", "projectDesc", "customDesc", "deadlineDate", "references", "notes",
     ] as const
     for (const k of strKeys) {
@@ -507,6 +525,12 @@ export function ProjectBrief({
                 <RadioGroup label="What type of service do you need?" required id="field-serviceType" status={st("serviceType", true)} options={["Full Production (Shoot + Edit)", "Shoot Only — I need footage captured", "Edit Only — I have existing footage", "Not sure — let's talk"]} value={form.serviceType} onChange={set("serviceType")} />
                 <CheckGroup label="Type of Project" required id="field-projectType" status={st("projectType", true)} options={["Event Coverage", "Commercial", "Brand Film", "Wedding", "Social Media Content", "Other"]} values={form.projectType} onChange={set("projectType")} />
                 <DateField label="Project / Event Date" id="field-projectDate" status={st("projectDate")} value={form.projectDate} onChange={set("projectDate")} />
+                <div className="grid grid-cols-2 gap-4">
+                  <TimeField label="Start Time" id="field-startTime" value={form.startTime} onChange={set("startTime")} status={timeStatus("start")} />
+                  <TimeField label="End Time" id="field-endTime" value={form.endTime} onChange={set("endTime")} status={timeStatus("end")} />
+                </div>
+                {timePairError && <p className="mb-4 -mt-2 text-xs text-red-400">{timePairError}</p>}
+                {isOvernight && !timePairError && <p className="mb-4 -mt-2 text-xs text-amber-400">Overnight shoot detected — end time is next day.</p>}
                 <TextField label="Project Location" id="field-location" status={st("location")} placeholder="City, venue, or address" value={form.location} onChange={set("location")} />
                 <RadioGroup label="Indoor or Outdoor?" options={["Indoor", "Outdoor", "Both", "N/A — Edit Only"]} value={form.indoorOutdoor} onChange={set("indoorOutdoor")} />
                 <TextField label="Estimated number of subjects / people" id="field-subjects" status={st("subjects")} placeholder="e.g. 2 people, 50 guests" value={form.subjects} onChange={set("subjects")} />

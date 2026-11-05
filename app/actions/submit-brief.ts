@@ -80,6 +80,8 @@ function buildRows(form: BriefForm): { section: string; rows: Row[] }[] {
         { label: "Service Type", value: fmt(form.serviceType) },
         { label: "Project Type", value: fmt(form.projectType) },
         { label: "Project / Event Date", value: fmt(form.projectDate) },
+        { label: "Start Time", value: form.startTime || "—" },
+        { label: "End Time", value: form.endTime || "—" },
         { label: "Location", value: fmt(form.location) },
         { label: "Indoor / Outdoor", value: fmt(form.indoorOutdoor) },
         { label: "Subjects / People", value: fmt(form.subjects) },
