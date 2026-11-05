@@ -6,6 +6,11 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.27.7 — 2026-10-22
+
+### Client brief
+- Made the brief form fields stack on small screens and use two columns on larger screens.
+
 ## 0.27.6 — 2026-10-22
 
 ### Client brief
