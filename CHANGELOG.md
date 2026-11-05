@@ -6,6 +6,11 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.27.6 — 2026-10-22
+
+### Client brief
+- Styled time inputs to keep the clock control visible and match the branded date input treatment.
+
 ## 0.27.5 — 2026-10-22
 
 ### Client brief
