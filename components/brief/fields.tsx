@@ -135,7 +135,7 @@ function parseMDY(value: string): Date | null {
   return Number.isNaN(dt.getTime()) ? null : dt
 }
 
-export function DateField({ label, required, value, onChange, status, id, showFeeHint = false }: Omit<InputProps, "placeholder" | "type"> & { showFeeHint?: boolean }) {
+export function DateField({ label, required, value, onChange, status, id, error, showFeeHint = false }: Omit<InputProps, "placeholder" | "type"> & { showFeeHint?: boolean }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const gridRef = useRef<HTMLDivElement>(null)
@@ -242,10 +242,10 @@ export function DateField({ label, required, value, onChange, status, id, showFe
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className={`${controlClass(status)} flex items-center justify-between text-left`}
+        className={`${controlClass(status, error)} flex items-center justify-between text-left`}
         aria-haspopup="dialog"
         aria-expanded={open}
-        aria-invalid={status === "missing" ? true : undefined}
+        aria-invalid={status === "missing" || !!error ? true : undefined}
         aria-label={displayValue ? `${label}: ${displayValue}. Press to change.` : `${label}: No date selected. Press to open calendar.`}
       >
         <span className={displayValue ? "text-foreground" : "text-muted-foreground/70"}>
@@ -259,6 +259,7 @@ export function DateField({ label, required, value, onChange, status, id, showFe
         </svg>
       </button>
 
+      {error && <span className="mt-1.5 block font-sans text-[12px] text-brand">{error}</span>}
       {feeHint && (
         <div role="status" aria-live="polite" className={`mt-2 flex items-start gap-2 rounded-lg px-3 py-2.5 font-sans text-[12px] leading-snug ${feeHint.type === "rush" ? "bg-brand/10 text-brand" : "bg-muted text-muted-foreground"}`}>
           <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mt-px shrink-0" aria-hidden="true">

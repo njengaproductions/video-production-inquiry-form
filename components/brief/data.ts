@@ -57,6 +57,7 @@ export type BriefForm = {
   serviceType: string
   projectType: string[]
   projectDate: string
+  endDate: string
   startTime: string
   endTime: string
   location: string
@@ -97,6 +98,7 @@ export const INITIAL_FORM: BriefForm = {
   serviceType: "",
   projectType: [],
   projectDate: "",
+  endDate: "",
   startTime: "",
   endTime: "",
   location: "",

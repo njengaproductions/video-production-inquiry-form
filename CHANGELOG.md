@@ -6,6 +6,12 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.28.0 — 2026-10-22
+
+### Client brief
+- Added optional end date and start/end time fields with date-range duration badges, overnight detection, and validation guidance.
+- Included the new schedule fields in extraction, saved brief rows, and producer email summaries.
+
 ## 0.27.9 — 2026-10-22
 
 ### Client brief
