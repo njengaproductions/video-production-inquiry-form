@@ -217,7 +217,7 @@ export function PinnedQuote({ voice }: { voice?: ApprovedVoice }) {
   return (
     <section ref={ref} aria-label="Featured voice" className={`${SCENE_EDGE} z-50 -mt-[calc(100vh+4px)] h-[calc(340vh+4px)] bg-[#0a0806]`}>
       <div className="sticky bg-[#0a0806] top-0 flex h-screen items-center justify-center overflow-hidden px-6">
-        <figure className="mx-auto max-w-3xl text-center">
+        <figure className="mx-auto max-w-4xl text-center">
           <blockquote className="font-serif text-[22px] font-normal leading-[1.55] md:text-[26px]">
             <span className="sr-only">{quote}</span>
             <span aria-hidden="true">
@@ -229,14 +229,29 @@ export function PinnedQuote({ voice }: { voice?: ApprovedVoice }) {
             </span>
           </blockquote>
           {voice && (
-            <figcaption className={`mt-10 transition-all duration-700 ${showAttribution ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"}`}>
-              <div className="flex items-center justify-center gap-3">
-              {voice.logo_url && (
-                <img src={voice.logo_url} alt={voice.company || voice.name} className="h-8 w-8 rounded-full border border-white/20" style={logoImageStyle(voice.logo_display)} />
-              )}
-              <p className="text-sm font-medium text-[#f0ece6]">{voice.name}</p>
-            </div>
-              {(voice.company || voice.role) && <p className="mt-1 text-xs text-[rgba(240,236,230,0.62)]">{voice.company}{voice.company && voice.role ? " · " : ""}{voice.role}</p>}
+            <figcaption className={`mt-10 flex justify-center transition-all duration-700 ${showAttribution ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"}`}>
+              <div className="inline-flex items-center gap-4 text-left">
+                {voice.logo_url ? (
+                  <img
+                    src={voice.logo_url}
+                    alt=""
+                    className="size-14 shrink-0 rounded-full border border-white/[0.18]"
+                    style={logoImageStyle(voice.logo_display)}
+                  />
+                ) : (
+                  <div aria-hidden="true" className="flex size-14 shrink-0 items-center justify-center rounded-full border border-white/[0.18] bg-white/[0.04] text-sm font-medium text-primary">
+                    {initials(voice.name)}
+                  </div>
+                )}
+                <div className="flex min-w-0 flex-col gap-1">
+                  <p className="text-[17px] font-medium text-[#f0ece6]">{voice.name}</p>
+                  {(voice.company || voice.role) && (
+                    <p className="text-[12px] uppercase tracking-[2px] text-[rgba(240,236,230,0.55)]">
+                      {voice.company}{voice.company && voice.role ? " · " : ""}{voice.role}
+                    </p>
+                  )}
+                </div>
+              </div>
             </figcaption>
           )}
         </figure>
