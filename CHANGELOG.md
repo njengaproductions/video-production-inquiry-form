@@ -6,6 +6,11 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.29.1 — 2026-11-12
+
+### Client voices
+- Aligned testimonial avatars beside the speaker name and role, and widened the featured quote to prevent a dangling final word.
+
 ## 0.29.0 — 2026-11-12
 
 ### Client brief
