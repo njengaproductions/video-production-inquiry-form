@@ -13,6 +13,11 @@ import { Celebration } from "./celebration"
 import type { Gap, MeetingPlan } from "./gaps"
 import { GapCheck, gapQuestions, type GapQuestion } from "./gap-check"
 import { budgetErrors, budgetLabel, budgetRule, budgetValid, fmtMoney, onlyDigits, parseBudgetRange } from "./budget"
+import { AiGapPanel } from "./ai-gap-panel"
+import { LogoUpload } from "./logo-upload"
+import type { LogoAnalysis } from "@/app/actions/analyze-logo"
+import { fillGaps } from "@/app/actions/fill-gaps"
+import type { GapFillResult } from "@/app/actions/fill-gaps"
 
 // Required on step 1, in on-screen order (used for "Show me" and the remaining count).
 const REQUIRED_STEP0 = [
@@ -62,11 +67,66 @@ export function ProjectBrief({
   const [autoFilled, setAutoFilled] = useState<Set<keyof BriefForm>>(new Set())
   const [flagMissing, setFlagMissing] = useState(false)
   const [filledCount, setFilledCount] = useState<number | null>(null)
+  const [gapFillResult, setGapFillResult] = useState<GapFillResult | null>(null)
+  const [gapFilling, setGapFilling] = useState(false)
+  const [logoAnalysis, setLogoAnalysis] = useState<LogoAnalysis | null>(null)
+  const gapFillTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const gapFillRequest = useRef(0)
 
   const showNotice = (msg: string) => {
     setNotice(msg)
     if (noticeTimer.current) clearTimeout(noticeTimer.current)
     noticeTimer.current = setTimeout(() => setNotice(null), 5000)
+  }
+
+  const scheduleGapFill = (snapshot: Partial<BriefForm>) => {
+    if (gapFillTimer.current) clearTimeout(gapFillTimer.current)
+    const requestId = ++gapFillRequest.current
+    if ((snapshot.projectDesc?.trim().length ?? 0) < 40) {
+      setGapFillResult(null)
+      setGapFilling(false)
+      return
+    }
+
+    gapFillTimer.current = setTimeout(() => {
+      setGapFilling(true)
+      fillGaps(snapshot)
+        .then((response) => {
+          if (requestId === gapFillRequest.current) {
+            setGapFillResult(response.ok ? response.data : null)
+          }
+        })
+        .catch(() => {
+          if (requestId === gapFillRequest.current) setGapFillResult(null)
+        })
+        .finally(() => {
+          if (requestId === gapFillRequest.current) setGapFilling(false)
+        })
+    }, 700)
+  }
+
+  useEffect(() => () => {
+    if (gapFillTimer.current) clearTimeout(gapFillTimer.current)
+    gapFillRequest.current += 1
+  }, [])
+
+  const acceptGapSuggestion = (field: GapFillResult["suggestions"][number]["field"], value: string) => {
+    if (field === "tone") {
+      setForm((current) => ({
+        ...current,
+        notes: [current.notes.trim(), `Tone / style direction: ${value}`].filter(Boolean).join("\n\n"),
+      }))
+      unmark("notes")
+      return
+    }
+
+    const currentValue = form[field]
+    if (typeof currentValue !== "string") return
+    setForm((current) => ({
+      ...current,
+      [field]: [currentValue.trim(), value.trim()].filter(Boolean).join("\n\n"),
+    }))
+    unmark(field)
   }
 
   // Tell the page whether the client has started, so the splash can offer "Continue your brief".
@@ -272,6 +332,7 @@ export function ProjectBrief({
       filled.push("tone")
     }
     setForm(next)
+    scheduleGapFill(next)
     setAutoFilled(new Set(filled))
     setFilledCount(filled.length)
     setFlagMissing(true)
@@ -532,7 +593,20 @@ export function ProjectBrief({
             <section className="lux-divided space-y-10">
               <div className="brief-stagger">
                 <SectionLabel>Part 1 — Tell Us About Yourself</SectionLabel>
-                <ScopeUpload onExtracted={applyExtracted} summary={uploadSummary} onShowMe={() => scrollToMissing()} />
+        <div style={{ marginBottom: "1.5rem" }}>
+          <SectionLabel>Your logo (optional)</SectionLabel>
+          <p style={{ fontSize: "13px", color: "var(--muted-foreground)", margin: "0 0 10px" }}>
+            Upload your logo — AI will recommend the best placement and treatment for your brief.
+          </p>
+          <LogoUpload onAnalysis={(analysis) => setLogoAnalysis(analysis)} />
+          {logoAnalysis && (
+            <p style={{ fontSize: "11px", color: "var(--muted-foreground)", marginTop: "8px" }}>
+              AI recommendation: {logoAnalysis.placement === "center" ? "centered" : "left-aligned"}, {logoAnalysis.sizing} size, best on {logoAnalysis.bestBackground} background.
+            </p>
+          )}
+        </div>
+        <ScopeUpload onExtracted={applyExtracted} summary={uploadSummary} onShowMe={() => scrollToMissing()} />
+
                 <TextField label="Full Name" required id="field-fullName" status={st("fullName", true)} placeholder="Your full name" value={form.fullName} onChange={set("fullName")} />
                 <TextField label="Email Address" required id="field-email" status={st("email", true)} type="email" placeholder="your@email.com" value={form.email} onChange={set("email")} error={emailError} />
                 <TextField label="Phone Number" required id="field-phone" status={st("phone", true)} type="tel" placeholder="(000) 000-0000" value={form.phone} onChange={set("phone")} />
@@ -546,8 +620,14 @@ export function ProjectBrief({
 
               <div className="brief-stagger">
                 <SectionLabel>Part 2 — Your Project</SectionLabel>
-                <RadioGroup label="What type of service do you need?" required id="field-serviceType" status={st("serviceType", true)} options={["Full Production (Shoot + Edit)", "Shoot Only — I need footage captured", "Edit Only — I have existing footage", "Not sure — let's talk"]} value={form.serviceType} onChange={set("serviceType")} />
-                <CheckGroup label="Type of Project" required id="field-projectType" status={st("projectType", true)} options={["Event Coverage", "Commercial", "Brand Film", "Wedding", "Social Media Content", "Other"]} values={form.projectType} onChange={set("projectType")} />
+                <RadioGroup label="What type of service do you need?" required id="field-serviceType" status={st("serviceType", true)} options={["Full Production (Shoot + Edit)", "Shoot Only — I need footage captured", "Edit Only — I have existing footage", "Not sure — let's talk"]} value={form.serviceType} onChange={(value) => {
+                  set("serviceType")(value)
+                  scheduleGapFill({ ...form, serviceType: value })
+                }} />
+                <CheckGroup label="Type of Project" required id="field-projectType" status={st("projectType", true)} options={["Event Coverage", "Commercial", "Brand Film", "Wedding", "Social Media Content", "Other"]} values={form.projectType} onChange={(value) => {
+                  set("projectType")(value)
+                  scheduleGapFill({ ...form, projectType: value })
+                }} />
                 <div className="mb-[18px]">
                   <div className="grid grid-cols-1 gap-x-3 sm:grid-cols-2">
                     <DateField label="Project / Event Date" id="field-projectDate" status={st("projectDate")} value={form.projectDate} onChange={set("projectDate")} />
@@ -570,7 +650,23 @@ export function ProjectBrief({
                 <TextField label="Estimated number of subjects / people" id="field-subjects" status={st("subjects")} placeholder="e.g. 2 people, 50 guests" value={form.subjects} onChange={set("subjects")} />
                 <RadioGroup label="Will you need a script or voiceover?" options={["Yes", "No", "Not sure"]} value={form.voiceover} onChange={set("voiceover")} />
                 <RadioGroup label="Have you worked with a videographer before?" options={["Yes", "No"]} value={form.priorVideographer} onChange={set("priorVideographer")} />
-                <TextArea label="Tell us about your project" required id="field-projectDesc" status={st("projectDesc", true)} placeholder="Describe your vision, goals, and any details that will help us understand what you're looking for." value={form.projectDesc} onChange={set("projectDesc")} />
+                <TextArea label="Tell us about your project" required id="field-projectDesc" status={st("projectDesc", true)} placeholder="Describe your vision, goals, and any details that will help us understand what you're looking for." value={form.projectDesc} onChange={(value) => {
+                  set("projectDesc")(value)
+                  scheduleGapFill({ ...form, projectDesc: value })
+                }} />
+                {(gapFilling || gapFillResult) && (
+                  <AiGapPanel
+                    result={gapFillResult}
+                    loading={gapFilling}
+                    onAccept={acceptGapSuggestion}
+                    onDismiss={() => {
+                      if (gapFillTimer.current) clearTimeout(gapFillTimer.current)
+                      gapFillRequest.current += 1
+                      setGapFilling(false)
+                      setGapFillResult(null)
+                    }}
+                  />
+                )}
               </div>
             </section>
           )}
