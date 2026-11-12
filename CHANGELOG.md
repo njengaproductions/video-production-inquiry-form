@@ -6,6 +6,12 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.29.0 — 2026-11-12
+
+### Client brief
+- Added AI-powered project-detail gap suggestions that clients can add directly to their brief.
+- Added an optional logo upload with optimized image preview and AI presentation recommendations.
+
 ## 0.28.0 — 2026-10-22
 
 ### Client brief
