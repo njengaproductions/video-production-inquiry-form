@@ -715,15 +715,19 @@ function VoiceCard({ voice, mauve, index }: { voice: ApprovedVoice; mauve: boole
       <div className="mt-auto pt-8">
         <motion.div {...reveal(stagger + 0.08)}>
           <div className="border-t border-white/[0.12] pt-4">
-            <p className="flex items-baseline gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/90">
-              <span aria-hidden="true" className="text-[#e07a35]">—</span>
-              <span>{voice.name}</span>
-            </p>
-            {(voice.company || voice.role) && (
-              <p className="mt-1 pl-5 text-[11px] text-white/40">
-                {voice.company}{voice.company && voice.role ? " · " : ""}{voice.role}
-              </p>
-            )}
+            <div className="flex items-center gap-3">
+              {voice.logo_url ? (
+                <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-full">
+                  <img src={voice.logo_url} alt={`${voice.company || voice.name} logo`} className="size-full" style={logoImageStyle(voice.logo_display)} />
+                </div>
+              ) : (
+                <div aria-hidden="true" className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border text-xs font-semibold ${mauve ? "border-mauve/40 bg-mauve/10 text-mauve" : "border-primary/30 bg-primary/10 text-primary"}`}>{initials(voice.name)}</div>
+              )}
+              <div>
+                <p className="voice-card-name text-[#f0ece6]">{voice.name}</p>
+                {(voice.company || voice.role) && <p className="voice-card-role text-[rgba(240,236,230,0.62)]">{voice.company}{voice.company && voice.role ? " · " : ""}{voice.role}</p>}
+              </div>
+            </div>
           </div>
         </motion.div>
       </div>
