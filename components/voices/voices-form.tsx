@@ -5,7 +5,8 @@ import { MotionConfig, motion } from "framer-motion"
 import { submitVoice } from "@/app/actions/submit-voice"
 import type { LogoDisplay } from "@/lib/logo-display"
 import { SmoothScroll } from "./smooth-scroll"
-import { ChipBurst, GiantCounter, HEADLINE, HorizontalVoices, PinnedQuote, SCENE_EDGE, VoicesHero, WORDS, reveal } from "./voices-scenes"
+import { TrustedByMarquee } from "./trusted-by-marquee"
+import { ChipBurst, HEADLINE, HorizontalVoices, PinnedQuote, SCENE_EDGE, VoicesHero, WORDS, reveal } from "./voices-scenes"
 
 export type ApprovedVoice = {
   id: string
@@ -78,9 +79,9 @@ export function VoicesForm({ testimonials, photos = [] }: { testimonials: Approv
         <>
           <VoicesHero photos={photos} />
           <PinnedQuote voice={testimonials[0]} />
+          <TrustedByMarquee logos={testimonials.filter((testimonial) => testimonial.logo_url).map((testimonial) => ({ url: testimonial.logo_url!, company: testimonial.company ?? "" }))} />
           <ChipBurst voices={testimonials} />
           <HorizontalVoices voices={shuffled} />
-          <GiantCounter overlap={testimonials.length > 0} />
 
           <section id="add-your-voice" className={`${SCENE_EDGE} z-10 scroll-mt-6 bg-[#0a0806] px-6 py-24 md:py-32`}>
             <div className="mx-auto max-w-2xl">
