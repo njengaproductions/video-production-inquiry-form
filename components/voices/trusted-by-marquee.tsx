@@ -29,7 +29,7 @@ export function TrustedByMarquee({ logos }: TrustedByMarqueeProps) {
           WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)",
         }}
       >
-        <div className="trusted-by-marquee-track flex w-max items-center animate-marquee hover:[animation-play-state:paused] focus-within:[animation-play-state:paused]">
+        <div className="trusted-by-marquee-track flex w-max items-center voices-marquee hover:[animation-play-state:paused] focus-within:[animation-play-state:paused]">
           {doubled.map((logo, index) => (
             <div
               key={`${logo.url}-${index}`}

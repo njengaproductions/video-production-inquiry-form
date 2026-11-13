@@ -6,6 +6,11 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.29.5 — 2026-11-12
+
+### Client voices
+- Switched the Trusted By marquee to the existing `voices-marquee` animation so its logos animate on the Voices page.
+
 ## 0.29.4 — 2026-11-12
 
 ### Client voices
