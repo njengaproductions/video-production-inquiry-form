@@ -6,6 +6,12 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.29.3 — 2026-11-12
+
+### Client voices
+- Restored the original logo/avatar and name, role, and company attribution block on magazine-style testimonial cards.
+- Kept the Trusted By marquee between PinnedQuote and ChipBurst (Spot B).
+
 ## 0.29.2 — 2026-11-12
 
 ### Client voices
