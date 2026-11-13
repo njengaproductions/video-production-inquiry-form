@@ -685,36 +685,47 @@ export function ChipBurst({ voices = [] }: { voices?: ApprovedVoice[] }) {
   )
 }
 
+function splitQuote(quote: string) {
+  const trimmedQuote = quote.trim()
+  const sentenceEnd = trimmedQuote.indexOf(". ")
+
+  if (sentenceEnd === -1) {
+    return { openingLine: trimmedQuote, rest: "" }
+  }
+
+  return {
+    openingLine: trimmedQuote.slice(0, sentenceEnd + 1),
+    rest: trimmedQuote.slice(sentenceEnd + 2).trim(),
+  }
+}
+
 function VoiceCard({ voice, mauve, index }: { voice: ApprovedVoice; mauve: boolean; index: number }) {
   const stagger = index * 0.08
+  const { openingLine, rest } = splitQuote(voice.quote)
+
   return (
     <article className={`flex h-full w-[min(80vw,400px)] flex-shrink-0 flex-col rounded-r-[10px] border-l-2 bg-[rgba(181,82,10,0.03)] p-7 ${mauve ? "border-mauve" : "border-primary"}`}>
       <motion.div {...reveal(stagger)}>
-        <blockquote className="voice-card-quote text-[17px] text-[#f0ece6]">{voice.quote}</blockquote>
+        <blockquote className="flex flex-col gap-3">
+          <span aria-hidden="true" className="font-serif text-[72px] leading-[0.6] text-[#e07a35]/60">“</span>
+          <p className="font-[var(--font-dm-sans)] text-[17px] font-semibold leading-[1.45] text-white/90">{openingLine}</p>
+          {rest && <p className="font-sans text-[13.5px] leading-[1.7] text-white/55">{rest}</p>}
+        </blockquote>
       </motion.div>
       <div className="mt-auto pt-8">
         <motion.div {...reveal(stagger + 0.08)}>
-        <div className="flex items-center gap-3">
-          {voice.logo_url ? (
-            <div className="h-10 w-10 flex-shrink-0 overflow-hidden rounded-full">
-              <img src={voice.logo_url} alt={`${voice.company || voice.name} logo`} className="size-full" style={logoImageStyle(voice.logo_display)} />
-            </div>
-          ) : (
-            <div aria-hidden="true" className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border text-xs font-semibold ${mauve ? "border-mauve/40 bg-mauve/10 text-mauve" : "border-primary/30 bg-primary/10 text-primary"}`}>{initials(voice.name)}</div>
-          )}
-          <div>
-            <p className="voice-card-name text-[#f0ece6]">{voice.name}</p>
-            {(voice.company || voice.role) && <p className="voice-card-role text-[rgba(240,236,230,0.62)]">{voice.company}{voice.company && voice.role ? " · " : ""}{voice.role}</p>}
+          <div className="border-t border-white/[0.12] pt-4">
+            <p className="flex items-baseline gap-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/90">
+              <span aria-hidden="true" className="text-[#e07a35]">—</span>
+              <span>{voice.name}</span>
+            </p>
+            {(voice.company || voice.role) && (
+              <p className="mt-1 pl-5 text-[11px] text-white/40">
+                {voice.company}{voice.company && voice.role ? " · " : ""}{voice.role}
+              </p>
+            )}
           </div>
-        </div>
         </motion.div>
-        {voice.words.length > 0 && (
-          <motion.div {...reveal(stagger + 0.12)}>
-            <ul className="mt-5 flex flex-wrap gap-2" aria-label="Words used">
-              {voice.words.map((word) => <li key={word} className={`voice-card-tag rounded-full border px-2.5 py-1 text-[10px] ${mauve ? "border-mauve/40 text-mauve" : "border-primary/30 text-primary"}`}>{word}</li>)}
-            </ul>
-          </motion.div>
-        )}
       </div>
     </article>
   )
@@ -761,32 +772,6 @@ export function HorizontalVoices({ voices }: { voices: ApprovedVoice[] }) {
             <div className="h-px origin-left bg-primary" style={{ transform: `scaleX(${progress})` }} />
           </div>
         </div>
-      </div>
-    </section>
-  )
-}
-
-export function GiantCounter({ overlap }: { overlap: boolean }) {
-  const [ref, progress] = useScrollProgress<HTMLElement>(overlap ? 0.5 : -0.6)
-  const visible = progress > 0
-  return (
-    <section ref={ref} data-visible={visible} className={`voices-counter ${SCENE_EDGE} z-20 bg-[#0a0806] ${overlap ? "-mt-[calc(100vh+4px)] h-[calc(200vh+4px)]" : "h-[200vh]"}`}>
-      <div className="sticky top-0 flex h-screen flex-col items-center justify-center bg-[#0a0806] px-6 text-center">
-        <motion.div {...reveal()}>
-          <p className="voices-counter-number font-serif font-normal leading-none" style={{ fontSize: "clamp(64px,10vw,108px)" }}>
-            <span className="block text-[#B15927]">Every moment.</span>
-            <span className="block text-[#e8c99a]">Every brand.</span>
-          </p>
-        </motion.div>
-        <motion.div {...reveal(0.08)}>
-          <div className="mx-auto mt-6 h-px w-8 bg-[#B15927] opacity-50" />
-          <p className="voices-counter-phrase mt-6 font-serif text-lg italic text-[rgba(240,236,230,0.62)]">People we&apos;ve had the privilege of creating with.</p>
-          <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-            {["Brands", "Churches", "Events", "Nonprofits"].map((tag) => (
-              <span key={tag} className="rounded-full border border-white/10 px-3 py-1 text-[9px] font-semibold uppercase tracking-[3px] text-[rgba(240,236,230,0.35)]">{tag}</span>
-            ))}
-          </div>
-        </motion.div>
       </div>
     </section>
   )

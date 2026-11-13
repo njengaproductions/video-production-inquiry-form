@@ -6,6 +6,13 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.29.2 — 2026-11-12
+
+### Client voices
+- Removed the giant counter section from the Voices page.
+- Added a Trusted By logo marquee between the featured quote and client word burst.
+- Reworked horizontal testimonial cards into magazine-style quote pulls without avatars or word chips.
+
 ## 0.29.1 — 2026-11-12
 
 ### Client voices
