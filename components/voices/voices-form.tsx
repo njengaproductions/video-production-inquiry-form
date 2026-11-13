@@ -5,7 +5,7 @@ import { MotionConfig, motion } from "framer-motion"
 import { submitVoice } from "@/app/actions/submit-voice"
 import type { LogoDisplay } from "@/lib/logo-display"
 import { SmoothScroll } from "./smooth-scroll"
-import { TrustedByMarquee } from "@/components/voices/trusted-by-marquee"
+import { TrustedByMarquee } from "./trusted-by-marquee"
 import { ChipBurst, HEADLINE, HorizontalVoices, PinnedQuote, SCENE_EDGE, VoicesHero, WORDS, reveal } from "./voices-scenes"
 
 export type ApprovedVoice = {
