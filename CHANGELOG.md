@@ -6,6 +6,11 @@ Versioning: **minor** (0.x.0) for new features or pages, **patch** (0.x.y) for f
 
 ---
 
+## 0.29.4 — 2026-11-12
+
+### Client voices
+- Standardized the TrustedByMarquee import to the project alias; retained Spot B placement and Tailwind 4 animation configuration.
+
 ## 0.29.3 — 2026-11-12
 
 ### Client voices
